@@ -1,0 +1,26 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint:misc:
+      priority: 4
+      tag: lint
+      glob: '*.{html,json,yml,yaml}'
+      run: npx prettier --write {staged_files}
+    lint:css:
+      priority: 3
+      tag: lint
+      glob: '*.{css}'
+      run: npx prettier --write {staged_files}
+    lint:js:
+      priority: 1
+      tag: lint
+      glob: '*.{js,ts,jsx,tsx}'
+      run: npm run lint --fix {staged_files}
+    test:unit:
+      priority: 2
+      tag: test
+      run: npm run test
+    test:e2e:
+      priority: 5
+      tag: test
+      run: npm run test:e2e
