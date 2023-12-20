@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
+import { connectionTest } from './lib/firebase/firestore';
 
 function App() {
   const [count, setCount] = useState(0);
+
+  // eslint-disable-next-line no-console
+  connectionTest().catch((e) => console.error(e));
 
   return (
     <>

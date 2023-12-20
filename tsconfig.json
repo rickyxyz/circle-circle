@@ -38,7 +38,8 @@
     "playwright.config.ts",
     ".storybook/**/*",
     "stories",
-    "tests/**/*"
+    "tests/**/*",
+    "src/vite-env.d.ts"
   ],
   "exclude": ["node_modules", "dist", "storybook-static"]
 }
