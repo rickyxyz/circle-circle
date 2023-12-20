@@ -1,6 +1,6 @@
 {
-  "name": "reactjs-boilerplate",
-  "description": "boilerplate for making react project",
+  "name": "circle-cirlce",
+  "description": "a reddit like website",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -86,10 +86,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rickyxyz/react-boilerplate.git"
+    "url": "git+https://github.com/rickyxyz/circle-circle.git"
   },
   "bugs": {
-    "url": "https://github.com/rickyxyz/react-boilerplate/issues"
+    "url": "https://github.com/rickyxyz/circle-circle/issues"
   },
-  "homepage": "https://github.com/rickyxyz/react-boilerplate#readme"
+  "homepage": "https://github.com/rickyxyz/circle-circle#readme"
 }
