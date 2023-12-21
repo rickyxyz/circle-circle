@@ -1,18 +1,30 @@
-/* eslint-disable no-console */
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import {
+  getFirestore,
+  addDoc,
+  collection,
+  connectFirestoreEmulator,
+} from 'firebase/firestore';
 import { app } from './config';
+import { FirestoreError } from 'firebase/firestore';
+import { FirestoreCollection } from '@/@types/db';
+
+const MODE = import.meta.env.MODE;
 
 const db = getFirestore(app);
+if (MODE === 'development') {
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+}
 
-async function connectionTest() {
-  const docRef = doc(db, 'test', 'test1');
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-    console.log('Document data:', docSnap.data());
-  } else {
-    console.log('No such document!');
+async function writeData<T extends keyof FirestoreCollection>(
+  collectionName: T,
+  data: FirestoreCollection[T]
+) {
+  try {
+    const docRef = await addDoc(collection(db, collectionName), data);
+    return docRef.id;
+  } catch (error) {
+    return error as FirestoreError;
   }
 }
 
-export { connectionTest };
+export { db, writeData };
