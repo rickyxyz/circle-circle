@@ -1,6 +1,6 @@
 export interface User {
   username: string;
-  uuid: string;
+  uid: string;
 }
 
 export interface FirestoreCollection {

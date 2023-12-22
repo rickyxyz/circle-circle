@@ -16,12 +16,12 @@ if (MODE !== 'production') {
   connectAuthEmulator(auth, 'http://127.0.0.1:9099');
 }
 
-async function register(email: string, password: string) {
+async function register(username: string, email: string, password: string) {
   return createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => userCredential.user.uid)
     .then(async (uid) => {
       await setDoc(doc(db, 'user', uid), {
-        username: 'new User',
+        username: username,
         uid: uid,
       });
       return uid;
