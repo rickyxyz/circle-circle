@@ -2,7 +2,7 @@
  * @vitest-environment node
  */
 
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { register } from '@/lib/firebase/auth';
 import { doc, getDoc, setLogLevel } from 'firebase/firestore';
 import {
@@ -20,8 +20,7 @@ const testUser = {
 };
 
 let testEnv: RulesTestEnvironment;
-let userId: string;
-const PROJECT_ID = 'circle-circle-d453c';
+const PROJECT_ID = import.meta.env.VITE_FIREBASE_PROJECT_ID;
 const FIRESTORE_RULES = resolve(__dirname, '../firestore.rules');
 
 beforeAll(async () => {
@@ -29,27 +28,31 @@ beforeAll(async () => {
   testEnv = await initializeTestEnvironment({
     projectId: PROJECT_ID,
     firestore: {
+      host: '127.0.0.1',
+      port: 8080,
       rules: readFileSync(FIRESTORE_RULES, 'utf8'),
     },
   });
 });
 
+beforeEach(async () => {
+  await testEnv.clearFirestore();
+});
+
 describe('Firebase', () => {
   describe('Auth', () => {
     it('register will write user document to Firestore', async () => {
-      userId = await register(
+      const userId = await register(
         testUser.username,
         testUser.email,
         testUser.password
       );
       expect(userId).toBeTypeOf('string');
 
-      const unauthedDb = testEnv.unauthenticatedContext().firestore();
-
+      const aliceDb = testEnv.authenticatedContext(userId).firestore();
       const successResult = await assertSucceeds(
-        getDoc(doc(unauthedDb, `user/${userId}`))
+        getDoc(doc(aliceDb, `user/${userId}`))
       );
-
       expect(successResult.data()).toEqual({
         username: 'username',
         uid: userId,
