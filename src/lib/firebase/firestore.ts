@@ -3,28 +3,35 @@ import {
   addDoc,
   collection,
   connectFirestoreEmulator,
+  getDoc,
+  doc,
 } from 'firebase/firestore';
 import { app } from './config';
-import { FirestoreError } from 'firebase/firestore';
 import { FirestoreCollection } from '@/@types/db';
 
 const MODE = import.meta.env.MODE;
 
 const db = getFirestore(app);
-if (MODE === 'development') {
+if (MODE !== 'production') {
   connectFirestoreEmulator(db, '127.0.0.1', 8080);
+}
+
+async function getData<T extends keyof FirestoreCollection>(
+  collectionName: T,
+  id: string
+): Promise<FirestoreCollection[T] | undefined> {
+  return getDoc(doc(db, collectionName, id)).then(
+    (docSnap) => docSnap.data() as FirestoreCollection[T]
+  );
 }
 
 async function writeData<T extends keyof FirestoreCollection>(
   collectionName: T,
   data: FirestoreCollection[T]
 ) {
-  try {
-    const docRef = await addDoc(collection(db, collectionName), data);
-    return docRef.id;
-  } catch (error) {
-    return error as FirestoreError;
-  }
+  return addDoc(collection(db, collectionName), data).then(
+    (docRef) => docRef.id
+  );
 }
 
-export { db, writeData };
+export { db, writeData, getData };
