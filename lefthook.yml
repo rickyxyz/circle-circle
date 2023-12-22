@@ -20,7 +20,9 @@ pre-commit:
       priority: 2
       tag: test
       run: npm run test
-    test:e2e:
-      priority: 5
-      tag: test
-      run: npm run test:e2e
+
+pre-push:
+  test:e2e:
+    priority: 1
+    tag: test
+    run: npm run test:e2e
