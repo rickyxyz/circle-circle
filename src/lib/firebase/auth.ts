@@ -17,7 +17,8 @@ async function register(username: string, email: string, password: string) {
         uid: uid,
       });
       return uid;
-    });
+    })
+    .then((uid) => getData('user', uid));
 }
 
 async function login(email: string, password: string) {

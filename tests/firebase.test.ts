@@ -4,14 +4,14 @@
 
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { register } from '@/lib/firebase/auth';
-import { doc, getDoc, setLogLevel } from 'firebase/firestore';
+import { setLogLevel } from 'firebase/firestore';
 import {
-  assertSucceeds,
   initializeTestEnvironment,
   RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { auth } from '@/lib/firebase/config';
 
 const testUser = {
   username: 'username',
@@ -42,20 +42,15 @@ beforeEach(async () => {
 describe('Firebase', () => {
   describe('Auth', () => {
     it('register will write user document to Firestore', async () => {
-      const userId = await register(
+      const user = await register(
         testUser.username,
         testUser.email,
         testUser.password
       );
-      expect(userId).toBeTypeOf('string');
 
-      const aliceDb = testEnv.authenticatedContext(userId).firestore();
-      const successResult = await assertSucceeds(
-        getDoc(doc(aliceDb, `user/${userId}`))
-      );
-      expect(successResult.data()).toEqual({
-        username: 'username',
-        uid: userId,
+      expect(user).toStrictEqual({
+        username: testUser.username,
+        uid: auth.currentUser?.uid,
       });
     });
   });
