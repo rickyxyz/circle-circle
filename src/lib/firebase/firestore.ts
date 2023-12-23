@@ -1,5 +1,5 @@
 import { addDoc, collection, getDoc, doc } from 'firebase/firestore';
-import { FirestoreCollection } from '@/@types/db';
+import { FirestoreCollection } from '@/types/db';
 import { db } from './config';
 
 async function getData<T extends keyof FirestoreCollection>(
