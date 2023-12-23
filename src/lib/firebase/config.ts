@@ -1,4 +1,6 @@
-import { initializeApp } from 'firebase/app';
+import { FirebaseOptions, initializeApp } from 'firebase/app';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
 const FIREBASE_API_KEY = import.meta.env.VITE_FIREBASE_API_KEY;
 const FIREBASE_AUTH_DOMAIN = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN;
@@ -8,8 +10,9 @@ const FIREBASE_MESSAGING_SENDER_ID = import.meta.env
   .VITE_FIREBASE_MESSAGING_SENDER_ID;
 const FIREBASE_APP_ID = import.meta.env.VITE_FIREBASE_APP_ID;
 const FIREBASE_MEASUREMENT_ID = import.meta.env.VITE_FIREBASE_MEASUREMENT_ID;
+const MODE = import.meta.env.MODE;
 
-const firebaseConfig = {
+const firebaseConfig: FirebaseOptions = {
   apiKey: FIREBASE_API_KEY,
   authDomain: FIREBASE_AUTH_DOMAIN,
   projectId: FIREBASE_PROJECT_ID,
@@ -19,4 +22,16 @@ const firebaseConfig = {
   measurementId: FIREBASE_MEASUREMENT_ID,
 };
 
-export const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth();
+
+if (MODE !== 'production') {
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+}
+
+if (MODE !== 'production') {
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099');
+}
+
+export { app, db, auth };

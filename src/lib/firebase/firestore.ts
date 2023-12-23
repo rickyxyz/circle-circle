@@ -1,20 +1,6 @@
-import {
-  getFirestore,
-  addDoc,
-  collection,
-  connectFirestoreEmulator,
-  getDoc,
-  doc,
-} from 'firebase/firestore';
-import { app } from './config';
+import { addDoc, collection, getDoc, doc } from 'firebase/firestore';
 import { FirestoreCollection } from '@/@types/db';
-
-const MODE = import.meta.env.MODE;
-
-const db = getFirestore(app);
-if (MODE !== 'production') {
-  connectFirestoreEmulator(db, '127.0.0.1', 8080);
-}
+import { db } from './config';
 
 async function getData<T extends keyof FirestoreCollection>(
   collectionName: T,

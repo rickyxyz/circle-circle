@@ -1,20 +1,12 @@
 import {
-  getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
-  connectAuthEmulator,
 } from 'firebase/auth';
 import { FirebaseError } from '@firebase/util';
 import { setDoc, doc } from 'firebase/firestore';
 import { db, getData } from './firestore';
-
-const MODE = import.meta.env.MODE;
-
-const auth = getAuth();
-if (MODE !== 'production') {
-  connectAuthEmulator(auth, 'http://127.0.0.1:9099');
-}
+import { auth } from './config';
 
 async function register(username: string, email: string, password: string) {
   return createUserWithEmailAndPassword(auth, email, password)
