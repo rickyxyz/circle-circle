@@ -13,6 +13,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['setupTests.ts'],
     include: ['./tests/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    reporters: 'basic',
   },
   resolve: {
     alias: {
