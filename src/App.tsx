@@ -2,6 +2,12 @@
 import { AuthProvider } from './context/AuthProvider';
 import useAuth from './hook/useAuth';
 
+const testUser = {
+  username: `username`,
+  email: `email@email.com`,
+  password: 'password123',
+};
+
 function Username() {
   const { user } = useAuth();
   return <h1>{user?.username ?? 'NULL'}</h1>;
@@ -9,11 +15,6 @@ function Username() {
 
 function Buttons() {
   const { register, login, logout } = useAuth();
-  const testUser = {
-    username: `username`,
-    email: `email@email.com`,
-    password: 'password123',
-  };
 
   function handleRegister() {
     register(testUser.username, testUser.email, testUser.password).catch((e) =>

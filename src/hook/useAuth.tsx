@@ -1,51 +1,60 @@
-import { logout, register, login } from '@/lib/firebase/auth';
 import { AuthContext } from '@/context/AuthProvider';
 import { useContext } from 'react';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
+import { FirebaseError } from '@firebase/util';
+import { setDoc, doc } from 'firebase/firestore';
+import { getData } from '@/lib/firebase/firestore';
+import { auth, db } from '@/lib/firebase/config';
 
 export default function useAuth() {
   const { user, setUser } = useContext(AuthContext);
 
-  async function registerUser(
-    username: string,
-    email: string,
-    password: string
-  ) {
-    const userData = await register(username, email, password);
+  async function register(username: string, email: string, password: string) {
+    const userData = await createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => userCredential.user.uid)
+      .then(async (uid) => {
+        await setDoc(doc(db, 'user', uid), {
+          username: username,
+          uid: uid,
+        });
+        return uid;
+      })
+      .then((uid) => getData('user', uid));
+    if (userData) {
+      setUser(userData);
+    } else {
+      throw new Error('cannot find user document');
+    }
+  }
+
+  async function login(email: string, password: string) {
+    const userData = await signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => userCredential.user.uid)
+      .then((uid) => getData('user', uid));
 
     if (userData) {
       setUser(userData);
     } else {
-      throw new Error('register failed');
+      throw new Error('cannot find user document');
     }
   }
 
-  async function loginUser(email: string, password: string) {
-    const userData = await login(email, password);
-
-    if (userData) {
-      setUser(userData);
-    } else {
-      throw new Error('login failed');
-    }
-  }
-
-  function logoutUser() {
-    try {
-      logout().catch((e) => {
-        throw e;
-      });
-      setUser(null);
-    } catch (error) {
-      throw new Error('logout failed');
-    }
-    return;
+  function logout() {
+    signOut(auth).catch((error) => {
+      throw error as FirebaseError;
+    });
+    setUser(null);
   }
 
   return {
     user,
     setUser,
-    register: registerUser,
-    login: loginUser,
-    logout: logoutUser,
+    register,
+    login,
+    logout,
   };
 }
