@@ -53,7 +53,7 @@ test.describe('Auth provider', () => {
     const newPage = await context.newPage();
     await newPage.goto('/');
 
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    await expect(newPage.getByRole('heading', { level: 1 })).toHaveText(
       testUser.username
     );
   });
