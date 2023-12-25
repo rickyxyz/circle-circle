@@ -39,6 +39,13 @@ module.exports = {
       files: ['tests/e2e/**/*'],
       extends: ['plugin:playwright/recommended'],
     },
+    {
+      files: ['tests/**/*'],
+      rules: {
+        'no-console': 0,
+        'no-debugger': 0,
+      },
+    },
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {

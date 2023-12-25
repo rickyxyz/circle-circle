@@ -1,41 +1,98 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import { connectionTest } from './lib/firebase/firestore';
+/* eslint-disable no-console */
+import { FormEvent } from 'react';
+import { AuthProvider } from './context/AuthProvider';
+import useAuth from './hook/useAuth';
 
-function App() {
-  const [count, setCount] = useState(0);
+function Username() {
+  const { user } = useAuth();
+  return <h1>{user?.username ?? 'NULL'}</h1>;
+}
 
-  // eslint-disable-next-line no-console
-  connectionTest().catch((e) => console.error(e));
+function LogoutButton() {
+  const { logout } = useAuth();
+
+  function handleLogout() {
+    logout();
+  }
+
+  return <button onClick={handleLogout}>logout</button>;
+}
+
+function RegisterForm() {
+  const { register } = useAuth();
+
+  function handleRegister(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const username = (e.target as HTMLFormElement).elements.namedItem(
+      'username'
+    ) as HTMLInputElement;
+    const email = (e.target as HTMLFormElement).elements.namedItem(
+      'email'
+    ) as HTMLInputElement;
+    const password = (e.target as HTMLFormElement).elements.namedItem(
+      'password'
+    ) as HTMLInputElement;
+    register(username.value, email.value, password.value).catch((e) =>
+      console.log(e)
+    );
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button
-          onClick={() => {
-            setCount((count) => count + 1);
-          }}
-        >
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <form onSubmit={handleRegister}>
+      <label htmlFor="register username">
+        register username
+        <input type="text" name="username" id="register username" />
+      </label>
+      <label htmlFor="register email">
+        register email
+        <input type="text" name="email" id="register email" />
+      </label>
+      <label htmlFor="register password">
+        register password
+        <input type="text" name="password" id="register password" />
+      </label>
+      <button type="submit">register</button>
+    </form>
+  );
+}
+
+function LoginForm() {
+  const { login } = useAuth();
+
+  function handleLogin(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const email = (e.target as HTMLFormElement).elements.namedItem(
+      'email'
+    ) as HTMLInputElement;
+    const password = (e.target as HTMLFormElement).elements.namedItem(
+      'password'
+    ) as HTMLInputElement;
+    login(email.value, password.value).catch((e) => console.log(e));
+  }
+
+  return (
+    <form onSubmit={handleLogin}>
+      <label htmlFor="login email">
+        login email
+        <input type="text" name="email" id="login email" />
+      </label>
+      <label htmlFor="login password">
+        login password
+        <input type="text" name="password" id="login password" />
+      </label>
+      <button type="submit">login</button>
+    </form>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Username />
+      <RegisterForm />
+      <LoginForm />
+      <LogoutButton />
+    </AuthProvider>
   );
 }
 

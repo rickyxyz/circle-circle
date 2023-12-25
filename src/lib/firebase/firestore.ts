@@ -1,18 +1,23 @@
-/* eslint-disable no-console */
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
-import { app } from './config';
+import { addDoc, collection, getDoc, doc } from 'firebase/firestore';
+import { FirestoreCollection } from '@/types/db';
+import { db } from './config';
 
-const db = getFirestore(app);
-
-async function connectionTest() {
-  const docRef = doc(db, 'test', 'test1');
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-    console.log('Document data:', docSnap.data());
-  } else {
-    console.log('No such document!');
-  }
+async function getData<T extends keyof FirestoreCollection>(
+  collectionName: T,
+  id: string
+): Promise<FirestoreCollection[T] | undefined> {
+  return getDoc(doc(db, collectionName, id)).then(
+    (docSnap) => docSnap.data() as FirestoreCollection[T]
+  );
 }
 
-export { connectionTest };
+async function writeData<T extends keyof FirestoreCollection>(
+  collectionName: T,
+  data: FirestoreCollection[T]
+) {
+  return addDoc(collection(db, collectionName), data).then(
+    (docRef) => docRef.id
+  );
+}
+
+export { db, writeData, getData };
