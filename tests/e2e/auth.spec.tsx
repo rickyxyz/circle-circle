@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page, BrowserContext } from '@playwright/test';
 
 // run test sequentially, cause test depends on previous test
 test.describe.configure({ mode: 'serial' });
@@ -11,8 +11,9 @@ const testUser = {
 
 test.describe('Auth provider', () => {
   let page: Page;
+  let context: BrowserContext;
   test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
+    context = await browser.newContext();
     page = await context.newPage();
     await page.goto('/');
   });
@@ -42,6 +43,15 @@ test.describe('Auth provider', () => {
     await page.getByLabel('login email').fill(testUser.email);
     await page.getByLabel('login password').fill(testUser.password);
     await page.getByRole('button', { name: 'login' }).click();
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      testUser.username
+    );
+  });
+
+  test('auth state persists between pages', async () => {
+    const newPage = await context.newPage();
+    await newPage.goto('/');
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       testUser.username
