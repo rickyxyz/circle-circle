@@ -18,7 +18,18 @@ test.describe('Auth provider', () => {
     await page.goto('/');
   });
 
+  test('protected route cannot be accessed by unauthenticated user', async () => {
+    const newPage = await context.newPage();
+    await newPage.goto('/auth');
+
+    await expect(newPage.getByRole('heading', { level: 2 })).toHaveText(
+      'unauthorized'
+    );
+  });
+
   test('register button works', async () => {
+    await page.goto('/');
+
     await page.getByLabel('register username').fill(testUser.username);
     await page.getByLabel('register email').fill(testUser.email);
     await page.getByLabel('register password').fill(testUser.password);
@@ -55,6 +66,15 @@ test.describe('Auth provider', () => {
 
     await expect(newPage.getByRole('heading', { level: 1 })).toHaveText(
       testUser.username
+    );
+  });
+
+  test('protected route can be accessed by authenticated user', async () => {
+    const newPage = await context.newPage();
+    await newPage.goto('/auth');
+
+    await expect(newPage.getByRole('heading', { level: 2 })).toHaveText(
+      'authorized'
     );
   });
 });

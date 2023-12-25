@@ -1,12 +1,6 @@
 /* eslint-disable no-console */
+import useAuth from '@/hook/useAuth';
 import { FormEvent } from 'react';
-import { AuthProvider } from './context/AuthProvider';
-import useAuth from './hook/useAuth';
-
-function Username() {
-  const { user } = useAuth();
-  return <h1>{user?.username ?? 'NULL'}</h1>;
-}
 
 function LogoutButton() {
   const { logout } = useAuth();
@@ -85,15 +79,14 @@ function LoginForm() {
   );
 }
 
-function App() {
+function PageAuth() {
   return (
-    <AuthProvider>
-      <Username />
+    <>
       <RegisterForm />
       <LoginForm />
       <LogoutButton />
-    </AuthProvider>
+    </>
   );
 }
 
-export default App;
+export default PageAuth;

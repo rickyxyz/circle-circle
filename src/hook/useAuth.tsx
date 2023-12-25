@@ -11,7 +11,7 @@ import { getData } from '@/lib/firebase/firestore';
 import { auth, db } from '@/lib/firebase/config';
 
 export default function useAuth() {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser, isLoading } = useContext(AuthContext);
   const isLoggedIn = useMemo(() => {
     return Boolean(user);
   }, [user]);
@@ -57,6 +57,7 @@ export default function useAuth() {
   }
 
   return {
+    isLoading,
     isLoggedIn,
     user,
     setUser,

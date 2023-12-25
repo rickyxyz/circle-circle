@@ -6,6 +6,7 @@ import { getData } from '@/lib/firebase/firestore';
 interface AuthContext {
   user: User | null;
   setUser: (user: User | null) => void;
+  isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContext>({
@@ -13,10 +14,12 @@ export const AuthContext = createContext<AuthContext>({
   setUser: () => {
     return;
   },
+  isLoading: true,
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(() => {
@@ -29,6 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             throw e;
           });
       }
+      setIsLoading(false);
     });
 
     return () => {
@@ -37,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
