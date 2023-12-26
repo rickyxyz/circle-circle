@@ -1,5 +1,5 @@
 import { AuthContext } from '@/context/AuthProvider';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -11,7 +11,10 @@ import { getData } from '@/lib/firebase/firestore';
 import { auth, db } from '@/lib/firebase/config';
 
 export default function useAuth() {
-  const { user, setUser } = useContext(AuthContext);
+  const { user, setUser, isLoading } = useContext(AuthContext);
+  const isLoggedIn = useMemo(() => {
+    return Boolean(user);
+  }, [user]);
 
   async function register(username: string, email: string, password: string) {
     const userData = await createUserWithEmailAndPassword(auth, email, password)
@@ -44,13 +47,18 @@ export default function useAuth() {
   }
 
   function logout() {
-    signOut(auth).catch((error) => {
-      throw error as FirebaseError;
-    });
-    setUser(null);
+    signOut(auth)
+      .then(() => {
+        setUser(null);
+      })
+      .catch((error) => {
+        throw error as FirebaseError;
+      });
   }
 
   return {
+    isLoading,
+    isLoggedIn,
     user,
     setUser,
     register,
