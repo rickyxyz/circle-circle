@@ -16,7 +16,7 @@ const router = createBrowserRouter([
     errorElement: <PageError />,
     children: [
       {
-        path: '',
+        index: true,
         element: <PageAuth />,
       },
       {
@@ -24,7 +24,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           {
-            path: '',
+            index: true,
             element: <PageProtected />,
           },
         ],
