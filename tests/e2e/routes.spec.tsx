@@ -23,3 +23,45 @@ test.describe('protectedRoute', () => {
     );
   });
 });
+
+test.describe('profile routing', () => {
+  test('unauthed user go to /profile will redirect to 404', async ({
+    page,
+  }) => {
+    await page.goto('/profile');
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Oops!');
+  });
+
+  test("unauthed user go to /profile/a will go to a's profile", async ({
+    page,
+  }) => {
+    await page.goto('/profile/a');
+
+    await expect(page.getByRole('heading', { level: 2 })).toHaveText(
+      "this is a's profile page"
+    );
+  });
+
+  loggedInTest(
+    'auth user go to /profile will redirect to own profile',
+    async ({ page }) => {
+      await page.goto('/profile');
+
+      await expect(page.getByRole('heading', { level: 2 })).toHaveText(
+        'this is your profile page'
+      );
+    }
+  );
+
+  loggedInTest(
+    "auth user go to /profile/a will go to a's profile",
+    async ({ page }) => {
+      await page.goto('/profile/a');
+
+      await expect(page.getByRole('heading', { level: 2 })).toHaveText(
+        "this is a's profile page"
+      );
+    }
+  );
+});
