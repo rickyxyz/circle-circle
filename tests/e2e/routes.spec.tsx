@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loggedInFixture as loggedInTest } from 'tests/e2e/fixtures/loggedIn';
+import { alice } from 'tests/e2e/assets/mockUsers';
 
 test.describe('protectedRoute', () => {
   loggedInTest(
@@ -36,20 +37,20 @@ test.describe('profile routing', () => {
   test("unauthed user go to /profile/a will go to a's profile", async ({
     page,
   }) => {
-    await page.goto('/profile/a');
+    await page.goto(`/profile/${alice.uid}`);
 
     await expect(page.getByRole('heading', { level: 2 })).toHaveText(
-      "this is a's profile page"
+      `this is ${alice.username} profile page`
     );
   });
 
   loggedInTest(
     'auth user go to /profile will redirect to own profile',
-    async ({ page }) => {
+    async ({ page, username }) => {
       await page.goto('/profile');
 
       await expect(page.getByRole('heading', { level: 2 })).toHaveText(
-        'this is your profile page'
+        `this is ${username} profile page`
       );
     }
   );
@@ -57,10 +58,10 @@ test.describe('profile routing', () => {
   loggedInTest(
     "auth user go to /profile/a will go to a's profile",
     async ({ page }) => {
-      await page.goto('/profile/a');
+      await page.goto(`/profile/${alice.uid}`);
 
       await expect(page.getByRole('heading', { level: 2 })).toHaveText(
-        "this is a's profile page"
+        `this is ${alice.username} profile page`
       );
     }
   );

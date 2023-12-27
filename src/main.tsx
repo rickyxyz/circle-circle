@@ -1,11 +1,8 @@
+/* eslint-disable @typescript-eslint/no-throw-literal */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/global.css';
-import {
-  createBrowserRouter,
-  RouterProvider,
-  redirect,
-} from 'react-router-dom';
+import { createBrowserRouter, defer, RouterProvider } from 'react-router-dom';
 import PageError from '@/pages/PageError';
 import { AuthProvider } from '@/context/AuthProvider.tsx';
 import PageAuth from '@/pages/PageAuth';
@@ -14,6 +11,7 @@ import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
 import PageProtected from '@/pages/PageProtected';
 import PageProfile from '@/pages/PageProfile';
 import { getCurrentUser } from '@/lib/firebase/auth';
+import { getData } from '@/lib/firebase/firestore';
 
 const router = createBrowserRouter([
   {
@@ -29,21 +27,19 @@ const router = createBrowserRouter([
         path: 'profile/:userId?',
         element: <PageProfile />,
         loader: async ({ params }) => {
-          // TODO: add user data fetching and return user data
-          try {
-            const currentUser = await getCurrentUser();
+          const currentUser = await getCurrentUser();
 
-            if (!currentUser && !params.userId) {
-              return redirect('/404');
-            } else {
-              return {
-                isLoggedIn: Boolean(currentUser),
-                userId: params.userId,
-              };
-            }
-          } catch (error) {
-            return null;
+          if (params.userId) {
+            const userData = await getData('user', params.userId);
+            return defer({ ...userData });
           }
+
+          if (currentUser) {
+            const userData = await getData('user', currentUser.uid);
+            return defer({ ...userData });
+          }
+
+          throw new Response('Not Found', { status: 404 });
         },
       },
       {

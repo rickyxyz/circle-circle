@@ -1,0 +1,17 @@
+{
+  "name": "testtext.txt",
+  "bucket": "circle-circle-d453c.appspot.com",
+  "metageneration": 1,
+  "generation": 1703717383627,
+  "contentType": "text/plain",
+  "storageClass": "STANDARD",
+  "contentDisposition": "inline",
+  "downloadTokens": ["13718a74-88e2-428a-b545-d4ede7fc5704"],
+  "etag": "StlK92vOW6PRrm5s2C2pVSnStks",
+  "customMetadata": {},
+  "timeCreated": "2023-12-27T22:49:43.627Z",
+  "updated": "2023-12-27T22:49:43.627Z",
+  "size": 19,
+  "md5Hash": "HwnsvTYvoN//iNR4jm9d8A==",
+  "crc32c": "3731255156"
+}

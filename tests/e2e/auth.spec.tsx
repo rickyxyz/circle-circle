@@ -48,7 +48,7 @@ test.describe('Auth provider', () => {
     );
   });
 
-  loggedInTest('auth state persists between pages', async () => {
+  test('auth state persists between pages', async () => {
     const otherPage = await context.newPage();
 
     await page.goto('/');
