@@ -3,17 +3,15 @@ import { useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
 
 function ProtectedRoute() {
-  const { isLoading, isLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   const Component = useMemo(() => {
-    if (isLoading) {
-      return 'Loading';
-    } else if (isLoggedIn) {
+    if (isLoggedIn) {
       return <Outlet />;
     } else {
       return <h2>unauthorized</h2>;
     }
-  }, [isLoading, isLoggedIn]);
+  }, [isLoggedIn]);
 
   return Component;
 }
