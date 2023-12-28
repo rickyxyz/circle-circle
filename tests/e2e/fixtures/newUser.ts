@@ -13,17 +13,19 @@ export interface LoggedInFixture {
   password: string;
 }
 
-export const loggedInFixture = base.extend<LoggedInFixture>({
+export const newUserFixture = base.extend<LoggedInFixture>({
   page: async ({ page }, use) => {
     await page.goto('/');
 
-    await page.getByLabel('login email').fill(testUser.email);
-    await page.getByLabel('login password').fill(testUser.password);
-    await page.getByRole('button', { name: 'login' }).click();
+    await page.getByLabel('register username').fill(testUser.username);
+    await page.getByLabel('register email').fill(testUser.email);
+    await page.getByLabel('register password').fill(testUser.password);
+    await page.getByRole('button', { name: 'register' }).click();
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       testUser.username
     );
+
     await use(page);
   },
   username: testUser.username,
