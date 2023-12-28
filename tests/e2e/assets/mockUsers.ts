@@ -21,7 +21,7 @@ export const bob: MockUser = {
 
 export const tester: MockUser = {
   uid: 'PtzOotBvAI09NtW9urYkPNMVZuMr',
-  email: 'alice@email.com',
+  email: 'tester@email.com',
   password: 'password123',
   username: 'tester',
 };
