@@ -6,10 +6,14 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    match /user/{document} {
+    match /user/{user_id} {
       allow read: if true;
       allow create: if request.auth != null;
-      allow update: if request.auth.uid == request.resource.data.uid;
+      allow update: if request.auth != null && request.auth.uid == user_id;
+
+      match /private/privacy {
+        allow read, update: if request.auth != null && user_id == request.auth.uid;
+      }
     }
   }
 }

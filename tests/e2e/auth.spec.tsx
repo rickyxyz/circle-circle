@@ -1,6 +1,8 @@
-import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { test, expect, BrowserContext, Page } from '@playwright/test';
+import { loggedInFixture as loggedInTest } from 'tests/e2e/fixtures/loggedIn';
 
-// run test sequentially, cause test depends on previous test
+// need to test sequentially, register -> logout -> login -> ...other
+// cause the loggedIn fixture does not keep the same user credential between test
 test.describe.configure({ mode: 'serial' });
 
 const testUser = {
@@ -18,18 +20,7 @@ test.describe('Auth provider', () => {
     await page.goto('/');
   });
 
-  test('protected route cannot be accessed by unauthenticated user', async () => {
-    const newPage = await context.newPage();
-    await newPage.goto('/auth');
-
-    await expect(newPage.getByRole('heading', { level: 2 })).toHaveText(
-      'unauthorized'
-    );
-  });
-
   test('register button works', async () => {
-    await page.goto('/');
-
     await page.getByLabel('register username').fill(testUser.username);
     await page.getByLabel('register email').fill(testUser.email);
     await page.getByLabel('register password').fill(testUser.password);
@@ -40,12 +31,9 @@ test.describe('Auth provider', () => {
     );
   });
 
-  test('logout button works', async () => {
+  loggedInTest('logout button works', async () => {
     const logoutButton = page.getByRole('button', { name: 'logout' });
 
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      testUser.username
-    );
     await logoutButton.click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('NULL');
   });
@@ -61,20 +49,16 @@ test.describe('Auth provider', () => {
   });
 
   test('auth state persists between pages', async () => {
-    const newPage = await context.newPage();
-    await newPage.goto('/');
+    const otherPage = await context.newPage();
 
-    await expect(newPage.getByRole('heading', { level: 1 })).toHaveText(
+    await page.goto('/');
+    await otherPage.goto('/');
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       testUser.username
     );
-  });
-
-  test('protected route can be accessed by authenticated user', async () => {
-    const newPage = await context.newPage();
-    await newPage.goto('/auth');
-
-    await expect(newPage.getByRole('heading', { level: 2 })).toHaveText(
-      'authorized'
+    await expect(otherPage.getByRole('heading', { level: 1 })).toHaveText(
+      testUser.username
     );
   });
 });

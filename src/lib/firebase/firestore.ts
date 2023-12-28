@@ -1,4 +1,11 @@
-import { addDoc, collection, getDoc, doc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  getDoc,
+  doc,
+  updateDoc,
+  DocumentData,
+} from 'firebase/firestore';
 import { FirestoreCollection } from '@/types/db';
 import { db } from './config';
 
@@ -20,4 +27,12 @@ async function writeData<T extends keyof FirestoreCollection>(
   );
 }
 
-export { db, writeData, getData };
+async function updateData<T extends keyof FirestoreCollection>(
+  collectionName: T,
+  id: string,
+  data: Partial<FirestoreCollection[T]>
+): Promise<void> {
+  return updateDoc(doc(db, collectionName, id), data as DocumentData);
+}
+
+export { db, writeData, getData, updateData };

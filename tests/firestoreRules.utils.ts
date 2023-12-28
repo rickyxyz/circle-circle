@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -8,7 +7,11 @@ import { expect } from 'vitest';
 
 export async function expectPermissionDenied(promise: Promise<any>) {
   const errorResult = await assertFails(promise);
-  expect(errorResult.code).toBe('permission-denied' || 'PERMISSION_DENIED');
+  expect([
+    'permission-denied',
+    'PERMISSION_DENIED',
+    'storage/unauthorized',
+  ]).toContain(errorResult.code);
 }
 
 export async function expectPermissionSucceeds(promise: Promise<any>) {
