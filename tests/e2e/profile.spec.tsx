@@ -12,7 +12,6 @@ test.describe('Profile features', () => {
     await fileChooser.setFiles(getTestAssetPath('testimage.jpg'));
 
     await page.getByRole('button', { name: 'upload' }).click();
-    console.log(process.cwd());
 
     await expect(page.getByAltText('profile picture')).toBeVisible();
   });
