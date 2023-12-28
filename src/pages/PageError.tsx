@@ -7,7 +7,7 @@ function PageError() {
   let errorMessage: string;
 
   if (isRouteErrorResponse(error)) {
-    errorMessage = error.statusText;
+    errorMessage = error.status.toString();
   } else if (error instanceof Error) {
     errorMessage = error.message;
   } else if (typeof error === 'string') {
@@ -19,10 +19,8 @@ function PageError() {
   return (
     <div id="error-page">
       <h1>Oops!</h1>
+      <h2>{errorMessage}</h2>
       <p>Sorry, an unexpected error has occurred.</p>
-      <p>
-        <i>{errorMessage}</i>
-      </p>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/global.css';
-import { createBrowserRouter, defer, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import PageError from '@/pages/PageError';
 import { AuthProvider } from '@/context/AuthProvider.tsx';
 import PageAuth from '@/pages/PageAuth';
@@ -31,12 +31,15 @@ const router = createBrowserRouter([
 
           if (params.userId) {
             const userData = await getData('user', params.userId);
-            return defer({ ...userData });
+            if (!userData) {
+              throw new Response('Not Found', { status: 404 });
+            }
+            return { ...userData };
           }
 
           if (currentUser) {
             const userData = await getData('user', currentUser.uid);
-            return defer({ ...userData });
+            return { ...userData };
           }
 
           throw new Response('Not Found', { status: 404 });

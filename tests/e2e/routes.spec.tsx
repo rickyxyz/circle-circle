@@ -32,6 +32,7 @@ test.describe('profile routing', () => {
     await page.goto('/profile');
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Oops!');
+    await expect(page.getByRole('heading', { level: 2 })).toHaveText('404');
   });
 
   test("unauthed user go to /profile/a will go to a's profile", async ({
@@ -65,4 +66,11 @@ test.describe('profile routing', () => {
       );
     }
   );
+
+  test('going to non-existent profile will throw 404', async ({ page }) => {
+    await page.goto('/profile/non-existent-uid');
+
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Oops!');
+    await expect(page.getByRole('heading', { level: 2 })).toHaveText('404');
+  });
 });
