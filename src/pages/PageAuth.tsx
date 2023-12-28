@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 import useAuth from '@/hook/useAuth';
-import { FormEvent } from 'react';
+import RegisterForm from '@/component/RegisterForm';
+import LoginForm from '@/component/LoginForm';
 
 function LogoutButton() {
   const { logout } = useAuth();
@@ -9,73 +9,13 @@ function LogoutButton() {
     logout();
   }
 
-  return <button onClick={handleLogout}>logout</button>;
-}
-
-function RegisterForm() {
-  const { register } = useAuth();
-
-  function handleRegister(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const username = (e.target as HTMLFormElement).elements.namedItem(
-      'username'
-    ) as HTMLInputElement;
-    const email = (e.target as HTMLFormElement).elements.namedItem(
-      'email'
-    ) as HTMLInputElement;
-    const password = (e.target as HTMLFormElement).elements.namedItem(
-      'password'
-    ) as HTMLInputElement;
-    register(username.value, email.value, password.value).catch((e) =>
-      console.log(e)
-    );
-  }
-
   return (
-    <form onSubmit={handleRegister}>
-      <label htmlFor="register username">
-        register username
-        <input type="text" name="username" id="register username" />
-      </label>
-      <label htmlFor="register email">
-        register email
-        <input type="text" name="email" id="register email" />
-      </label>
-      <label htmlFor="register password">
-        register password
-        <input type="text" name="password" id="register password" />
-      </label>
-      <button type="submit">register</button>
-    </form>
-  );
-}
-
-function LoginForm() {
-  const { login } = useAuth();
-
-  function handleLogin(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const email = (e.target as HTMLFormElement).elements.namedItem(
-      'email'
-    ) as HTMLInputElement;
-    const password = (e.target as HTMLFormElement).elements.namedItem(
-      'password'
-    ) as HTMLInputElement;
-    login(email.value, password.value).catch((e) => console.log(e));
-  }
-
-  return (
-    <form onSubmit={handleLogin}>
-      <label htmlFor="login email">
-        login email
-        <input type="text" name="email" id="login email" />
-      </label>
-      <label htmlFor="login password">
-        login password
-        <input type="text" name="password" id="login password" />
-      </label>
-      <button type="submit">login</button>
-    </form>
+    <button
+      onClick={handleLogout}
+      className="mx-auto mt-8 block rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+    >
+      Logout
+    </button>
   );
 }
 
