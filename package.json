@@ -22,6 +22,7 @@
   "scripts": {
     "setup": "npm install && npx playwright install-deps",
     "firebase": "firebase emulators:start --import=./tests/e2e/assets/firebase-data",
+    "firebase:kill": "kill-port 9099 8080 9199 4000",
     "dev": "concurrently \"firebase emulators:start --import=./tests/e2e/assets/firebase-data\" \"vite\"",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
@@ -81,6 +82,7 @@
     "eslint-plugin-vitest": "^0.3.8",
     "firebase-tools": "^13.0.2",
     "jsdom": "^23.0.1",
+    "kill-port": "^2.0.1",
     "lefthook": "^1.5.2",
     "postcss": "^8.4.31",
     "prettier": "^3.0.3",
