@@ -17,7 +17,7 @@ test.describe('Login Form and Logout Button', () => {
     await expect(page.getByText('Email is required')).toBeVisible();
   });
 
-  test('register form can show login error', async () => {
+  test('login form can show login error', async () => {
     await page.getByLabel(/^login email$/i).fill(tester.email);
     await page.getByLabel(/^login password$/i).fill('wrong password');
 
