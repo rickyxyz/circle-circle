@@ -12,6 +12,7 @@ import PageProtected from '@/pages/PageProtected';
 import PageProfile from '@/pages/PageProfile';
 import { getCurrentUser } from '@/lib/firebase/auth';
 import { getData } from '@/lib/firebase/firestore';
+import PageCircle from '@/pages/PageCircle';
 
 const router = createBrowserRouter([
   {
@@ -46,8 +47,19 @@ const router = createBrowserRouter([
         },
       },
       {
+        path: 'circle',
+        element: <PageCircle />,
+      },
+      {
         path: 'auth',
         element: <ProtectedRoute />,
+        loader: async () => {
+          const currentUser = await getCurrentUser();
+          if (!currentUser) {
+            throw new Response('Not Found', { status: 404 });
+          }
+          return { isLoggedIn: Boolean(currentUser) };
+        },
         children: [
           {
             index: true,

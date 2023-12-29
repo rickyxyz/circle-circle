@@ -19,9 +19,7 @@ test.describe('protectedRoute', () => {
   }) => {
     await page.goto('/auth');
 
-    await expect(page.getByRole('heading', { level: 2 })).toHaveText(
-      'unauthorized'
-    );
+    await expect(page.getByRole('heading', { level: 2 })).toHaveText('404');
   });
 });
 

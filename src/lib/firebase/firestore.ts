@@ -5,6 +5,7 @@ import {
   doc,
   updateDoc,
   DocumentData,
+  setDoc,
 } from 'firebase/firestore';
 import { FirestoreCollection } from '@/types/db';
 import { db } from './config';
@@ -20,8 +21,10 @@ async function getData<T extends keyof FirestoreCollection>(
 
 async function writeData<T extends keyof FirestoreCollection>(
   collectionName: T,
-  data: FirestoreCollection[T]
-) {
+  data: FirestoreCollection[T],
+  id?: string
+): Promise<string> {
+  if (id) return setDoc(doc(db, collectionName, id), data).then(() => id);
   return addDoc(collection(db, collectionName), data).then(
     (docRef) => docRef.id
   );
