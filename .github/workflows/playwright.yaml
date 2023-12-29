@@ -20,7 +20,6 @@ jobs:
         env:
           CI: true;
           BASE_URL: ${{ github.event.deployment_status.environment_url }}
-          super_secret: ${{ secrets.VERCEL_ACCESS_TOKEN }}
       - name: upload playwright report
         uses: actions/upload-artifact@v3
         if: always()
