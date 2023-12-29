@@ -3,7 +3,13 @@
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { doc, getDoc, setDoc, setLogLevel } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  setLogLevel,
+  updateDoc,
+} from 'firebase/firestore';
 import { FirebaseFirestore } from '@firebase/firestore-types';
 import {
   initializeTestEnvironment,
@@ -65,34 +71,69 @@ afterAll(async () => {
 describe('Firebase Storage Rules', () => {
   const mockImage = new Blob([new Uint8Array([0x00])], { type: 'image/png' });
 
-  it('only authenticated user can upload profile picture', async () => {
-    const aliceRef = ref(aliceContext.storage(), 'user/a');
-    const unauthedRef = ref(unauthedContext.storage(), 'user/a');
+  describe('profile picture', () => {
+    it('authenticated user can upload profile picture', async () => {
+      const aliceRef = ref(aliceContext.storage(), 'user/a');
+      await expectGetSucceeds(uploadBytes(aliceRef, mockImage));
+      expect(true).toBe(true);
+    });
 
-    await expectPermissionDenied(uploadBytes(unauthedRef, mockImage));
-    await expectGetSucceeds(uploadBytes(aliceRef, mockImage));
+    it('unauthenticated user cannot upload profile picture', async () => {
+      const unauthedRef = ref(unauthedContext.storage(), 'user/a');
+      await expectPermissionDenied(uploadBytes(unauthedRef, mockImage));
+      expect(true).toBe(true);
+    });
 
-    expect(true).toBe(true);
+    it('user cannot change other user profile picture', async () => {
+      const bobRef = ref(bobContext.storage(), 'user/a');
+      await expectPermissionDenied(uploadBytes(bobRef, mockImage));
+      expect(true).toBe(true);
+    });
+
+    it('profile picture is publicaly available', async () => {
+      const aliceRef = ref(aliceContext.storage(), 'user/a');
+      const unauthedRef = ref(unauthedContext.storage(), 'user/a');
+
+      await expectGetSucceeds(getDownloadURL(aliceRef));
+      await expectGetSucceeds(getDownloadURL(unauthedRef));
+
+      expect(true).toBe(true);
+    });
   });
 
-  it('authenticated user can only upload their own profile picture', async () => {
-    const aliceRef = ref(aliceContext.storage(), 'user/a');
-    const bobRef = ref(bobContext.storage(), 'user/a');
+  describe('circle picture', () => {
+    it('admin can upload circle picture', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/a'), {
+          members: { a: { role: 'admin' } },
+        });
+      });
+      const imageRef = ref(aliceContext.storage(), 'circle/a/banner');
+      await expectGetSucceeds(uploadBytes(imageRef, mockImage));
+      expect(true).toBe(true);
+    });
 
-    await expectGetSucceeds(uploadBytes(aliceRef, mockImage));
-    await expectPermissionDenied(uploadBytes(bobRef, mockImage));
+    it('member cannot upload circle picture', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/a'), {
+          members: { a: { role: 'admin' } },
+        });
+      });
+      const imageRef = ref(bobContext.storage(), 'circle/a/banner');
+      await expectPermissionDenied(uploadBytes(imageRef, mockImage));
+      expect(true).toBe(true);
+    });
 
-    expect(true).toBe(true);
-  });
-
-  it('profile picture is publicaly available', async () => {
-    const aliceRef = ref(aliceContext.storage(), 'user/a');
-    const unauthedRef = ref(unauthedContext.storage(), 'user/a');
-
-    await expectGetSucceeds(getDownloadURL(aliceRef));
-    await expectGetSucceeds(getDownloadURL(unauthedRef));
-
-    expect(true).toBe(true);
+    it('non member cannot upload circle picture', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/a'), {
+          members: { a: { role: 'admin' } },
+        });
+      });
+      const imageRef = ref(unauthedContext.storage(), 'circle/a/banner');
+      await expectPermissionDenied(uploadBytes(imageRef, mockImage));
+      expect(true).toBe(true);
+    });
   });
 });
 
@@ -132,6 +173,46 @@ describe('Firestore Rules', () => {
       );
       await expectPermissionDenied(
         getDoc(doc(unauthedDb, 'user/a/private/privacy'))
+      );
+
+      expect(true).toBe(true);
+    });
+  });
+
+  describe('circle collection', () => {
+    it('can only be created by authenticated user', async () => {
+      await expectPermissionSucceeds(
+        setDoc(doc(aliceDb, 'circle', 'a'), { members: { a: 'admin' } })
+      );
+      await expectPermissionDenied(
+        setDoc(doc(unauthedDb, 'circle', 'a'), { members: { a: 'admin' } })
+      );
+      expect(true).toBe(true);
+    });
+
+    it('can only be updated by admin', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/a'), {
+          members: { a: { role: 'admin' }, b: { role: 'member' } },
+        });
+      });
+
+      await expectPermissionSucceeds(
+        updateDoc(doc(aliceDb, 'circle', 'a'), {
+          change: 'changed',
+        })
+      );
+
+      await expectPermissionDenied(
+        updateDoc(doc(bobDb, 'circle', 'a'), {
+          change: 'changed',
+        })
+      );
+
+      await expectPermissionDenied(
+        updateDoc(doc(unauthedDb, 'circle', 'a'), {
+          change: 'changed',
+        })
       );
 
       expect(true).toBe(true);
