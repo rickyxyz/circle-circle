@@ -24,11 +24,6 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.CI ? process.env.BASE_URL : 'http://localhost:5173',
-    extraHTTPHeaders: process.env.CI
-      ? {
-          Authorization: `Bearer ${process.env.VERCEL_ACCESS_TOKEN}`,
-        }
-      : undefined,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
@@ -77,7 +72,6 @@ export default defineConfig({
         url: 'http://localhost:5173',
         stdout: 'ignore',
         stderr: 'pipe',
-        reuseExistingServer: !process.env.CI,
       }
     : undefined,
 });
