@@ -1,28 +1,12 @@
 name: Playwright Tests
 
 on:
-  push:
-    branches: [test-on-pr]
-
+  deployment_status:
 jobs:
-  test_setup:
-    name: Test setup
+  run-e2es:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
-
-    outputs:
-      preview_url: ${{ steps.waitForVercelPreviewDeployment.outputs.url }}
-    steps:
-      - name: Wait for Vercel preview deployment to be ready
-        uses: patrickedqvist/wait-for-vercel-preview@v1.2.0
-        id: waitForVercelPreviewDeployment
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          max_timeout: 300
-  test:
-    needs: test_setup
-    name: Playwright tests
     timeout-minutes: 60
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,7 +18,9 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test --reporter=html
         env:
-          PLAYWRIGHT_TEST_BASE_URL: ${{ needs.test_setup.outputs.preview_url }}
+          CI: true;
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          super_secret: ${{ secrets.VERCEL_ACCESS_TOKEN }}
       - name: upload playwright report
         uses: actions/upload-artifact@v3
         if: always()
