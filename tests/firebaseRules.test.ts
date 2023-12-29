@@ -16,7 +16,7 @@ import {
   expectGetSucceeds,
   expectPermissionDenied,
   expectPermissionSucceeds,
-} from './firestoreRules.utils';
+} from './firebaseRules.utils';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 let testEnv: RulesTestEnvironment;

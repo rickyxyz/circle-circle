@@ -20,16 +20,15 @@
     "playwright"
   ],
   "scripts": {
-    "setup": "npm install && npx playwright install-deps",
     "firebase": "firebase emulators:start --import=./tests/e2e/assets/firebase-data",
     "firebase:kill": "kill-port 9099 8080 9199 4000",
     "dev": "concurrently \"firebase emulators:start --import=./tests/e2e/assets/firebase-data\" \"vite\"",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "firebase emulators:exec \"vitest run --passWithNoTests\"",
+    "test": "firebase emulators:exec \"vitest run\"",
     "test:watch": "vitest watch",
-    "test:e2e": "playwright test",
+    "test:e2e": "firebase emulators:exec --import=./tests/e2e/assets/firebase-data \"playwright test\"",
     "test:coverage": "vitest --coverage",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
@@ -43,12 +42,15 @@
     "match-sorter": "^6.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.49.2",
     "react-router-dom": "^6.18.0",
     "sort-by": "^1.2.0",
-    "tailwind-merge": "^2.1.0"
+    "tailwind-merge": "^2.1.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^3.0.1",
+    "@hookform/resolvers": "^3.3.3",
     "@playwright/test": "^1.40.1",
     "@storybook/addon-essentials": "^7.6.3",
     "@storybook/addon-interactions": "^7.6.3",
