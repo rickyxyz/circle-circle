@@ -4,7 +4,6 @@ import { defineConfig, devices } from '@playwright/test';
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// require('dotenv').config();
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -24,14 +23,13 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:5173',
+    baseURL: process.env.CI ? process.env.BASE_URL : 'http://localhost:5173',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
   timeout: 5000,
 
-  /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
@@ -69,12 +67,13 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    stdout: 'ignore',
-    stderr: 'pipe',
-    reuseExistingServer: true,
-  },
+  webServer: !process.env.CI
+    ? {
+        command: 'vite',
+        url: 'http://localhost:5173',
+        stdout: 'ignore',
+        stderr: 'pipe',
+        reuseExistingServer: !process.env.CI,
+      }
+    : undefined,
 });
