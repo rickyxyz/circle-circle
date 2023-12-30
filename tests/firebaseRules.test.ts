@@ -4,6 +4,7 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
+  deleteDoc,
   doc,
   getDoc,
   setDoc,
@@ -180,42 +181,185 @@ describe('Firestore Rules', () => {
   });
 
   describe('circle collection', () => {
+    beforeEach(async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1'), {
+          name: 'testCircle1',
+        });
+      });
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/member/a'), {
+          role: 'admin',
+        });
+      });
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/member/b'), {
+          role: 'member',
+        });
+      });
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/member/c'), {
+          role: 'member',
+        });
+      });
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/member/d'), {
+          role: 'member',
+        });
+      });
+    });
+
     it('can only be created by authenticated user', async () => {
-      await expectPermissionSucceeds(
-        setDoc(doc(aliceDb, 'circle', 'a'), { members: { a: 'admin' } })
-      );
       await expectPermissionDenied(
-        setDoc(doc(unauthedDb, 'circle', 'a'), { members: { a: 'admin' } })
+        setDoc(doc(unauthedDb, 'circle/a'), { name: 'a' })
+      );
+      await expectPermissionSucceeds(
+        setDoc(doc(aliceDb, 'circle/a'), { name: 'a' })
       );
       expect(true).toBe(true);
     });
 
     it('can only be updated by admin', async () => {
-      await testEnv.withSecurityRulesDisabled(async (context) => {
-        await setDoc(doc(context.firestore(), 'circle/a'), {
-          members: { a: { role: 'admin' }, b: { role: 'member' } },
-        });
-      });
-
       await expectPermissionSucceeds(
-        updateDoc(doc(aliceDb, 'circle', 'a'), {
+        updateDoc(doc(aliceDb, 'circle/testCircle1'), {
           change: 'changed',
         })
       );
 
       await expectPermissionDenied(
-        updateDoc(doc(bobDb, 'circle', 'a'), {
+        updateDoc(doc(bobDb, 'circle/testCircle1'), {
           change: 'changed',
         })
       );
 
       await expectPermissionDenied(
-        updateDoc(doc(unauthedDb, 'circle', 'a'), {
+        updateDoc(doc(unauthedDb, 'circle/testCircle1'), {
           change: 'changed',
         })
       );
 
       expect(true).toBe(true);
+    });
+
+    describe('member subcollection', () => {
+      beforeEach(async () => {
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          await setDoc(doc(context.firestore(), 'circle/testCircle1'), {
+            name: 'testCircle1',
+          });
+        });
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          await setDoc(
+            doc(context.firestore(), 'circle/testCircle1/member/a'),
+            {
+              role: 'admin',
+            }
+          );
+        });
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          await setDoc(
+            doc(context.firestore(), 'circle/testCircle1/member/b'),
+            {
+              role: 'member',
+            }
+          );
+        });
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          await setDoc(
+            doc(context.firestore(), 'circle/testCircle1/member/c'),
+            {
+              role: 'member',
+            }
+          );
+        });
+        await testEnv.withSecurityRulesDisabled(async (context) => {
+          await setDoc(
+            doc(context.firestore(), 'circle/testCircle1/member/d'),
+            {
+              role: 'member',
+            }
+          );
+        });
+      });
+
+      it('can be accessed publicaly', async () => {
+        await expectGetSucceeds(
+          getDoc(doc(unauthedDb, 'circle/testCircle1/member/a'))
+        );
+        expect(true).toBe(true);
+      });
+
+      it('can be created by authenticated user', async () => {
+        await expectPermissionSucceeds(
+          setDoc(doc(aliceDb, 'circle/testCircle1/member/a'), {
+            role: 'admin',
+          })
+        );
+        expect(true).toBe(true);
+      });
+
+      it('member cannot delete other member', async () => {
+        await expectPermissionDenied(
+          deleteDoc(
+            doc(
+              testEnv.authenticatedContext('d').firestore(),
+              'circle/testCircle1/member/c'
+            )
+          )
+        );
+        expect(true).toBe(true);
+      });
+
+      it('member can delete themself', async () => {
+        await expectPermissionSucceeds(
+          deleteDoc(
+            doc(
+              testEnv.authenticatedContext('d').firestore(),
+              'circle/testCircle1/member/d'
+            )
+          )
+        );
+        expect(true).toBe(true);
+      });
+
+      it('admin can delete other member', async () => {
+        await expectPermissionSucceeds(
+          deleteDoc(
+            doc(
+              testEnv.authenticatedContext('a').firestore(),
+              'circle/testCircle1/member/d'
+            )
+          )
+        );
+        expect(true).toBe(true);
+      });
+
+      it('role can be updated by admin', async () => {
+        await expectPermissionSucceeds(
+          updateDoc(doc(aliceDb, 'circle/testCircle1/member/c'), {
+            role: 'admin',
+          })
+        );
+        expect(true).toBe(true);
+      });
+
+      it('role cannot be updated by member', async () => {
+        await expectPermissionDenied(
+          updateDoc(doc(bobDb, 'circle/testCircle1/member/c'), {
+            role: 'member',
+          })
+        );
+        expect(true).toBe(true);
+      });
+
+      it('role cannot be updated by non member', async () => {
+        await expectPermissionDenied(
+          updateDoc(doc(unauthedDb, 'circle/testCircle1/member/c'), {
+            role: 'member',
+          })
+        );
+        expect(true).toBe(true);
+      });
     });
   });
 });
