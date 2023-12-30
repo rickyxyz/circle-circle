@@ -26,7 +26,7 @@ service firebase.storage {
     
     match /circle/{circle_id}/{allFile=**} {
       allow read: if true;
-      allow write: if isLoggedIn() && isLessThanMbs(5) && isImage() && request.auth.uid in firestore.get(/databases/(default)/documents/circle/$(circle_id)).data.members;
+      allow write: if isLoggedIn() && isLessThanMbs(5) && isImage() && firestore.exists(/databases/(default)/documents/circle/$(circle_id)/member/$(request.auth.uid));
     }
   }
 }

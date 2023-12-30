@@ -103,35 +103,51 @@ describe('Firebase Storage Rules', () => {
   });
 
   describe('circle picture', () => {
-    it('admin can upload circle picture', async () => {
+    beforeEach(async () => {
       await testEnv.withSecurityRulesDisabled(async (context) => {
-        await setDoc(doc(context.firestore(), 'circle/a'), {
-          members: { a: { role: 'admin' } },
+        await setDoc(doc(context.firestore(), 'circle/testCircle1'), {
+          name: 'testCircle1',
         });
       });
-      const imageRef = ref(aliceContext.storage(), 'circle/a/banner');
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/member/a'), {
+          role: 'admin',
+        });
+      });
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/member/b'), {
+          role: 'member',
+        });
+      });
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/member/c'), {
+          role: 'member',
+        });
+      });
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/member/d'), {
+          role: 'member',
+        });
+      });
+    });
+
+    it('admin can upload circle picture', async () => {
+      const imageRef = ref(aliceContext.storage(), 'circle/testCircle1/banner');
       await expectGetSucceeds(uploadBytes(imageRef, mockImage));
       expect(true).toBe(true);
     });
 
-    it('member cannot upload circle picture', async () => {
-      await testEnv.withSecurityRulesDisabled(async (context) => {
-        await setDoc(doc(context.firestore(), 'circle/a'), {
-          members: { a: { role: 'admin' } },
-        });
-      });
-      const imageRef = ref(bobContext.storage(), 'circle/a/banner');
-      await expectPermissionDenied(uploadBytes(imageRef, mockImage));
+    it('member upload circle picture', async () => {
+      const imageRef = ref(bobContext.storage(), 'circle/testCircle1/banner');
+      await expectGetSucceeds(uploadBytes(imageRef, mockImage));
       expect(true).toBe(true);
     });
 
     it('non member cannot upload circle picture', async () => {
-      await testEnv.withSecurityRulesDisabled(async (context) => {
-        await setDoc(doc(context.firestore(), 'circle/a'), {
-          members: { a: { role: 'admin' } },
-        });
-      });
-      const imageRef = ref(unauthedContext.storage(), 'circle/a/banner');
+      const imageRef = ref(
+        unauthedContext.storage(),
+        'circle/testCircle1/banner'
+      );
       await expectPermissionDenied(uploadBytes(imageRef, mockImage));
       expect(true).toBe(true);
     });
