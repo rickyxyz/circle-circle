@@ -47,8 +47,20 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: 'circle',
+        path: 'circle/:circleId?',
         element: <PageCircle />,
+        loader: async ({ params }) => {
+          if (!params.circleId) {
+            return null;
+          } else {
+            // TODO: query member subcollection, to figure out the current user role
+            const circleData = await getData('circle', params.circleId);
+            if (!circleData) {
+              throw new Response('Not Found', { status: 404 });
+            }
+            return circleData;
+          }
+        },
       },
       {
         path: 'auth',

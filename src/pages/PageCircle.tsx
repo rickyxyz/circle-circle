@@ -9,19 +9,25 @@ import {
   doc,
   getDocs,
   setDoc,
+  updateDoc,
 } from 'firebase/firestore';
 import { customError } from '@/lib/error';
 import { Circle } from '@/types/db';
 import { FirebaseError } from 'firebase/app';
 import useAuth from '@/hook/useAuth';
+import { useLoaderData } from 'react-router-dom';
 
-const circleCreateSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }).max(100),
-  description: z.string().max(300),
-});
-type CircleCreateSchema = z.infer<typeof circleCreateSchema>;
+function CreateForm({
+  onSuccessCallback,
+}: {
+  onSuccessCallback?: (newCircle: Circle) => void;
+}) {
+  const circleCreateSchema = z.object({
+    name: z.string().min(1, { message: 'Name is required' }).max(100),
+    description: z.string().max(300),
+  });
+  type CircleCreateSchema = z.infer<typeof circleCreateSchema>;
 
-function PageCircle() {
   const { user } = useAuth();
   const {
     register,
@@ -31,8 +37,6 @@ function PageCircle() {
     resolver: zodResolver(circleCreateSchema),
   });
   const [createError, setCreateError] = useState<string | null>(null);
-  const [getError, setGetError] = useState<string | null>(null);
-  const [circles, setCircles] = useState<Circle[]>([]);
 
   function onSubmit(data: CircleCreateSchema) {
     if (!user) {
@@ -41,7 +45,7 @@ function PageCircle() {
 
     const newCircle: Circle = {
       ...data,
-      members: {
+      member: {
         [user.uid]: {
           role: 'admin',
         },
@@ -60,13 +64,161 @@ function PageCircle() {
       .then(() => {
         setDoc(doc(db, 'circle', data.name), newCircle)
           .then(() => {
-            setCircles((prev) => [...prev, newCircle]);
+            if (onSuccessCallback) {
+              onSuccessCallback(newCircle);
+            }
           })
           .catch((e: FirestoreError) => {
             setCreateError(e.code);
           });
       })
       .catch((e: FirestoreError) => setCreateError(e.code));
+  }
+
+  return (
+    <form
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onSubmit={handleSubmit(onSubmit)}
+      className="mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
+    >
+      <h2 className="mb-4 text-2xl font-bold">Circle Page</h2>
+
+      <div className="mb-4">
+        <label
+          htmlFor="circle-name"
+          className="mb-2 block text-sm font-bold text-gray-700"
+        >
+          Circle Name
+        </label>
+        <input
+          type="text"
+          id="circle-name"
+          {...register('name')}
+          className="w-full rounded-md border border-gray-300 p-2"
+        />
+        <p className="text-xs italic text-red-500">{errors.name?.message}</p>
+      </div>
+
+      <div className="mb-4">
+        <label
+          htmlFor="circle-description"
+          className="mb-2 block text-sm font-bold text-gray-700"
+        >
+          Circle Description
+        </label>
+        <input
+          type="text"
+          id="circle-description"
+          {...register('description')}
+          className="w-full rounded-md border border-gray-300 p-2"
+        />
+        <p className="text-xs italic text-red-500">
+          {errors.description?.message}
+        </p>
+      </div>
+
+      {createError && <p className="text-red-500">{createError}</p>}
+
+      <button
+        type="submit"
+        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+      >
+        Create
+      </button>
+    </form>
+  );
+}
+
+function UpdateForm({
+  circleData,
+  onSuccessCallback,
+}: {
+  circleData: Circle;
+  onSuccessCallback?: (newCircle: Circle) => void;
+}) {
+  const circleCreateSchema = z.object({
+    description: z.string().max(300),
+  });
+  type CircleCreateSchema = z.infer<typeof circleCreateSchema>;
+
+  const { user } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CircleCreateSchema>({
+    resolver: zodResolver(circleCreateSchema),
+    defaultValues: {
+      description: circleData.description,
+    },
+  });
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  function onSubmit(data: CircleCreateSchema) {
+    if (!user) {
+      throw new customError('unauthorize', 'you are not authorized to do this');
+    }
+
+    const newCircle = { ...circleData, ...data };
+
+    updateDoc(doc(db, 'circle', circleData.name), newCircle)
+      .then(() => {
+        if (onSuccessCallback) {
+          onSuccessCallback(newCircle);
+        }
+      })
+      .catch((e: FirestoreError) => {
+        setCreateError(e.code);
+      });
+  }
+
+  return (
+    <form
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onSubmit={handleSubmit(onSubmit)}
+      className="mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
+    >
+      <h2 className="mb-4 text-2xl font-bold">
+        you are editing {circleData.name}
+      </h2>
+
+      <div className="mb-4">
+        <label
+          htmlFor="circle-description"
+          className="mb-2 block text-sm font-bold text-gray-700"
+        >
+          Circle Description
+        </label>
+        <input
+          type="text"
+          id="circle-description"
+          {...register('description')}
+          className="w-full rounded-md border border-gray-300 p-2"
+        />
+        <p className="text-xs italic text-red-500">
+          {errors.description?.message}
+        </p>
+      </div>
+
+      {createError && <p className="text-red-500">{createError}</p>}
+
+      <button
+        type="submit"
+        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+      >
+        Edit
+      </button>
+    </form>
+  );
+}
+
+function PageCircle() {
+  const circleData = useLoaderData() as Circle | null;
+  const [getError, setGetError] = useState<string | null>(null);
+  const [circles, setCircles] = useState<Circle[]>([]);
+
+  function onSuccessCreate(newCircle: Circle) {
+    setCircles((prev) => [...prev, newCircle]);
   }
 
   useEffect(() => {
@@ -91,56 +243,14 @@ function PageCircle() {
         return <p key={`circle-${circle.name}-${idx}`}>{circle.name}</p>;
       })}
       {getError && <p className="text-red-500">{getError}</p>}
-      <form
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        onSubmit={handleSubmit(onSubmit)}
-        className="mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
-      >
-        <h2 className="mb-4 text-2xl font-bold">Circle Page</h2>
-
-        <div className="mb-4">
-          <label
-            htmlFor="circle-name"
-            className="mb-2 block text-sm font-bold text-gray-700"
-          >
-            Circle Name
-          </label>
-          <input
-            type="text"
-            id="circle-name"
-            {...register('name')}
-            className="w-full rounded-md border border-gray-300 p-2"
-          />
-          <p className="text-xs italic text-red-500">{errors.name?.message}</p>
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="circle-description"
-            className="mb-2 block text-sm font-bold text-gray-700"
-          >
-            Circle Description
-          </label>
-          <input
-            type="text"
-            id="circle-description"
-            {...register('description')}
-            className="w-full rounded-md border border-gray-300 p-2"
-          />
-          <p className="text-xs italic text-red-500">
-            {errors.description?.message}
-          </p>
-        </div>
-
-        {createError && <p className="text-red-500">{createError}</p>}
-
-        <button
-          type="submit"
-          className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
-        >
-          Create
-        </button>
-      </form>
+      {circleData ? (
+        <UpdateForm
+          circleData={circleData}
+          onSuccessCallback={onSuccessCreate}
+        />
+      ) : (
+        <CreateForm onSuccessCallback={onSuccessCreate} />
+      )}
     </div>
   );
 }

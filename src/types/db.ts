@@ -11,7 +11,7 @@ interface CircleMember {
 export interface Circle {
   name: string;
   description: string;
-  members: Record<string, CircleMember>;
+  member: Record<string, CircleMember>;
 }
 
 export interface FirestoreCollection {
