@@ -86,18 +86,24 @@ function UpdateForm({
         type="submit"
         className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
       >
-        Edit
+        Update
       </button>
     </form>
   );
 }
 
 function PageCircleForms() {
-  const circleData = useLoaderData() as Circle;
+  const [circle, setCircle] = useState(useLoaderData() as Circle);
+
+  function onUpdateSuccess(updatedCircle: Circle) {
+    setCircle(updatedCircle);
+  }
 
   return (
     <div>
-      <UpdateForm circleData={circleData} />
+      <h2>{circle.name}</h2>
+      <p>{circle.description}</p>
+      <UpdateForm circleData={circle} onSuccessCallback={onUpdateSuccess} />
     </div>
   );
 }

@@ -47,15 +47,13 @@ test.describe('circle create form', () => {
     await expect(page.getByText(newCircle.name)).toBeVisible();
   });
 
-  test('circle edit can be edited', async ({ page }) => {
+  test('circle edit can be edited', async () => {
     await page.goto('/circle/testCircle1');
     await page.getByLabel('Circle Description').click();
     await page
       .getByLabel('Circle Description')
       .fill('this is a newly edited description');
-    await page.getByRole('button', { name: 'Edit' }).click();
-
-    // expect(true).toBe(true);
+    await page.getByRole('button', { name: 'Update' }).click();
 
     await expect(
       page.getByText('this is a newly edited description')
