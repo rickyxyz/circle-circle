@@ -10,9 +10,10 @@ export default defineConfig({
   plugins: [react()] as UserConfig['plugins'],
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: 'node',
     setupFiles: ['setupTests.ts'],
-    include: ['./tests/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    include: ['./tests/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    exclude: ['./tests/e2e'],
     reporters: 'basic',
   },
   resolve: {

@@ -1,7 +1,3 @@
-/**
- * @vitest-environment node
- */
-
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   deleteDoc,
@@ -13,18 +9,18 @@ import {
 } from 'firebase/firestore';
 import { FirebaseFirestore } from '@firebase/firestore-types';
 import {
-  initializeTestEnvironment,
   RulesTestContext,
   RulesTestEnvironment,
+  initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import {
   expectGetSucceeds,
   expectPermissionDenied,
   expectPermissionSucceeds,
 } from './firebaseRules.utils';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 let testEnv: RulesTestEnvironment;
 let aliceContext: RulesTestContext;
@@ -35,11 +31,10 @@ let bobDb: FirebaseFirestore;
 let unauthedDb: FirebaseFirestore;
 
 const PROJECT_ID = import.meta.env.VITE_FIREBASE_PROJECT_ID;
-const FIRESTORE_RULES = resolve(__dirname, '../firestore.rules');
-const STORAGE_RULES = resolve(__dirname, '../storage.rules');
+const FIRESTORE_RULES = resolve(__dirname, '../../firestore.rules');
+const STORAGE_RULES = resolve(__dirname, '../../storage.rules');
 
 beforeAll(async () => {
-  setLogLevel('error');
   testEnv = await initializeTestEnvironment({
     projectId: PROJECT_ID,
     firestore: {
@@ -53,6 +48,8 @@ beforeAll(async () => {
       rules: readFileSync(STORAGE_RULES, 'utf8'),
     },
   });
+
+  setLogLevel('error');
   aliceContext = testEnv.authenticatedContext('a');
   bobContext = testEnv.authenticatedContext('b');
   unauthedContext = testEnv.unauthenticatedContext();

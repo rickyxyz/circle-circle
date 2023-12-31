@@ -1,5 +1,5 @@
 import { Page, expect } from '@playwright/test';
-import { tester } from 'tests/e2e/assets/mockUsers';
+import { tester } from 'tests/assets/mockUsers';
 
 export default async function testerLogin(page: Page) {
   await page.goto('/');

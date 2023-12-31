@@ -1,5 +1,5 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
-import { alice, tester } from 'tests/e2e/assets/mockUsers';
+import { alice, tester } from 'tests/assets/mockUsers';
 import testerLogin from 'tests/e2e/fixtures/testerLogin.utils';
 
 test.describe('protectedRoute', () => {
