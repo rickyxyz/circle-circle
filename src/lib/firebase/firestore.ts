@@ -5,11 +5,14 @@ import {
   doc,
   updateDoc,
   DocumentData,
+  setDoc,
+  getDocs,
+  DocumentSnapshot,
 } from 'firebase/firestore';
 import { FirestoreCollection } from '@/types/db';
 import { db } from './config';
 
-async function getData<T extends keyof FirestoreCollection>(
+export async function getData<T extends keyof FirestoreCollection>(
   collectionName: T,
   id: string
 ): Promise<FirestoreCollection[T] | undefined> {
@@ -18,16 +21,18 @@ async function getData<T extends keyof FirestoreCollection>(
   );
 }
 
-async function writeData<T extends keyof FirestoreCollection>(
+export async function writeData<T extends keyof FirestoreCollection>(
   collectionName: T,
-  data: FirestoreCollection[T]
-) {
+  data: FirestoreCollection[T],
+  id?: string
+): Promise<string> {
+  if (id) return setDoc(doc(db, collectionName, id), data).then(() => id);
   return addDoc(collection(db, collectionName), data).then(
     (docRef) => docRef.id
   );
 }
 
-async function updateData<T extends keyof FirestoreCollection>(
+export async function updateData<T extends keyof FirestoreCollection>(
   collectionName: T,
   id: string,
   data: Partial<FirestoreCollection[T]>
@@ -35,4 +40,14 @@ async function updateData<T extends keyof FirestoreCollection>(
   return updateDoc(doc(db, collectionName, id), data as DocumentData);
 }
 
-export { db, writeData, getData, updateData };
+export async function getCollection<T extends keyof FirestoreCollection>(
+  collectionName: T
+): Promise<FirestoreCollection[T][]> {
+  const querySnapshot = await getDocs(collection(db, collectionName));
+
+  const dataArray: FirestoreCollection[T][] = querySnapshot.docs.map(
+    (doc: DocumentSnapshot) => doc.data() as FirestoreCollection[T]
+  );
+
+  return dataArray;
+}

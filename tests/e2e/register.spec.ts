@@ -1,5 +1,5 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
-import { tester } from 'tests/e2e/assets/mockUsers';
+import { tester } from 'tests/assets/mockUsers';
 
 const testUser = {
   username: `username${Math.random()}`,
@@ -45,9 +45,5 @@ test.describe('Registration Form', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       testUser.username
     );
-  });
-
-  test.afterAll(async () => {
-    await context.close();
   });
 });

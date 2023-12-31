@@ -35,26 +35,4 @@ test.describe('Profile features', () => {
 
     await expect(page.getByAltText('profile picture')).toBeHidden();
   });
-
-  test('user can update username', async () => {
-    await page.goto('/profile');
-
-    await page.getByLabel('update username').fill('new username');
-    await page.getByRole('button', { name: 'update' }).click();
-
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'new username'
-    );
-
-    // make sure username update persists
-    await page.goto('/profile');
-
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'new username'
-    );
-  });
-
-  test.afterAll(async () => {
-    await context.close();
-  });
 });

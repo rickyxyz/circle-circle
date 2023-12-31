@@ -1,9 +1,8 @@
-import useAuth from '@/hook/useAuth';
 import { useMemo } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLoaderData } from 'react-router-dom';
 
 function ProtectedRoute() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn } = useLoaderData() as { isLoggedIn: boolean };
 
   const Component = useMemo(() => {
     if (isLoggedIn) {

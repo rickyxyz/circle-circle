@@ -1,5 +1,5 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
-import { tester } from 'tests/e2e/assets/mockUsers';
+import { tester } from 'tests/assets/mockUsers';
 
 test.describe('Auth provider', () => {
   let page: Page;
@@ -30,9 +30,5 @@ test.describe('Auth provider', () => {
     await expect(otherPage.getByRole('heading', { level: 1 })).toHaveText(
       tester.username
     );
-  });
-
-  test.afterAll(async () => {
-    await context.close();
   });
 });

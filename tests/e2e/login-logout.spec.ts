@@ -1,5 +1,5 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
-import { tester } from 'tests/e2e/assets/mockUsers';
+import { tester } from 'tests/assets/mockUsers';
 
 test.describe('Login Form and Logout Button', () => {
   let page: Page;
@@ -37,9 +37,5 @@ test.describe('Login Form and Logout Button', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       tester.username
     );
-  });
-
-  test.afterAll(async () => {
-    await context.close();
   });
 });

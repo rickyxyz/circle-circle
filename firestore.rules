@@ -1,6 +1,10 @@
 rules_version = '2';
 
 service cloud.firestore {
+  function isSignedIn() {
+    return request.auth != null;
+  }
+
   match /databases/{database}/documents {
     match /{document=**} {
       allow read, write: if false;
@@ -8,11 +12,24 @@ service cloud.firestore {
 
     match /user/{user_id} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null && request.auth.uid == user_id;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && request.auth.uid == user_id;
 
       match /private/privacy {
-        allow read, update: if request.auth != null && user_id == request.auth.uid;
+        allow read, update: if isSignedIn() && request.auth.uid == user_id;
+      }
+    }
+
+    match /circle/{circle_id} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && get(/databases/$(database)/documents/circle/$(circle_id)/member/$(request.auth.uid)).data.role == 'admin';
+
+      match /member/{user_id} {
+        allow read: if true;
+        allow create: if isSignedIn();
+        allow delete: if isSignedIn() && (request.auth.uid == user_id || get(/databases/$(database)/documents/circle/$(circle_id)/member/$(request.auth.uid)).data.role == 'admin');
+        allow update: if isSignedIn() && get(/databases/$(database)/documents/circle/$(circle_id)/member/$(request.auth.uid)).data.role == 'admin';
       }
     }
   }
