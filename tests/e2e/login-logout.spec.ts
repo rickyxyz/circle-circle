@@ -38,8 +38,4 @@ test.describe('Login Form and Logout Button', () => {
       tester.username
     );
   });
-
-  test.afterAll(async () => {
-    await context.close();
-  });
 });

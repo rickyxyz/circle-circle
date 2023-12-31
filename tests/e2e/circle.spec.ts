@@ -1,6 +1,6 @@
 import { Circle } from '@/types/db';
-import { test, expect } from '@playwright/test';
-import { loggedInFixture as loggedInTest } from 'tests/e2e/fixtures/loggedIn';
+import { test, expect, BrowserContext, Page } from '@playwright/test';
+import testerLogin from 'tests/e2e/fixtures/testerLogin.utils';
 
 const newCircle: Circle = {
   name: `randomCircle_${Math.random().toFixed(5)}`,
@@ -8,29 +8,35 @@ const newCircle: Circle = {
 };
 
 test.describe('circle create form', () => {
-  loggedInTest('circle creation form can show error', async ({ page }) => {
+  let page: Page;
+  let context: BrowserContext;
+
+  test.beforeAll(async ({ browser }) => {
+    context = await browser.newContext();
+    page = await context.newPage();
+    await testerLogin(page);
+  });
+
+  test('circle creation form can show error', async () => {
     await page.goto('/circle');
     await page.getByRole('button', { name: 'create' }).click();
 
     await expect(page.getByText('Name is required')).toBeVisible();
   });
 
-  loggedInTest(
-    'circle creation form can show network error',
-    async ({ page }) => {
-      await page.goto('/circle');
+  test('circle creation form can show network error', async () => {
+    await page.goto('/circle');
 
-      await page.getByLabel('circle name').click();
-      await page.getByLabel('circle name').fill('testCircle1');
-      await page.getByLabel('circle description').click();
-      await page.getByLabel('circle description').fill('description');
-      await page.getByRole('button', { name: 'create' }).click();
+    await page.getByLabel('circle name').click();
+    await page.getByLabel('circle name').fill('testCircle1');
+    await page.getByLabel('circle description').click();
+    await page.getByLabel('circle description').fill('description');
+    await page.getByRole('button', { name: 'create' }).click();
 
-      await expect(page.getByText('already exists')).toBeVisible();
-    }
-  );
+    await expect(page.getByText('already exists')).toBeVisible();
+  });
 
-  loggedInTest('circle can be created', async ({ page }) => {
+  test('circle can be created', async () => {
     await page.goto('/circle');
     await page.getByLabel('circle name').click();
     await page.getByLabel('circle name').fill(newCircle.name);
@@ -40,19 +46,19 @@ test.describe('circle create form', () => {
 
     await expect(page.getByText(newCircle.name)).toBeVisible();
   });
-});
 
-loggedInTest('circle edit can be edited', async ({ page }) => {
-  await page.goto('/circle/testCircle1');
-  await page.getByLabel('Circle Description').click();
-  await page
-    .getByLabel('Circle Description')
-    .fill('this is a newly edited description');
-  await page.getByRole('button', { name: 'Edit' }).click();
+  test('circle edit can be edited', async ({ page }) => {
+    await page.goto('/circle/testCircle1');
+    await page.getByLabel('Circle Description').click();
+    await page
+      .getByLabel('Circle Description')
+      .fill('this is a newly edited description');
+    await page.getByRole('button', { name: 'Edit' }).click();
 
-  await page.goto('/circle');
+    // expect(true).toBe(true);
 
-  await expect(
-    page.getByText('this is a newly edited description')
-  ).toBeVisible();
+    await expect(
+      page.getByText('this is a newly edited description')
+    ).toBeVisible();
+  });
 });

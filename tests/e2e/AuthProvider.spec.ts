@@ -31,8 +31,4 @@ test.describe('Auth provider', () => {
       tester.username
     );
   });
-
-  test.afterAll(async () => {
-    await context.close();
-  });
 });

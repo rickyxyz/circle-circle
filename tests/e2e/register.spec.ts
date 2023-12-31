@@ -46,8 +46,4 @@ test.describe('Registration Form', () => {
       testUser.username
     );
   });
-
-  test.afterAll(async () => {
-    await context.close();
-  });
 });
