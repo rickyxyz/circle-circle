@@ -11,8 +11,9 @@ import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
 import PageProtected from '@/pages/PageProtected';
 import PageProfile from '@/pages/PageProfile';
 import { getCurrentUser } from '@/lib/firebase/auth';
-import { getData } from '@/lib/firebase/firestore';
+import { getCollection, getData } from '@/lib/firebase/firestore';
 import PageCircle from '@/pages/PageCircle';
+import PageCircleForms from '@/pages/PageCircleEdit';
 
 const router = createBrowserRouter([
   {
@@ -47,8 +48,16 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: 'circle/:circleId?',
+        path: '/circle',
         element: <PageCircle />,
+        loader: async () => {
+          const circleData = await getCollection('circle');
+          return circleData;
+        },
+      },
+      {
+        path: '/circle/:circleId',
+        element: <PageCircleForms />,
         loader: async ({ params }) => {
           if (!params.circleId) {
             return null;

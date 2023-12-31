@@ -2,16 +2,12 @@ export interface User {
   username: string;
   uid: string;
   profilePicture?: string;
-}
-
-interface CircleMember {
-  role: 'admin' | 'member';
+  circle: string[];
 }
 
 export interface Circle {
   name: string;
   description: string;
-  member: Record<string, CircleMember>;
 }
 
 export interface FirestoreCollection {
