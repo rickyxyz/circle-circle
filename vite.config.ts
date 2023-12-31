@@ -15,6 +15,7 @@ export default defineConfig({
     include: ['./tests/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
     exclude: ['./tests/e2e'],
     reporters: 'basic',
+    globalSetup: ['./tests/setup.ts'],
   },
   resolve: {
     alias: {
