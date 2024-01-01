@@ -8,8 +8,14 @@ import {
 import {
   expectDatabaseSucceeds,
   expectPermissionDenied,
+  expectPermissionSucceeds,
 } from './firebaseRules.utils';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from 'firebase/storage';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -118,6 +124,59 @@ describe('Firebase Storage Rules', () => {
         'circle/testCircle1/banner'
       );
       await expectPermissionDenied(uploadBytes(imageRef, mockImage));
+      expect(true).toBe(true);
+    });
+  });
+
+  describe('post picture', () => {
+    it('member can add picture to post', async () => {
+      const imageRef = ref(
+        aliceContext.storage(),
+        'circle/testCircle1/post/alicePost/1.jpg'
+      );
+      await expectDatabaseSucceeds(uploadBytes(imageRef, mockImage));
+      expect(true).toBe(true);
+    });
+
+    it('author can delete picture from their own post', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/post/a'), {
+          author: 'a',
+        });
+      });
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await uploadBytes(
+          ref(context.storage(), 'circle/testCircle1/post/a/1.jpg'),
+          mockImage
+        );
+      });
+
+      const imageRef = ref(
+        aliceContext.storage(),
+        'circle/testCircle1/post/a/1.jpg'
+      );
+      await expectPermissionSucceeds(deleteObject(imageRef));
+      expect(true).toBe(true);
+    });
+
+    it('other user cannot delete picture from other user post', async () => {
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await setDoc(doc(context.firestore(), 'circle/testCircle1/post/a'), {
+          author: 'a',
+        });
+      });
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await uploadBytes(
+          ref(context.storage(), 'circle/testCircle1/post/a/1.jpg'),
+          mockImage
+        );
+      });
+
+      const imageRef = ref(
+        bobContext.storage(),
+        'circle/testCircle1/post/a/1.jpg'
+      );
+      await expectPermissionSucceeds(deleteObject(imageRef));
       expect(true).toBe(true);
     });
   });
