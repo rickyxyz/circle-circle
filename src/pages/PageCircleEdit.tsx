@@ -122,11 +122,15 @@ function CreatePostForm({
   const [createError, setCreateError] = useState<string | null>(null);
 
   function onSubmit(data: PostCreateSchema) {
-    addDoc(collection(db, `/circle/${circleId}/post`), { ...data })
+    if (!user) {
+      throw new Error('Unauthorized');
+    }
+
+    addDoc(collection(db, `/circle/${circleId}/post`), {
+      ...data,
+      author: user.uid,
+    })
       .then(() => {
-        if (!user) {
-          throw new Error('Unauthorized');
-        }
         onSuccessCallback && onSuccessCallback({ ...data, author: user.uid });
       })
       .catch((e: FirestoreError) => {

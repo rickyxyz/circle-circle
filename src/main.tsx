@@ -59,7 +59,7 @@ const router = createBrowserRouter([
         element: <PageCircle />,
         loader: async () => {
           const circleData = await getCollection('circle');
-          return circleData;
+          return [...circleData];
         },
       },
       {
