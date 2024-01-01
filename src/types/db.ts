@@ -10,7 +10,14 @@ export interface Circle {
   description: string;
 }
 
+export interface Post {
+  author: string;
+  title: string;
+  description: string;
+}
+
 export interface FirestoreCollection {
   user: User;
   circle: Circle;
+  post: Post;
 }

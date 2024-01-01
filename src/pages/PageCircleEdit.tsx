@@ -1,10 +1,18 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
-import { FirestoreError, doc, updateDoc } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import {
+  DocumentSnapshot,
+  FirestoreError,
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+} from 'firebase/firestore';
 import { customError } from '@/lib/error';
-import { Circle } from '@/types/db';
+import { Circle, Post } from '@/types/db';
 import useAuth from '@/hook/useAuth';
 import { useLoaderData } from 'react-router-dom';
 import { db } from '@/lib/firebase/config';
@@ -92,11 +100,94 @@ function UpdateForm({
   );
 }
 
+function CreatePostForm({
+  circleId,
+  onSuccessCallback,
+}: {
+  circleId: string;
+  onSuccessCallback?: (newPost: Post) => void;
+}) {
+  const { user } = useAuth();
+  const postCreateSchema = z.object({
+    title: z.string().min(1, { message: 'Title is required' }),
+    description: z.string(),
+  });
+  type PostCreateSchema = z.infer<typeof postCreateSchema>;
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PostCreateSchema>({ resolver: zodResolver(postCreateSchema) });
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  function onSubmit(data: PostCreateSchema) {
+    addDoc(collection(db, `/circle/${circleId}/post`), { ...data })
+      .then(() => {
+        if (!user) {
+          throw new Error('Unauthorized');
+        }
+        onSuccessCallback && onSuccessCallback({ ...data, author: user.uid });
+      })
+      .catch((e: FirestoreError) => {
+        setCreateError(e.code);
+      });
+  }
+
+  return (
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <h2>Create A New Post</h2>
+      <label htmlFor="post-title">Post Title</label>
+      <input type="text" id="post-title" {...register('title')} />
+      <p>{errors.title?.message}</p>
+
+      <label htmlFor="post-description">Post description</label>
+      <input type="text" id="post-description" {...register('description')} />
+      <button type="submit">post</button>
+      <p>{errors.description?.message}</p>
+
+      {createError && <p className="text-red-500">{createError}</p>}
+    </form>
+  );
+}
+
 function PageCircleForms() {
-  const [circle, setCircle] = useState(useLoaderData() as Circle);
+  const loaderData = useLoaderData() as {
+    circle: Circle;
+    isMember: boolean;
+  };
+
+  const [circle, setCircle] = useState(loaderData.circle);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [getPostError, setGetPostError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(
+        collection(db, `circle/${circle.name}/post`)
+      );
+
+      const dataArray: Post[] = querySnapshot.docs.map(
+        (doc: DocumentSnapshot) => doc.data() as Post
+      );
+
+      return dataArray;
+    };
+
+    fetchData()
+      .then((posts) => setPosts(posts))
+      .catch((e: FirestoreError) => {
+        setGetPostError(e.code);
+      });
+  }, [circle.name]);
 
   function onUpdateSuccess(updatedCircle: Circle) {
     setCircle(updatedCircle);
+  }
+
+  function onPostSuccess(newPost: Post) {
+    setPosts(posts.concat(newPost));
   }
 
   return (
@@ -104,6 +195,19 @@ function PageCircleForms() {
       <h2>{circle.name}</h2>
       <p>{circle.description}</p>
       <UpdateForm circleData={circle} onSuccessCallback={onUpdateSuccess} />
+      {loaderData.isMember && (
+        <CreatePostForm
+          circleId={circle.name}
+          onSuccessCallback={onPostSuccess}
+        />
+      )}
+
+      {getPostError}
+      {posts.map((post, idx) => (
+        <div key={`post-${idx}}`}>
+          <p>{post.title}</p>
+        </div>
+      ))}
     </div>
   );
 }

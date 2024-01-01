@@ -2,7 +2,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/global.css';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  redirect,
+  RouterProvider,
+} from 'react-router-dom';
 import PageError from '@/pages/PageError';
 import { AuthProvider } from '@/context/AuthProvider.tsx';
 import PageAuth from '@/pages/PageAuth';
@@ -14,6 +18,9 @@ import { getCurrentUser } from '@/lib/firebase/auth';
 import { getCollection, getData } from '@/lib/firebase/firestore';
 import PageCircle from '@/pages/PageCircle';
 import PageCircleForms from '@/pages/PageCircleEdit';
+import { db } from '@/lib/firebase/config';
+import { getDoc, doc } from 'firebase/firestore';
+import PagePost from '@/pages/PagePost';
 
 const router = createBrowserRouter([
   {
@@ -62,12 +69,44 @@ const router = createBrowserRouter([
           if (!params.circleId) {
             return null;
           } else {
-            // TODO: query member subcollection, to figure out the current user role
             const circleData = await getData('circle', params.circleId);
+
             if (!circleData) {
               throw new Response('Not Found', { status: 404 });
             }
-            return circleData;
+
+            const currentUser = await getCurrentUser();
+
+            if (!currentUser) {
+              return { circle: circleData, isMember: false };
+            }
+
+            const memberData = await getDoc(
+              doc(db, `circle/${params.circleId}/member/${currentUser.uid}`)
+            );
+            if (memberData.exists()) {
+              return { circle: circleData, isMember: true };
+            }
+
+            return { circle: circleData, isMember: false };
+          }
+        },
+      },
+      {
+        path: '/circle/:circleId/post/:postId',
+        element: <PagePost />,
+        loader: async ({ params }) => {
+          if (!params.postId) {
+            redirect(`/circle/${params.circleId}`);
+          }
+          const circleDoc = await getDoc(
+            doc(db, `/circle/${params.circleId}/post/${params.postId}`)
+          );
+
+          if (circleDoc.exists()) {
+            return circleDoc.data();
+          } else {
+            throw new Response('Not Found', { status: 404 });
           }
         },
       },
