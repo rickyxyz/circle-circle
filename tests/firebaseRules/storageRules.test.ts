@@ -6,7 +6,7 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
-  expectGetSucceeds,
+  expectDatabaseSucceeds,
   expectPermissionDenied,
 } from './firebaseRules.utils';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -52,7 +52,7 @@ describe('Firebase Storage Rules', () => {
   describe('profile picture', () => {
     it('authenticated user can upload profile picture', async () => {
       const aliceRef = ref(aliceContext.storage(), 'user/a');
-      await expectGetSucceeds(uploadBytes(aliceRef, mockImage));
+      await expectDatabaseSucceeds(uploadBytes(aliceRef, mockImage));
       expect(true).toBe(true);
     });
 
@@ -72,8 +72,8 @@ describe('Firebase Storage Rules', () => {
       const aliceRef = ref(aliceContext.storage(), 'user/a');
       const unauthedRef = ref(unauthedContext.storage(), 'user/a');
 
-      await expectGetSucceeds(getDownloadURL(aliceRef));
-      await expectGetSucceeds(getDownloadURL(unauthedRef));
+      await expectDatabaseSucceeds(getDownloadURL(aliceRef));
+      await expectDatabaseSucceeds(getDownloadURL(unauthedRef));
 
       expect(true).toBe(true);
     });
@@ -92,7 +92,7 @@ describe('Firebase Storage Rules', () => {
         });
       });
       const imageRef = ref(aliceContext.storage(), 'circle/testCircle1/banner');
-      await expectGetSucceeds(uploadBytes(imageRef, mockImage));
+      await expectDatabaseSucceeds(uploadBytes(imageRef, mockImage));
       expect(true).toBe(true);
     });
 
@@ -108,7 +108,7 @@ describe('Firebase Storage Rules', () => {
         });
       });
       const imageRef = ref(bobContext.storage(), 'circle/testCircle1/banner');
-      await expectGetSucceeds(uploadBytes(imageRef, mockImage));
+      await expectDatabaseSucceeds(uploadBytes(imageRef, mockImage));
       expect(true).toBe(true);
     });
 
