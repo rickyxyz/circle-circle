@@ -146,7 +146,9 @@ function PagePost() {
     };
 
     fetchData()
-      .then((comments) => setComments(comments))
+      .then((comments) => {
+        setComments(comments);
+      })
       .catch((e: FirestoreError) => {
         setGetError(e.code);
       });

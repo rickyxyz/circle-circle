@@ -104,6 +104,7 @@ export default function CommentCard({
               basepath={`${basepath}/${commentId}/comment`}
               onSuccessCallback={(newComment) => {
                 setComments(() => ({ ...comments, [commentId]: newComment }));
+                setIsReplyMode(false);
               }}
             />
           </div>
