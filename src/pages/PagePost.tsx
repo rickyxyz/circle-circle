@@ -1,12 +1,10 @@
 import useAuth from '@/hook/useAuth';
-import { customError } from '@/lib/error';
 import { db } from '@/lib/firebase/config';
 import { Post } from '@/types/db';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FirebaseError } from 'firebase/app';
 import {
   FirestoreError,
-  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -18,6 +16,8 @@ import { useForm } from 'react-hook-form';
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { Comment } from '@/types/db';
+import CommentCard from '@/component/CommentCard';
+import { CommentForm } from '@/component/CommentForm';
 
 function EditForm({
   post,
@@ -117,202 +117,6 @@ function EditForm({
   );
 }
 
-function CreateCommentForm({
-  onSuccessCallback,
-}: {
-  onSuccessCallback?: (newComment: Comment, commentId: string) => void;
-}) {
-  const commentSchema = z.object({
-    comment: z.string().min(1, { message: "comment can't be empty" }),
-  });
-  type CommentSchema = z.infer<typeof commentSchema>;
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CommentSchema>({
-    resolver: zodResolver(commentSchema),
-  });
-  const { circleId, postId } = useParams();
-  const [commentError, setCommentError] = useState<string | null>(null);
-  const { user } = useAuth();
-
-  function onSubmit(data: CommentSchema) {
-    if (!user) {
-      throw new customError('unauthorize', 'you are not authorized to do this');
-    }
-
-    const newComment: Comment = { text: data.comment, author: user.uid };
-    addDoc(
-      collection(db, `/circle/${circleId}/post/${postId}/comment`),
-      newComment
-    )
-      .then((docref) => {
-        onSuccessCallback && onSuccessCallback(newComment, docref.id);
-      })
-      .catch((e: FirestoreError) => {
-        setCommentError(e.code);
-      });
-  }
-
-  return (
-    <form // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <div className="mb-4">
-        <label
-          htmlFor="post-comment"
-          className="mb-2 block text-sm font-bold text-gray-700"
-        >
-          Post a comment
-        </label>
-        <input
-          type="text"
-          id="post-comment"
-          {...register('comment')}
-          className="w-full rounded-md border border-gray-300 p-2"
-        />
-        <p className="text-xs italic text-red-500">{errors.comment?.message}</p>
-      </div>
-
-      <button
-        type="submit"
-        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
-      >
-        post
-      </button>
-
-      {commentError && <p className="text-red-500">{commentError}</p>}
-    </form>
-  );
-}
-
-function CommentEditForm({
-  comment,
-  commentId,
-  onSuccessCallback,
-}: {
-  comment: Comment;
-  commentId: string;
-  onSuccessCallback?: (newComment: Comment) => void;
-}) {
-  const commentSchema = z.object({
-    comment: z.string().min(1, { message: "comment can't be empty" }),
-  });
-  type CommentSchema = z.infer<typeof commentSchema>;
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CommentSchema>({
-    resolver: zodResolver(commentSchema),
-    defaultValues: { comment: comment.text },
-  });
-  const { circleId, postId } = useParams();
-  const [commentError, setCommentError] = useState<string | null>(null);
-  const { user } = useAuth();
-
-  function onSubmit(data: CommentSchema) {
-    if (!user) {
-      throw new customError('unauthorize', 'you are not authorized to do this');
-    }
-
-    const newComment: Comment = { text: data.comment, author: user.uid };
-    updateDoc(
-      doc(db, `/circle/${circleId}/post/${postId}/comment/${commentId}`),
-      { ...newComment }
-    )
-      .then(() => {
-        onSuccessCallback && onSuccessCallback(newComment);
-      })
-      .catch((e: FirestoreError) => {
-        setCommentError(e.code);
-      });
-  }
-
-  return (
-    <form // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <div className="mb-4">
-        <label
-          htmlFor="edit-comment"
-          className="mb-2 block text-sm font-bold text-gray-700"
-        >
-          edit this comment
-        </label>
-        <input
-          type="text"
-          id="edit-comment"
-          {...register('comment')}
-          className="w-full rounded-md border border-gray-300 p-2"
-        />
-        <p className="text-xs italic text-red-500">{errors.comment?.message}</p>
-      </div>
-
-      <button
-        type="submit"
-        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
-      >
-        save
-      </button>
-
-      {commentError && <p className="text-red-500">{commentError}</p>}
-    </form>
-  );
-}
-
-function CommentCard({
-  commentData,
-  commentId,
-  onSuccessCallback,
-  onDelete,
-}: {
-  commentData: Comment;
-  commentId: string;
-  onSuccessCallback?: (newComment: Comment) => void;
-  onDelete?: () => void;
-}) {
-  const [isEditMode, setIsEditMode] = useState(false);
-  const { user } = useAuth();
-
-  return isEditMode ? (
-    <div>
-      <CommentEditForm
-        comment={commentData}
-        onSuccessCallback={(newComment) => {
-          onSuccessCallback && onSuccessCallback(newComment);
-          setIsEditMode(false);
-        }}
-        commentId={commentId}
-      />
-    </div>
-  ) : (
-    <div>
-      {user && user.uid === commentData.author && (
-        <>
-          <button
-            onClick={() => {
-              setIsEditMode(true);
-            }}
-          >
-            edit
-          </button>
-          <button
-            onClick={() => {
-              onDelete && onDelete();
-            }}
-          >
-            delete
-          </button>
-        </>
-      )}
-      <p>{commentData.author}</p>
-      <p>{commentData.text}</p>
-    </div>
-  );
-}
-
 function PagePost() {
   const { user } = useAuth();
   const { circleId, postId } = useParams();
@@ -404,13 +208,19 @@ function PagePost() {
           <EditForm post={post} onSuccessCallback={setPost} />
         </>
       )}
-      {user && <CreateCommentForm onSuccessCallback={onComment} />}
+      {user && (
+        <CommentForm
+          onSuccessCallback={onComment}
+          basePath={`circle/${circleId}/post/${postId}/comment`}
+        />
+      )}
       {getError}
       {Object.keys(comments).map((commentId) => (
         <div key={`comment-${commentId}}`}>
           <CommentCard
             commentData={comments[commentId]}
             commentId={commentId}
+            basepath={`circle/${circleId}/post/${postId}/comment`}
             onSuccessCallback={(newComment) => {
               setComments(() => ({ ...comments, [commentId]: newComment }));
             }}
