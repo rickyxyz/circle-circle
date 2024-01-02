@@ -1,5 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
+  addDoc,
+  collection,
   deleteDoc,
   doc,
   getDoc,
@@ -14,7 +16,7 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import {
-  expectGetSucceeds,
+  expectDatabaseSucceeds,
   expectPermissionDenied,
   expectPermissionSucceeds,
 } from './firebaseRules.utils';
@@ -96,12 +98,14 @@ describe('user collection', () => {
   it('can be read by anyone', async () => {
     const unauthedDb = testEnv.unauthenticatedContext().firestore();
 
-    await expectGetSucceeds(getDoc(doc(unauthedDb, 'user', 'a')));
+    await expectDatabaseSucceeds(getDoc(doc(unauthedDb, 'user', 'a')));
     expect(true).toBe(true);
   });
 
   it('user private info can only be accessed by that user', async () => {
-    await expectGetSucceeds(getDoc(doc(aliceDb, 'user/a/private/privacy')));
+    await expectDatabaseSucceeds(
+      getDoc(doc(aliceDb, 'user/a/private/privacy'))
+    );
     await expectPermissionDenied(getDoc(doc(bobDb, 'user/a/private/privacy')));
     await expectPermissionDenied(
       getDoc(doc(unauthedDb, 'user/a/private/privacy'))
@@ -157,7 +161,7 @@ describe('circle collection', () => {
 
 describe('member subcollection', () => {
   it('can be accessed publicaly', async () => {
-    await expectGetSucceeds(
+    await expectDatabaseSucceeds(
       getDoc(doc(unauthedDb, 'circle/testCircle1/member/a'))
     );
     expect(true).toBe(true);
@@ -231,6 +235,103 @@ describe('member subcollection', () => {
       updateDoc(doc(unauthedDb, 'circle/testCircle1/member/c'), {
         role: 'member',
       })
+    );
+    expect(true).toBe(true);
+  });
+});
+
+describe('post subcollection', () => {
+  it('can be accessed publicaly', async () => {
+    await expectDatabaseSucceeds(
+      getDoc(doc(unauthedDb, 'circle/testCircle1/post/a'))
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be created by circle member', async () => {
+    await expectDatabaseSucceeds(
+      addDoc(collection(aliceDb, 'circle/testCircle1/post'), {
+        title: 'new post',
+        content: 'this is a new post',
+      })
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be created by non circle member', async () => {
+    await expectPermissionDenied(
+      addDoc(
+        collection(
+          testEnv.authenticatedContext('x').firestore(),
+          'circle/testCircle1/post'
+        ),
+        {
+          title: 'new post',
+          content: 'this is a new post',
+        }
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be edited by its creator', async () => {
+    await expectPermissionSucceeds(
+      updateDoc(doc(aliceDb, 'circle/testCircle1/post/a'), {
+        title: 'edited post',
+        content: 'this is an edited post',
+      })
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be edited by other user', async () => {
+    await expectPermissionDenied(
+      updateDoc(
+        doc(
+          testEnv.authenticatedContext('x').firestore(),
+          'circle/testCircle1/post/a'
+        ),
+        {
+          title: 'edited post',
+          content: 'this is an edited post',
+        }
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be deleted by its creator', async () => {
+    await expectPermissionSucceeds(
+      deleteDoc(
+        doc(
+          testEnv.authenticatedContext('a').firestore(),
+          'circle/testCircle1/post/aa'
+        )
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be deleted by admin', async () => {
+    await expectPermissionSucceeds(
+      deleteDoc(
+        doc(
+          testEnv.authenticatedContext('a').firestore(),
+          'circle/testCircle1/post/b'
+        )
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be deleted by other user', async () => {
+    await expectPermissionDenied(
+      deleteDoc(
+        doc(
+          testEnv.authenticatedContext('x').firestore(),
+          'circle/testCircle1/post/c'
+        )
+      )
     );
     expect(true).toBe(true);
   });

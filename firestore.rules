@@ -21,15 +21,30 @@ service cloud.firestore {
     }
 
     match /circle/{circle_id} {
+      function isAdmin() {
+        return get(/databases/$(database)/documents/circle/$(circle_id)/member/$(request.auth.uid)).data.role == 'admin';
+      }
+
+      function isMember() {
+        return exists(/databases/$(database)/documents/circle/$(circle_id)/member/$(request.auth.uid));
+      }
+
       allow read: if true;
       allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && get(/databases/$(database)/documents/circle/$(circle_id)/member/$(request.auth.uid)).data.role == 'admin';
+      allow update, delete: if isSignedIn() && isAdmin();
 
       match /member/{user_id} {
         allow read: if true;
         allow create: if isSignedIn();
-        allow delete: if isSignedIn() && (request.auth.uid == user_id || get(/databases/$(database)/documents/circle/$(circle_id)/member/$(request.auth.uid)).data.role == 'admin');
-        allow update: if isSignedIn() && get(/databases/$(database)/documents/circle/$(circle_id)/member/$(request.auth.uid)).data.role == 'admin';
+        allow delete: if isSignedIn() && (request.auth.uid == user_id || isAdmin());
+        allow update: if isSignedIn() && isAdmin();
+      }
+
+      match /post/{post_id} {
+        allow read: if true;
+        allow create: if isSignedIn() && isMember();
+        allow update: if isSignedIn() && resource.data.author == request.auth.uid;
+        allow delete: if isSignedIn() && (resource.data.author == request.auth.uid || isAdmin());
       }
     }
   }

@@ -19,6 +19,6 @@ export async function expectPermissionSucceeds(promise: Promise<any>) {
   expect(successResult).toBeUndefined();
 }
 
-export async function expectGetSucceeds(promise: Promise<any>) {
+export async function expectDatabaseSucceeds(promise: Promise<any>) {
   await expect(assertSucceeds(promise)).resolves.toBeDefined();
 }

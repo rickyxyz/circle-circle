@@ -1,6 +1,6 @@
 import { Page, expect } from '@playwright/test';
 
-async function createNewUser(page: Page) {
+export default async function createNewUser(page: Page) {
   await page.goto('/');
 
   const newUser = {
@@ -20,5 +20,3 @@ async function createNewUser(page: Page) {
     newUser.username
   );
 }
-
-export default createNewUser;

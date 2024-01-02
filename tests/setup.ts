@@ -47,6 +47,34 @@ export async function setup() {
       role: 'member',
     });
   });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'circle/testCircle1/post/a'), {
+      author: 'a',
+      title: 'post a',
+      content: 'this is a post',
+    });
+  });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'circle/testCircle1/post/aa'), {
+      author: 'a',
+      title: 'post b',
+      content: 'this is a post',
+    });
+  });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'circle/testCircle1/post/b'), {
+      author: 'b',
+      title: 'post c',
+      content: 'this is a post',
+    });
+  });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'circle/testCircle1/post/c'), {
+      author: 'c',
+      title: 'post c',
+      content: 'this is a post',
+    });
+  });
 }
 
 export async function teardown() {

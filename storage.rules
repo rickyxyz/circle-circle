@@ -13,6 +13,14 @@ service firebase.storage {
     return request.resource.size < n * 1024 * 1024;
   }
 
+  function isMember(circle_id) {
+    return firestore.exists(/databases/(default)/documents/circle/$(circle_id)/member/$(request.auth.uid));
+  }
+
+  function isAdmin(circle_id) {
+    return firestore.get(/databases/(default)/documents/circle/$(circle_id)/member/$(request.auth.uid)).role == 'admin';
+  }
+
   match /b/{bucket}/o {
     match /{allPaths=**} {
       allow read, write: if false;
@@ -26,7 +34,13 @@ service firebase.storage {
     
     match /circle/{circle_id}/{allFile=**} {
       allow read: if true;
-      allow write: if isLoggedIn() && isLessThanMbs(5) && isImage() && firestore.exists(/databases/(default)/documents/circle/$(circle_id)/member/$(request.auth.uid));
+      allow write: if isLoggedIn() && isLessThanMbs(5) && isImage() && isMember(circle_id);
+    }
+    
+    match /circle/{circle_id}/post/{post_id}/{allFile=**} {
+      allow read: if true;
+      allow write: if isLoggedIn() && isMember(circle_id);
+      allow delete, update: if isLoggedIn() && (isAdmin(circle_id) || firestore.get(/databases/(default)/documents/circle/$(circle_id)/post/$(post_id)).data.author == request.auth.uid);
     }
   }
 }

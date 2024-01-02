@@ -1,11 +1,9 @@
 import {
-  addDoc,
   collection,
   getDoc,
   doc,
   updateDoc,
   DocumentData,
-  setDoc,
   getDocs,
   DocumentSnapshot,
 } from 'firebase/firestore';
@@ -18,17 +16,6 @@ export async function getData<T extends keyof FirestoreCollection>(
 ): Promise<FirestoreCollection[T] | undefined> {
   return getDoc(doc(db, collectionName, id)).then(
     (docSnap) => docSnap.data() as FirestoreCollection[T]
-  );
-}
-
-export async function writeData<T extends keyof FirestoreCollection>(
-  collectionName: T,
-  data: FirestoreCollection[T],
-  id?: string
-): Promise<string> {
-  if (id) return setDoc(doc(db, collectionName, id), data).then(() => id);
-  return addDoc(collection(db, collectionName), data).then(
-    (docRef) => docRef.id
   );
 }
 
