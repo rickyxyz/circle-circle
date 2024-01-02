@@ -23,6 +23,7 @@ export default function useAuth() {
         await setDoc(doc(db, 'user', uid), {
           username: username,
           uid: uid,
+          circle: [],
         });
         return uid;
       })

@@ -6,9 +6,7 @@
   "contentType": "text/plain",
   "storageClass": "STANDARD",
   "contentDisposition": "inline",
-  "downloadTokens": [
-    "13718a74-88e2-428a-b545-d4ede7fc5704"
-  ],
+  "downloadTokens": ["13718a74-88e2-428a-b545-d4ede7fc5704"],
   "etag": "StlK92vOW6PRrm5s2C2pVSnStks",
   "customMetadata": {},
   "timeCreated": "2023-12-27T22:49:43.627Z",
