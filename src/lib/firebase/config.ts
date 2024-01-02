@@ -34,4 +34,4 @@ if (MODE !== 'production') {
   connectStorageEmulator(storage, '127.0.0.1', 9199);
 }
 
-export { app, db, auth, storage };
+export { db, auth, storage };

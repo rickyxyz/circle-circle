@@ -7,15 +7,14 @@ import {
   FirestoreError,
   addDoc,
   collection,
-  doc,
   getDocs,
-  updateDoc,
 } from 'firebase/firestore';
 import { customError } from '@/lib/error';
 import { Circle, Post } from '@/types/db';
 import useAuth from '@/hook/useAuth';
 import { useLoaderData } from 'react-router-dom';
 import { db } from '@/lib/firebase/config';
+import { editCircle } from '@/lib/circle';
 
 function UpdateForm({
   circleData,
@@ -46,18 +45,13 @@ function UpdateForm({
     if (!user) {
       throw new customError('unauthorize', 'you are not authorized to do this');
     }
-
-    const newCircle = { ...circleData, ...data };
-
-    updateDoc(doc(db, 'circle', circleData.name), newCircle)
-      .then(() => {
-        if (onSuccessCallback) {
-          onSuccessCallback(newCircle);
-        }
-      })
-      .catch((e: FirestoreError) => {
+    editCircle(
+      { ...circleData, ...data },
+      onSuccessCallback,
+      (e: FirestoreError) => {
         setCreateError(e.code);
-      });
+      }
+    );
   }
 
   return (
