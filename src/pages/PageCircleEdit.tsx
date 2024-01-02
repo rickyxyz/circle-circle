@@ -139,17 +139,53 @@ function CreatePostForm({
   }
 
   return (
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <h2>Create A New Post</h2>
-      <label htmlFor="post-title">Post Title</label>
-      <input type="text" id="post-title" {...register('title')} />
-      <p>{errors.title?.message}</p>
+    <form
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onSubmit={handleSubmit(onSubmit)}
+      className="mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
+    >
+      <h2 className="mb-4 text-2xl font-bold">Create A New Post</h2>
 
-      <label htmlFor="post-description">Post description</label>
-      <input type="text" id="post-description" {...register('description')} />
-      <button type="submit">post</button>
-      <p>{errors.description?.message}</p>
+      <div className="mb-4">
+        <label
+          htmlFor="post-title"
+          className="mb-2 block text-sm font-bold text-gray-700"
+        >
+          Post Title
+        </label>
+        <input
+          type="text"
+          id="post-title"
+          {...register('title')}
+          className="w-full rounded-md border border-gray-300 p-2"
+        />
+        <p className="text-xs italic text-red-500">{errors.title?.message}</p>
+      </div>
+
+      <div className="mb-4">
+        <label
+          htmlFor="post-description"
+          className="mb-2 block text-sm font-bold text-gray-700"
+        >
+          Post Description
+        </label>
+        <input
+          type="text"
+          id="post-description"
+          {...register('description')}
+          className="w-full rounded-md border border-gray-300 p-2"
+        />
+        <p className="text-xs italic text-red-500">
+          {errors.description?.message}
+        </p>
+      </div>
+
+      <button
+        type="submit"
+        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+      >
+        Post
+      </button>
 
       {createError && <p className="text-red-500">{createError}</p>}
     </form>

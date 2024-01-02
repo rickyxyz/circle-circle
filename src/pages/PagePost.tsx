@@ -54,17 +54,53 @@ function EditForm({
   }
 
   return (
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    <form onSubmit={handleSubmit(onEdit)}>
-      <h2>edit form</h2>
-      <label htmlFor="post-title">Edit Post Title</label>
-      <input type="text" id="post-title" {...register('title')} />
-      <p>{errors.title?.message}</p>
+    <form
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onSubmit={handleSubmit(onEdit)}
+      className="mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
+    >
+      <h2 className="mb-4 text-2xl font-bold">Edit Form</h2>
 
-      <label htmlFor="post-description">Edit Post description</label>
-      <input type="text" id="post-description" {...register('description')} />
-      <button type="submit">update post</button>
-      <p>{errors.description?.message}</p>
+      <div className="mb-4">
+        <label
+          htmlFor="post-title"
+          className="mb-2 block text-sm font-bold text-gray-700"
+        >
+          Edit Post Title
+        </label>
+        <input
+          type="text"
+          id="post-title"
+          {...register('title')}
+          className="w-full rounded-md border border-gray-300 p-2"
+        />
+        <p className="text-xs italic text-red-500">{errors.title?.message}</p>
+      </div>
+
+      <div className="mb-4">
+        <label
+          htmlFor="post-description"
+          className="mb-2 block text-sm font-bold text-gray-700"
+        >
+          Edit Post Description
+        </label>
+        <input
+          type="text"
+          id="post-description"
+          {...register('description')}
+          className="w-full rounded-md border border-gray-300 p-2"
+        />
+        <p className="text-xs italic text-red-500">
+          {errors.description?.message}
+        </p>
+      </div>
+
+      <button
+        type="submit"
+        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+      >
+        Update Post
+      </button>
 
       {editError && <p className="text-red-500">{editError}</p>}
     </form>
@@ -92,11 +128,21 @@ function PagePost() {
       <h2>{post.title}</h2>
       <h3>{post.description}</h3>
       {user && user.uid === post.author && (
-        <button onClick={() => setIsEditMode(true)}>edit post</button>
+        <button
+          onClick={() => setIsEditMode(true)}
+          className="mr-2 rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+        >
+          Edit Post
+        </button>
       )}
       {isEditMode && (
         <>
-          <button onClick={onDelete}>delete post</button>
+          <button
+            onClick={onDelete}
+            className="rounded-md bg-red-500 p-2 text-white hover:bg-red-700"
+          >
+            Delete Post
+          </button>
           {deleteError}
           <EditForm post={post} onSuccessCallback={setPost} />
         </>
