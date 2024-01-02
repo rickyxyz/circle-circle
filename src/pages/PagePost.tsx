@@ -5,7 +5,6 @@ import { Post } from '@/types/db';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FirebaseError } from 'firebase/app';
 import {
-  DocumentSnapshot,
   FirestoreError,
   addDoc,
   collection,
@@ -121,7 +120,7 @@ function EditForm({
 function CreateCommentForm({
   onSuccessCallback,
 }: {
-  onSuccessCallback?: (newComment: Comment) => void;
+  onSuccessCallback?: (newComment: Comment, commentId: string) => void;
 }) {
   const commentSchema = z.object({
     comment: z.string().min(1, { message: "comment can't be empty" }),
@@ -148,8 +147,8 @@ function CreateCommentForm({
       collection(db, `/circle/${circleId}/post/${postId}/comment`),
       newComment
     )
-      .then(() => {
-        onSuccessCallback && onSuccessCallback(newComment);
+      .then((docref) => {
+        onSuccessCallback && onSuccessCallback(newComment, docref.id);
       })
       .catch((e: FirestoreError) => {
         setCommentError(e.code);
@@ -188,14 +187,143 @@ function CreateCommentForm({
   );
 }
 
+function CommentEditForm({
+  comment,
+  commentId,
+  onSuccessCallback,
+}: {
+  comment: Comment;
+  commentId: string;
+  onSuccessCallback?: (newComment: Comment) => void;
+}) {
+  const commentSchema = z.object({
+    comment: z.string().min(1, { message: "comment can't be empty" }),
+  });
+  type CommentSchema = z.infer<typeof commentSchema>;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CommentSchema>({
+    resolver: zodResolver(commentSchema),
+    defaultValues: { comment: comment.text },
+  });
+  const { circleId, postId } = useParams();
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  function onSubmit(data: CommentSchema) {
+    if (!user) {
+      throw new customError('unauthorize', 'you are not authorized to do this');
+    }
+
+    const newComment: Comment = { text: data.comment, author: user.uid };
+    updateDoc(
+      doc(db, `/circle/${circleId}/post/${postId}/comment/${commentId}`),
+      { ...newComment }
+    )
+      .then(() => {
+        onSuccessCallback && onSuccessCallback(newComment);
+      })
+      .catch((e: FirestoreError) => {
+        setCommentError(e.code);
+      });
+  }
+
+  return (
+    <form // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <div className="mb-4">
+        <label
+          htmlFor="edit-comment"
+          className="mb-2 block text-sm font-bold text-gray-700"
+        >
+          edit this comment
+        </label>
+        <input
+          type="text"
+          id="edit-comment"
+          {...register('comment')}
+          className="w-full rounded-md border border-gray-300 p-2"
+        />
+        <p className="text-xs italic text-red-500">{errors.comment?.message}</p>
+      </div>
+
+      <button
+        type="submit"
+        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+      >
+        save
+      </button>
+
+      {commentError && <p className="text-red-500">{commentError}</p>}
+    </form>
+  );
+}
+
+function CommentCard({
+  commentData,
+  commentId,
+  onSuccessCallback,
+  onDelete,
+}: {
+  commentData: Comment;
+  commentId: string;
+  onSuccessCallback?: (newComment: Comment) => void;
+  onDelete?: () => void;
+}) {
+  const [isEditMode, setIsEditMode] = useState(false);
+  const { user } = useAuth();
+
+  return isEditMode ? (
+    <div>
+      <CommentEditForm
+        comment={commentData}
+        onSuccessCallback={(newComment) => {
+          onSuccessCallback && onSuccessCallback(newComment);
+          setIsEditMode(false);
+        }}
+        commentId={commentId}
+      />
+    </div>
+  ) : (
+    <div>
+      {user && user.uid === commentData.author && (
+        <>
+          <button
+            onClick={() => {
+              setIsEditMode(true);
+            }}
+          >
+            edit
+          </button>
+          <button
+            onClick={() => {
+              onDelete && onDelete();
+            }}
+          >
+            delete
+          </button>
+        </>
+      )}
+      <p>{commentData.author}</p>
+      <p>{commentData.text}</p>
+    </div>
+  );
+}
+
 function PagePost() {
   const { user } = useAuth();
   const { circleId, postId } = useParams();
   const [post, setPost] = useState<Post>(useLoaderData() as Post);
   const [isEditMode, setIsEditMode] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [commentDeleteError, setCommentDeleteError] = useState<string | null>(
+    null
+  );
   const navigate = useNavigate();
-  const [comments, setComment] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<Record<string, Comment>>({});
   const [getError, setGetError] = useState<null | string>(null);
 
   useEffect(() => {
@@ -204,15 +332,17 @@ function PagePost() {
         collection(db, `circle/${circleId}/post/${postId}/comment`)
       );
 
-      const dataArray: Comment[] = querySnapshot.docs.map(
-        (doc: DocumentSnapshot) => doc.data() as Comment
-      );
+      const dataObject: Record<string, Comment> = {};
 
-      return dataArray;
+      querySnapshot.forEach((doc) => {
+        dataObject[doc.id] = doc.data() as Comment;
+      });
+
+      return dataObject;
     };
 
     fetchData()
-      .then((comments) => setComment(comments))
+      .then((comments) => setComments(comments))
       .catch((e: FirestoreError) => {
         setGetError(e.code);
       });
@@ -226,8 +356,28 @@ function PagePost() {
       .catch((e: FirebaseError) => setDeleteError(e.code));
   }
 
-  function onComment(newComment: Comment) {
-    setComment([...comments, newComment]);
+  function onComment(newComment: Comment, commentId: string) {
+    setComments({
+      ...comments,
+      [commentId]: newComment,
+    });
+  }
+
+  function onCommentDelete(commentId: string) {
+    deleteDoc(
+      doc(db, `/circle/${circleId}/post/${postId}/comment/${commentId}`)
+    )
+      .then(() => {
+        setComments((prev) => {
+          const updatedComments = { ...prev };
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete updatedComments[commentId];
+          return updatedComments;
+        });
+      })
+      .catch((e: FirestoreError) => {
+        setCommentDeleteError(e.code);
+      });
   }
 
   return (
@@ -256,9 +406,19 @@ function PagePost() {
       )}
       {user && <CreateCommentForm onSuccessCallback={onComment} />}
       {getError}
-      {comments.map((comment, idx) => (
-        <div key={`comment-${idx}}`}>
-          <p>{comment.text}</p>
+      {Object.keys(comments).map((commentId) => (
+        <div key={`comment-${commentId}}`}>
+          <CommentCard
+            commentData={comments[commentId]}
+            commentId={commentId}
+            onSuccessCallback={(newComment) => {
+              setComments(() => ({ ...comments, [commentId]: newComment }));
+            }}
+            onDelete={() => {
+              onCommentDelete(commentId);
+            }}
+          />
+          {commentDeleteError}
         </div>
       ))}
     </div>

@@ -1,6 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
 import createNewUser from 'tests/e2e/fixtures/createNewUser.utils';
-import testerLogin from 'tests/e2e/fixtures/testerLogin.utils';
 
 const newComment = {
   text: `Hello, this is a randomly generated comment number ${Math.random().toFixed(
@@ -19,6 +18,7 @@ test.describe('As Unauthed user', () => {
 
 test.describe('As Non-member', () => {
   let page: Page;
+  test.describe.configure({ mode: 'serial' });
 
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
@@ -42,7 +42,7 @@ test.describe('As Non-member', () => {
     await expect(page.getByText(/comment can't be empty/i)).toBeVisible();
   });
 
-  test('Create post form can successfully submit', async () => {
+  test('can successfully create a new comment', async () => {
     await page.goto('/circle/testCircle1/post/testPost1');
 
     await page.getByLabel(/^post a comment$/i).fill(newComment.text);
@@ -50,17 +50,18 @@ test.describe('As Non-member', () => {
 
     await expect(page.getByText(newComment.text)).toBeVisible();
   });
-});
 
-test.describe('As Member', () => {
-  test.beforeEach(async ({ page }) => {
-    await testerLogin(page);
-  });
-
-  test('post comment button should be visible', async ({ page }) => {
+  test('can successfully edit existing comment', async () => {
     await page.goto('/circle/testCircle1/post/testPost1');
 
-    await expect(page.getByText('testPost1')).toBeVisible();
-    await expect(page.getByText('post a comment')).toBeVisible();
+    await page.getByRole('button', { name: 'edit' }).first().click();
+    await page
+      .getByLabel(/^edit this comment$/i)
+      .fill(`This is a newly updated ${newComment.text}`);
+    await page.getByRole('button', { name: 'save' }).first().click();
+
+    await expect(
+      page.getByText(`This is a newly updated ${newComment.text}`)
+    ).toBeVisible();
   });
 });
