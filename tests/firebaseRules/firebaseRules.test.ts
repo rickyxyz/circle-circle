@@ -336,3 +336,203 @@ describe('post subcollection', () => {
     expect(true).toBe(true);
   });
 });
+
+describe('comment subcollection', () => {
+  it('can be accessed publicaly', async () => {
+    await expectDatabaseSucceeds(
+      getDoc(doc(unauthedDb, 'circle/testCircle1/post/a/comment/a'))
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be created by circle member', async () => {
+    await expectDatabaseSucceeds(
+      addDoc(collection(aliceDb, 'circle/testCircle1/post/a/comment'), {
+        author: 'a',
+        title: 'new comment',
+        content: 'this is a new comment',
+      })
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be created by non circle member', async () => {
+    await expectPermissionDenied(
+      addDoc(
+        collection(
+          testEnv.authenticatedContext('x').firestore(),
+          'circle/testCircle1/post/a/comment'
+        ),
+        {
+          author: 'x',
+          title: 'new comment',
+          content: 'this is a new comment',
+        }
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be edited by its creator', async () => {
+    await expectPermissionSucceeds(
+      updateDoc(doc(aliceDb, 'circle/testCircle1/post/a/comment/a'), {
+        content: 'this is an edited comment',
+      })
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be edited by other user', async () => {
+    await expectPermissionDenied(
+      updateDoc(
+        doc(
+          testEnv.authenticatedContext('x').firestore(),
+          'circle/testCircle1/post/a/comment/a'
+        ),
+        {
+          content: 'this is an edited comment',
+        }
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be deleted by its creator', async () => {
+    await expectPermissionSucceeds(
+      deleteDoc(
+        doc(
+          testEnv.authenticatedContext('a').firestore(),
+          'circle/testCircle1/post/a/comment/b'
+        )
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be deleted by admin', async () => {
+    await expectPermissionSucceeds(
+      deleteDoc(
+        doc(
+          testEnv.authenticatedContext('a').firestore(),
+          'circle/testCircle1/post/a/comment/c'
+        )
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be deleted by other user', async () => {
+    await expectPermissionDenied(
+      deleteDoc(
+        doc(
+          testEnv.authenticatedContext('x').firestore(),
+          'circle/testCircle1/post/a/comment/a'
+        )
+      )
+    );
+    expect(true).toBe(true);
+  });
+});
+
+describe('comment recursive subcollection', () => {
+  it('can be accessed publicaly', async () => {
+    await expectDatabaseSucceeds(
+      getDoc(doc(unauthedDb, 'circle/testCircle1/post/a/comment/a/comment/aa'))
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be created by circle member', async () => {
+    await expectDatabaseSucceeds(
+      addDoc(
+        collection(aliceDb, 'circle/testCircle1/post/a/comment/a/comment'),
+        {
+          author: 'a',
+          title: 'new comment',
+          content: 'this is a new comment',
+        }
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be created by non circle member', async () => {
+    await expectPermissionDenied(
+      addDoc(
+        collection(
+          testEnv.authenticatedContext('x').firestore(),
+          'circle/testCircle1/post/a/comment/a/comment'
+        ),
+        {
+          author: 'x',
+          title: 'new comment',
+          content: 'this is a new comment',
+        }
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be edited by its creator', async () => {
+    await expectPermissionSucceeds(
+      updateDoc(
+        doc(aliceDb, 'circle/testCircle1/post/a/comment/a/comment/aa'),
+        {
+          content: 'this is an edited comment',
+        }
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be edited by other user', async () => {
+    await expectPermissionDenied(
+      updateDoc(
+        doc(
+          testEnv.authenticatedContext('x').firestore(),
+          'circle/testCircle1/post/a/comment/a/comment/aa'
+        ),
+        {
+          content: 'this is an edited comment',
+        }
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be deleted by its creator', async () => {
+    await expectPermissionSucceeds(
+      deleteDoc(
+        doc(
+          testEnv.authenticatedContext('a').firestore(),
+          'circle/testCircle1/post/a/comment/a/comment/aa'
+        )
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be deleted by admin', async () => {
+    await expectPermissionSucceeds(
+      deleteDoc(
+        doc(
+          testEnv.authenticatedContext('a').firestore(),
+          'circle/testCircle1/post/a/comment/a/comment/cc'
+        )
+      )
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be deleted by other user', async () => {
+    await expectPermissionDenied(
+      deleteDoc(
+        doc(
+          testEnv.authenticatedContext('x').firestore(),
+          'circle/testCircle1/post/a/comment/a/comment/bb'
+        )
+      )
+    );
+    expect(true).toBe(true);
+  });
+});

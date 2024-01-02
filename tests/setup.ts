@@ -75,6 +75,69 @@ export async function setup() {
       content: 'this is a post',
     });
   });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), 'circle/testCircle1/post/a/comment/a'),
+      {
+        author: 'a',
+        content: 'this is a comment',
+      }
+    );
+  });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), 'circle/testCircle1/post/a/comment/b'),
+      {
+        author: 'a',
+        content: 'this is also a comment',
+      }
+    );
+  });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(context.firestore(), 'circle/testCircle1/post/a/comment/c'),
+      {
+        author: 'x',
+        content: 'this is also a comment',
+      }
+    );
+  });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(
+        context.firestore(),
+        'circle/testCircle1/post/a/comment/a/comment/aa'
+      ),
+      {
+        author: 'a',
+        content: 'this is also a comment',
+      }
+    );
+  });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(
+        context.firestore(),
+        'circle/testCircle1/post/a/comment/a/comment/bb'
+      ),
+      {
+        author: 'a',
+        content: 'this is also a comment',
+      }
+    );
+  });
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(
+      doc(
+        context.firestore(),
+        'circle/testCircle1/post/a/comment/a/comment/cc'
+      ),
+      {
+        author: 'x',
+        content: 'this is also a comment',
+      }
+    );
+  });
 }
 
 export async function teardown() {
