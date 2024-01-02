@@ -17,7 +17,7 @@ import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { Comment } from '@/types/db';
 import CommentCard from '@/component/CommentCard';
-import { CommentForm } from '@/component/CommentForm';
+import { CommentForm } from '@/component/form/CommentForm';
 
 function EditForm({
   post,

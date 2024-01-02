@@ -1,6 +1,6 @@
 import useAuth from '@/hook/useAuth';
-import RegisterForm from '@/component/RegisterForm';
-import LoginForm from '@/component/LoginForm';
+import RegisterForm from '@/component/form/RegisterForm';
+import LoginForm from '@/component/form/LoginForm';
 
 function LogoutButton() {
   const { logout } = useAuth();

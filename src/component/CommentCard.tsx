@@ -1,7 +1,7 @@
 import useAuth from '@/hook/useAuth';
 import { useEffect, useState } from 'react';
 import { Comment } from '@/types/db';
-import { CommentEditForm, CommentForm } from '@/component/CommentForm';
+import { CommentEditForm, CommentForm } from '@/component/form/CommentForm';
 import { db } from '@/lib/firebase/config';
 import { getDocs, collection, FirestoreError } from 'firebase/firestore';
 
