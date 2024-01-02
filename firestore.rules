@@ -48,7 +48,7 @@ service cloud.firestore {
 
         match /comment/{commentRecur=**} {
           allow read: if true;
-          allow write: if isMember();
+          allow create: if isSignedIn();
           allow update: if isSignedIn() && resource.data.author == request.auth.uid;
           allow delete: if isSignedIn() && (resource.data.author == request.auth.uid || isAdmin());
         }

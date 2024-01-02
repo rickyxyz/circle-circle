@@ -356,8 +356,8 @@ describe('comment subcollection', () => {
     expect(true).toBe(true);
   });
 
-  it('cannot be created by non circle member', async () => {
-    await expectPermissionDenied(
+  it('can be created by non circle member', async () => {
+    await expectDatabaseSucceeds(
       addDoc(
         collection(
           testEnv.authenticatedContext('x').firestore(),
@@ -456,8 +456,8 @@ describe('comment recursive subcollection', () => {
     expect(true).toBe(true);
   });
 
-  it('cannot be created by non circle member', async () => {
-    await expectPermissionDenied(
+  it('can be created by non circle member', async () => {
+    await expectDatabaseSucceeds(
       addDoc(
         collection(
           testEnv.authenticatedContext('x').firestore(),
