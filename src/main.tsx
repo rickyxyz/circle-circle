@@ -21,6 +21,7 @@ import PageCircleForms from '@/pages/PageCircleEdit';
 import { db } from '@/lib/firebase/config';
 import { getDoc, doc } from 'firebase/firestore';
 import PagePost from '@/pages/PagePost';
+import ModalProvider from '@/context/ModalProvider';
 
 const router = createBrowserRouter([
   {
@@ -134,7 +135,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root') as Element).render(
   <React.StrictMode>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <ModalProvider>
+        <RouterProvider router={router} />
+      </ModalProvider>
     </AuthProvider>
   </React.StrictMode>
 );
