@@ -3,11 +3,21 @@ import { db } from '@/lib/firebase/config';
 import { Post } from '@/types/db';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FirebaseError } from 'firebase/app';
-import { FirestoreError, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { useState } from 'react';
+import {
+  FirestoreError,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  updateDoc,
+} from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
+import { Comment } from '@/types/db';
+import CommentCard from '@/component/CommentCard';
+import { CommentForm } from '@/component/CommentForm';
 
 function EditForm({
   post,
@@ -113,7 +123,36 @@ function PagePost() {
   const [post, setPost] = useState<Post>(useLoaderData() as Post);
   const [isEditMode, setIsEditMode] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [commentDeleteError, setCommentDeleteError] = useState<string | null>(
+    null
+  );
   const navigate = useNavigate();
+  const [comments, setComments] = useState<Record<string, Comment>>({});
+  const [getError, setGetError] = useState<null | string>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(
+        collection(db, `circle/${circleId}/post/${postId}/comment`)
+      );
+
+      const dataObject: Record<string, Comment> = {};
+
+      querySnapshot.forEach((doc) => {
+        dataObject[doc.id] = doc.data() as Comment;
+      });
+
+      return dataObject;
+    };
+
+    fetchData()
+      .then((comments) => {
+        setComments(comments);
+      })
+      .catch((e: FirestoreError) => {
+        setGetError(e.code);
+      });
+  }, [circleId, postId]);
 
   function onDelete() {
     deleteDoc(doc(db, `/circle/${circleId}/post/${postId}`))
@@ -121,6 +160,30 @@ function PagePost() {
         navigate('/circle/${circleId}', { replace: true });
       })
       .catch((e: FirebaseError) => setDeleteError(e.code));
+  }
+
+  function onComment(newComment: Comment, commentId: string) {
+    setComments({
+      ...comments,
+      [commentId]: newComment,
+    });
+  }
+
+  function onCommentDelete(commentId: string) {
+    deleteDoc(
+      doc(db, `/circle/${circleId}/post/${postId}/comment/${commentId}`)
+    )
+      .then(() => {
+        setComments((prev) => {
+          const updatedComments = { ...prev };
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete updatedComments[commentId];
+          return updatedComments;
+        });
+      })
+      .catch((e: FirestoreError) => {
+        setCommentDeleteError(e.code);
+      });
   }
 
   return (
@@ -147,6 +210,29 @@ function PagePost() {
           <EditForm post={post} onSuccessCallback={setPost} />
         </>
       )}
+      {user && (
+        <CommentForm
+          onSuccessCallback={onComment}
+          basePath={`circle/${circleId}/post/${postId}/comment`}
+        />
+      )}
+      {getError}
+      {Object.keys(comments).map((commentId) => (
+        <div key={`comment-${commentId}}`}>
+          <CommentCard
+            commentData={comments[commentId]}
+            commentId={commentId}
+            basepath={`circle/${circleId}/post/${postId}/comment`}
+            onSuccessCallback={(newComment) => {
+              setComments(() => ({ ...comments, [commentId]: newComment }));
+            }}
+            onDelete={() => {
+              onCommentDelete(commentId);
+            }}
+          />
+          {commentDeleteError}
+        </div>
+      ))}
     </div>
   );
 }

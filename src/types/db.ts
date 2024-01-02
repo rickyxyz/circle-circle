@@ -5,6 +5,11 @@ export interface User {
   circle: string[];
 }
 
+export interface Comment {
+  author: string;
+  text: string;
+}
+
 export interface Circle {
   name: string;
   description: string;

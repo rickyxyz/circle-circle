@@ -45,6 +45,13 @@ service cloud.firestore {
         allow create: if isSignedIn() && isMember();
         allow update: if isSignedIn() && resource.data.author == request.auth.uid;
         allow delete: if isSignedIn() && (resource.data.author == request.auth.uid || isAdmin());
+
+        match /comment/{commentRecur=**} {
+          allow read: if true;
+          allow create: if isSignedIn();
+          allow update: if isSignedIn() && resource.data.author == request.auth.uid;
+          allow delete: if isSignedIn() && (resource.data.author == request.auth.uid || isAdmin());
+        }
       }
     }
   }
