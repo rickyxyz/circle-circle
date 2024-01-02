@@ -2,19 +2,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
-import { getData } from '@/lib/firebase/firestore';
-import {
-  FirestoreError,
-  arrayRemove,
-  arrayUnion,
-  doc,
-  writeBatch,
-} from 'firebase/firestore';
+import { FirestoreError } from 'firebase/firestore';
 import { customError } from '@/lib/error';
 import { Circle } from '@/types/db';
 import useAuth from '@/hook/useAuth';
 import { useLoaderData } from 'react-router-dom';
-import { db } from '@/lib/firebase/config';
+import { createNewCircle, joinCircle, leaveCircle } from '@/lib/circle';
 
 function CreateForm({
   onSuccessCallback,
@@ -41,46 +34,9 @@ function CreateForm({
     if (!user) {
       throw new customError('unauthorize', 'you are not authorized to do this');
     }
-
-    const newCircle: Circle = {
-      ...data,
-    };
-
-    getData('circle', data.name)
-      .then((data) => {
-        if (data !== undefined) {
-          throw new customError(
-            'already exists',
-            'circle with that name already exists'
-          );
-        }
-      })
-      .then(() => {
-        const batch = writeBatch(db);
-
-        batch.set(doc(db, `circle/${data.name}`), data);
-        batch.update(doc(db, `user/${user.uid}`), {
-          circle: arrayUnion(data.name),
-        });
-        batch.update(doc(db, `user/${user.uid}`), {
-          circle: arrayUnion(data.name),
-        });
-        batch.set(doc(db, `circle/${data.name}/member/${user.uid}`), {
-          role: 'admin',
-        });
-
-        batch
-          .commit()
-          .then(() => {
-            if (onSuccessCallback) {
-              onSuccessCallback(newCircle);
-            }
-          })
-          .catch((e: FirestoreError) => {
-            setCreateError(e.code);
-          });
-      })
-      .catch((e: FirestoreError) => setCreateError(e.code));
+    createNewCircle(user, data, onSuccessCallback, (e) => {
+      setCreateError(e.code);
+    });
   }
 
   return (
@@ -151,42 +107,32 @@ function CircleCard({
     if (!user) {
       throw new customError('unauthorize', 'you are not authorized to do this');
     }
-    const batch = writeBatch(db);
 
-    batch.update(doc(db, `user/${user.uid}`), {
-      circle: arrayUnion(circle.name),
-    });
-    batch.set(doc(db, `circle/${circle.name}/member/${user.uid}`), {
-      role: 'member',
-    });
-
-    batch
-      .commit()
-      .then(() => {
+    joinCircle(
+      user,
+      circle,
+      () => {
         setHasJoined(true);
-      })
+      },
       // eslint-disable-next-line no-console
-      .catch((e) => console.log(e));
+      (e: FirestoreError) => console.log(e)
+    );
   }
 
   function handleLeave() {
     if (!user) {
       throw new customError('unauthorize', 'you are not authorized to do this');
     }
-    const batch = writeBatch(db);
 
-    batch.update(doc(db, `user/${user.uid}`), {
-      circle: arrayRemove(circle.name),
-    });
-    batch.delete(doc(db, `circle/${circle.name}/member/${user.uid}`));
-
-    batch
-      .commit()
-      .then(() => {
+    leaveCircle(
+      user,
+      circle,
+      () => {
         setHasJoined(false);
-      })
+      },
       // eslint-disable-next-line no-console
-      .catch((e) => console.log(e));
+      (e: FirestoreError) => console.log(e)
+    );
   }
 
   return (
