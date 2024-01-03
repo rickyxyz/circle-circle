@@ -7,26 +7,28 @@ import {
   redirect,
   RouterProvider,
 } from 'react-router-dom';
-import PageError from '@/pages/PageError';
 import { AuthProvider } from '@/context/AuthProvider.tsx';
-import PageAuth from '@/pages/PageAuth';
-import PageRoot from '@/pages/PageRoot';
 import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
-import PageProtected from '@/pages/PageProtected';
-import PageProfile from '@/pages/PageProfile';
 import { getCurrentUser } from '@/lib/firebase/auth';
 import { getCollection, getData } from '@/lib/firebase/firestore';
-import PageCircle from '@/pages/PageCircle';
-import PageCircleForms from '@/pages/PageCircleEdit';
 import { db } from '@/lib/firebase/config';
 import { getDoc, doc } from 'firebase/firestore';
-import PagePost from '@/pages/PagePost';
 import ModalProvider from '@/context/ModalProvider';
+import LayoutRoot from '@/pages/layout/LayoutRoot';
+import {
+  PageAuth,
+  PageCircle,
+  PageCircleForms,
+  PageError,
+  PagePost,
+  PageProfile,
+  PageProtected,
+} from '@/pages';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <PageRoot />,
+    element: <LayoutRoot />,
     errorElement: <PageError />,
     children: [
       {

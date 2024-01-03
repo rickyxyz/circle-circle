@@ -1,6 +1,7 @@
 import { User } from '@/types/db';
 import { GoKebabHorizontal, GoSearch } from 'react-icons/go';
 import { GiHamburgerMenu } from 'react-icons/gi';
+import Button from '@/component/common/Button';
 
 export default function Header({ user }: { user: User | null }) {
   return (
@@ -9,49 +10,39 @@ export default function Header({ user }: { user: User | null }) {
         <div className="mr-4 flex items-center md:hidden">
           <GiHamburgerMenu />
         </div>
-        {/* Logo on the left */}
         <div className="flex items-center">
-          {/* <img
-            src="/reddit-logo.png" // Replace with your logo or image URL
-            alt="Logo"
-            className="mr-2 h-8 w-8"
-          /> */}
-          <span className="hidden text-lg font-bold text-gray-800 md:block">
-            CircleCircle
-          </span>
+          <img src="/logo2.svg" alt="Logo" className="mr-2 h-8" />
         </div>
-        {/* Search bar or icon based on screen size */}
         <div className="hidden flex-grow items-center justify-center md:flex">
-          <input
-            type="text"
-            placeholder="Search"
-            className="w-full max-w-xl rounded-md bg-gray-100 px-3 py-2 text-gray-800"
-          />
+          <div className="flex w-full max-w-xl items-center rounded-md bg-gray-100 px-3 py-2 text-gray-800">
+            <div className="mr-2">
+              <GoSearch />
+            </div>
+            <input
+              type="text"
+              placeholder="Search"
+              className="w-full bg-gray-100 focus:outline-none"
+            />
+          </div>
         </div>
         <div className="mr-4 flex flex-grow items-center justify-end md:hidden">
-          {/* Search icon for mobile */}
           <GoSearch />
         </div>
-        {/* User profile or kebab icon based on screen size */}
-        <div className="flex items-center">
+        <div className="flex items-center justify-end md:min-w-20">
           {user ? (
-            // Render user information when user is provided
             <div className="hidden items-center md:flex">
               <img
-                src={user.profilePicture} // Replace with your user avatar image URL
+                src={user.profilePicture}
                 alt="User Avatar"
-                className="mr-2 h-8 w-8 rounded-full"
+                className="h-8 w-8 rounded-full"
               />
-              <span className="text-gray-800">{user.username}</span>
             </div>
           ) : (
-            // Render login button when user is not provided
-            <button className="hidden rounded bg-blue-500 px-4 py-2 text-white md:flex">
+            <Button variant="default" className="hidden  md:flex">
               Login
-            </button>
+            </Button>
           )}
           <div className="flex items-center md:hidden">
-            {/* Kebab icon for mobile */}
             <GoKebabHorizontal />
           </div>
         </div>
