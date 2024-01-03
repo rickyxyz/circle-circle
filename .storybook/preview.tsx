@@ -2,6 +2,7 @@ import type { Preview } from '@storybook/react';
 // import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
 import { themes } from '@storybook/theming';
 import '../src/global.css';
+import './storybook.css';
 
 const customViewports = {
   mobile_sm: {
@@ -93,4 +94,10 @@ const preview: Preview = {
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const withProvider = (Story: any) => {
+  return <Story />;
+};
+
 export default preview;
+export const decorators = [withProvider];
