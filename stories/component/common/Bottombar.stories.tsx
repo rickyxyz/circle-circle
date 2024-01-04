@@ -1,6 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
 import Bottombar from '@/component/common/Bottombar';
-import { AuthProvider } from '@/context/AuthProvider';
 
 const meta: Meta<typeof Bottombar> = {
   component: Bottombar,
@@ -10,13 +9,6 @@ const meta: Meta<typeof Bottombar> = {
       defaultViewport: 'mobile_sm',
     },
   },
-  decorators: [
-    (Story) => (
-      <AuthProvider>
-        <Story />
-      </AuthProvider>
-    ),
-  ],
 };
 export default meta;
 

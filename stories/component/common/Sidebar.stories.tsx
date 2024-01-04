@@ -1,6 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
 import Sidebar from '@/component/common/Sidebar';
-import { AuthProvider } from '@/context/AuthProvider';
 
 const meta: Meta<typeof Sidebar> = {
   component: Sidebar,
@@ -9,9 +8,9 @@ const meta: Meta<typeof Sidebar> = {
   },
   decorators: [
     (Story) => (
-      <AuthProvider>
+      <div style={{ height: '100vh' }}>
         <Story />
-      </AuthProvider>
+      </div>
     ),
   ],
 };

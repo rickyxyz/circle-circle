@@ -5,7 +5,7 @@ import { FaChevronDown } from 'react-icons/fa';
 
 export default function Sidebar({ user }: { user: User | null }) {
   return (
-    <div className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
+    <div className="relative flex h-full w-64 flex-col border-r border-gray-200 bg-white">
       <nav className="flex-1 overflow-y-auto">
         <ul className="p-4">
           <li className="mb-4">

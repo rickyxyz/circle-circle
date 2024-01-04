@@ -2,14 +2,21 @@ import { User } from '@/types/db';
 import { GoKebabHorizontal, GoSearch } from 'react-icons/go';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import Button from '@/component/common/Button';
+import { useAppDispatch } from '@/hook/reduxHooks';
+import { sidebarToggle } from '@/redux/menubarReducer';
 
 export default function Header({ user }: { user: User | null }) {
+  const dispatch = useAppDispatch();
+
   return (
     <header className="border-b border-gray-200 bg-white p-4">
       <div className="container mx-auto flex items-center justify-between">
-        <div className="mr-4 flex items-center md:hidden">
+        <button
+          className="mr-4 flex items-center md:hidden"
+          onClick={() => dispatch(sidebarToggle())}
+        >
           <GiHamburgerMenu />
-        </div>
+        </button>
         <div className="flex items-center">
           <img src="/logo2.svg" alt="Logo" className="mr-2 h-8" />
         </div>

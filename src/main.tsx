@@ -24,6 +24,8 @@ import {
   PageProfile,
   PageProtected,
 } from '@/pages';
+import { Provider as ReduxProvider } from 'react-redux';
+import store from '@/redux/store';
 
 const router = createBrowserRouter([
   {
@@ -136,10 +138,12 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root') as Element).render(
   <React.StrictMode>
-    <AuthProvider>
-      <ModalProvider>
-        <RouterProvider router={router} />
-      </ModalProvider>
-    </AuthProvider>
+    <ReduxProvider store={store}>
+      <AuthProvider>
+        <ModalProvider>
+          <RouterProvider router={router} />
+        </ModalProvider>
+      </AuthProvider>
+    </ReduxProvider>
   </React.StrictMode>
 );
