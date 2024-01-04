@@ -4,12 +4,16 @@ import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
 import useAuth from '@/hook/useAuth';
 import useWindowSize from '@/hook/useWindowSize';
 import { sideBarClose } from '@/redux/menubarReducer';
+import Bottombar from '@/component/common/Bottombar';
 import { Outlet } from 'react-router-dom';
 
 export default function LayoutRoot() {
   const windowSize = useWindowSize();
   const { user } = useAuth();
   const sidebarIsOpen = useAppSelector((state) => state.menubar.sidebarIsOpen);
+  const bottombarIsOpen = useAppSelector(
+    (state) => state.menubar.bottombarIsOpen
+  );
   const dispatch = useAppDispatch();
 
   const mobileLayout = (
@@ -26,6 +30,7 @@ export default function LayoutRoot() {
         )}
         <Outlet />
       </div>
+      {bottombarIsOpen && <Bottombar />}
     </div>
   );
 

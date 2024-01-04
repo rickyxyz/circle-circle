@@ -3,7 +3,7 @@ import { GoKebabHorizontal, GoSearch } from 'react-icons/go';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import Button from '@/component/common/Button';
 import { useAppDispatch } from '@/hook/reduxHooks';
-import { sidebarToggle } from '@/redux/menubarReducer';
+import { bottombarToggle, sidebarToggle } from '@/redux/menubarReducer';
 
 export default function Header({ user }: { user: User | null }) {
   const dispatch = useAppDispatch();
@@ -49,9 +49,12 @@ export default function Header({ user }: { user: User | null }) {
               Login
             </Button>
           )}
-          <div className="flex items-center md:hidden">
+          <button
+            className="flex items-center md:hidden"
+            onClick={() => dispatch(bottombarToggle())}
+          >
             <GoKebabHorizontal />
-          </div>
+          </button>
         </div>
       </div>
     </header>
