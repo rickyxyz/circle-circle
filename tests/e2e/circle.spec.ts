@@ -18,14 +18,14 @@ test.describe('circle create form', () => {
   });
 
   test('circle creation form can show error', async () => {
-    await page.goto('/circle');
+    await page.goto('/c');
     await page.getByRole('button', { name: 'create' }).click();
 
     await expect(page.getByText('Name is required')).toBeVisible();
   });
 
   test('circle creation form can show network error', async () => {
-    await page.goto('/circle');
+    await page.goto('/c');
 
     await page.getByLabel('circle name').click();
     await page.getByLabel('circle name').fill('testCircle1');
@@ -37,7 +37,7 @@ test.describe('circle create form', () => {
   });
 
   test('circle can be created', async () => {
-    await page.goto('/circle');
+    await page.goto('/c');
     await page.getByLabel('circle name').click();
     await page.getByLabel('circle name').fill(newCircle.name);
     await page.getByLabel('circle description').click();
@@ -48,7 +48,7 @@ test.describe('circle create form', () => {
   });
 
   test('circle edit can be edited', async () => {
-    await page.goto('/circle/testCircle1');
+    await page.goto('/c/testCircle1');
     await page.getByLabel('Circle Description').click();
     await page
       .getByLabel('Circle Description')

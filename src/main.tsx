@@ -8,7 +8,6 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthProvider.tsx';
-import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
 import { getCurrentUser } from '@/lib/firebase/auth';
 import { getCollection, getData } from '@/lib/firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -16,29 +15,72 @@ import { getDoc, doc } from 'firebase/firestore';
 import ModalProvider from '@/context/ModalProvider';
 import LayoutRoot from '@/pages/layout/LayoutRoot';
 import {
-  PageAuth,
   PageCircle,
   PageCircleForms,
   PageError,
   PagePost,
   PageProfile,
-  PageProtected,
+  PageHome,
+  PageSettings,
 } from '@/pages';
 import { Provider as ReduxProvider } from 'react-redux';
 import store from '@/redux/store';
+import RegisterForm from '@/component/form/RegisterForm';
+import LoginForm from '@/component/form/LoginForm';
+import LayoutCentered from '@/pages/layout/LayoutCentered';
+import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/account',
+    errorElement: <PageError />,
+    element: <LayoutCentered />,
+    loader: async () => {
+      const currentUser = await getCurrentUser();
+      if (currentUser) {
+        return redirect('/');
+      }
+      return null;
+    },
+    children: [
+      {
+        path: 'login',
+        element: <LoginForm />,
+      },
+      {
+        path: 'register',
+        element: <RegisterForm />,
+      },
+    ],
+  },
+  {
+    path: '/account',
+    errorElement: <PageError />,
+    element: <ProtectedRoute />,
+    loader: async () => {
+      const currentUser = await getCurrentUser();
+      if (!currentUser) {
+        throw new Response('Not Found', { status: 404 });
+      }
+      return { isLoggedIn: Boolean(currentUser) };
+    },
+    children: [
+      {
+        path: 'settings',
+        element: <PageSettings />,
+      },
+    ],
+  },
+  {
     element: <LayoutRoot />,
     errorElement: <PageError />,
     children: [
       {
         index: true,
-        element: <PageAuth />,
+        element: <PageHome />,
       },
       {
-        path: 'profile/:userId?',
+        path: 'u/:userId?',
         element: <PageProfile />,
         loader: async ({ params }) => {
           const currentUser = await getCurrentUser();
@@ -60,7 +102,7 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: '/circle',
+        path: '/c',
         element: <PageCircle />,
         loader: async () => {
           const circleData = await getCollection('circle');
@@ -68,7 +110,7 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: '/circle/:circleId',
+        path: '/c/:circleId',
         element: <PageCircleForms />,
         loader: async ({ params }) => {
           if (!params.circleId) {
@@ -98,7 +140,7 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: '/circle/:circleId/post/:postId',
+        path: '/c/:circleId/p/:postId',
         element: <PagePost />,
         loader: async ({ params }) => {
           if (!params.postId) {
@@ -114,23 +156,6 @@ const router = createBrowserRouter([
             throw new Response('Not Found', { status: 404 });
           }
         },
-      },
-      {
-        path: 'auth',
-        element: <ProtectedRoute />,
-        loader: async () => {
-          const currentUser = await getCurrentUser();
-          if (!currentUser) {
-            throw new Response('Not Found', { status: 404 });
-          }
-          return { isLoggedIn: Boolean(currentUser) };
-        },
-        children: [
-          {
-            index: true,
-            element: <PageProtected />,
-          },
-        ],
       },
     ],
   },

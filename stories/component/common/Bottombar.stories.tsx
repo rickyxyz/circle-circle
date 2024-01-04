@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import Bottombar from '@/component/common/Bottombar';
+import Bottombar from '@/component/Bottombar';
 
 const meta: Meta<typeof Bottombar> = {
   component: Bottombar,

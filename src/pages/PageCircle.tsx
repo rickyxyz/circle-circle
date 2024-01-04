@@ -168,7 +168,7 @@ function PageCircle() {
 
   return (
     <div>
-      <h1>Page Circle</h1>
+      <h1>Browse Circle</h1>
       {circles.map((circle, idx) => (
         <CircleCard
           circle={circle}

@@ -1,10 +1,10 @@
-import Header from '@/component/common/Header';
-import Sidebar from '@/component/common/Sidebar';
+import Header from '@/component/Header';
+import Sidebar from '@/component/Sidebar';
 import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
 import useAuth from '@/hook/useAuth';
 import useWindowSize from '@/hook/useWindowSize';
 import { sideBarClose } from '@/redux/menubarReducer';
-import Bottombar from '@/component/common/Bottombar';
+import Bottombar from '@/component/Bottombar';
 import { Outlet } from 'react-router-dom';
 
 export default function LayoutRoot() {
@@ -17,7 +17,7 @@ export default function LayoutRoot() {
   const dispatch = useAppDispatch();
 
   const mobileLayout = (
-    <div className="flex flex-col">
+    <div className="flex min-h-screen flex-col">
       <Header user={user} />
       <div className="relative">
         {sidebarIsOpen && (
@@ -35,10 +35,18 @@ export default function LayoutRoot() {
   );
 
   const desktopLayout = (
-    <>
+    <div className="flex min-h-screen flex-col">
       <Header user={user} />
-      <Outlet />
-    </>
+      <div className="grid flex-1 grid-cols-12">
+        <div className="col-span-4">
+          <Sidebar user={user} />
+        </div>
+        <div className="col-span-5">
+          <Outlet />
+        </div>
+        <div className="col-span-3">Nav</div>
+      </div>
+    </div>
   );
 
   return windowSize.width > 768 ? desktopLayout : mobileLayout;

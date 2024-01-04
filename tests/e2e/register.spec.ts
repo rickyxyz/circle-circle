@@ -14,7 +14,7 @@ test.describe('Registration Form', () => {
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext();
     page = await context.newPage();
-    await page.goto('/');
+    await page.goto('/account/register');
   });
 
   test('register form displays error on invalid input', async () => {
@@ -42,7 +42,8 @@ test.describe('Registration Form', () => {
 
     await page.getByRole('button', { name: 'Register' }).click();
 
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    await page.waitForURL('**/');
+    await expect(page.getByRole('heading', { level: 3 })).toHaveText(
       testUser.username
     );
   });

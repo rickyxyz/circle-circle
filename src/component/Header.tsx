@@ -4,13 +4,22 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 import Button from '@/component/common/Button';
 import { useAppDispatch } from '@/hook/reduxHooks';
 import { bottombarToggle, sidebarToggle } from '@/redux/menubarReducer';
+import { HTMLAttributes } from 'react';
+import { cn } from '@/lib/utils';
 
-export default function Header({ user }: { user: User | null }) {
+interface HeaderProps extends HTMLAttributes<HTMLDivElement> {
+  user: User | null;
+}
+
+const Header = ({ user, className, ...props }: HeaderProps) => {
   const dispatch = useAppDispatch();
 
   return (
-    <header className="border-b border-gray-200 bg-white p-4">
-      <div className="container mx-auto flex items-center justify-between">
+    <header
+      className={cn('border-b border-gray-200 bg-white p-4', className)}
+      {...props}
+    >
+      <div className="flex items-center justify-between">
         <button
           className="mr-4 flex items-center md:hidden"
           onClick={() => dispatch(sidebarToggle())}
@@ -59,4 +68,6 @@ export default function Header({ user }: { user: User | null }) {
       </div>
     </header>
   );
-}
+};
+
+export default Header;

@@ -9,7 +9,7 @@ const newComment = {
 
 test.describe('As Unauthed user', () => {
   test('post comment button should be hidden', async ({ page }) => {
-    await page.goto('/circle/testCircle1/post/testPost1');
+    await page.goto('/c/testCircle1/p/testPost1');
 
     await expect(page.getByText('testPost1')).toBeVisible();
     await expect(page.getByText('post a comment')).toBeHidden();
@@ -28,14 +28,14 @@ test.describe('As Non-member', () => {
   });
 
   test('post comment button should be visible', async () => {
-    await page.goto('/circle/testCircle1/post/testPost1');
+    await page.goto('/c/testCircle1/p/testPost1');
 
     await expect(page.getByText('testPost1')).toBeVisible();
     await expect(page.getByText('post a comment')).toBeVisible();
   });
 
   test('comment form can show input error', async () => {
-    await page.goto('/circle/testCircle1/post/testPost1');
+    await page.goto('/c/testCircle1/p/testPost1');
 
     await page.getByRole('button', { name: 'post' }).click();
 
@@ -43,7 +43,7 @@ test.describe('As Non-member', () => {
   });
 
   test('can successfully create a new comment', async () => {
-    await page.goto('/circle/testCircle1/post/testPost1');
+    await page.goto('/c/testCircle1/p/testPost1');
 
     await page.getByLabel(/^post a comment$/i).fill(newComment.text);
     await page.getByRole('button', { name: 'post' }).click();
@@ -52,7 +52,7 @@ test.describe('As Non-member', () => {
   });
 
   test('can successfully edit existing comment', async () => {
-    await page.goto('/circle/testCircle1/post/testPost1');
+    await page.goto('/c/testCircle1/p/testPost1');
 
     await page.getByRole('button', { name: 'edit' }).first().click();
     await page

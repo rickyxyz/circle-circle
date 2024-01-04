@@ -226,7 +226,7 @@ function PageCircleForms() {
 
   return (
     <div>
-      <h2>{circle.name}</h2>
+      <h1>{circle.name}</h1>
       <p>{circle.description}</p>
       <UpdateForm circleData={circle} onSuccessCallback={onUpdateSuccess} />
       {loaderData.isMember && (

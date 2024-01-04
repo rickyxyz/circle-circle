@@ -16,7 +16,7 @@ import { useForm } from 'react-hook-form';
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { Comment } from '@/types/db';
-import CommentCard from '@/component/CommentCard';
+import CommentCard from '@/component/card/CommentCard';
 import { CommentForm } from '@/component/form/CommentForm';
 
 function EditForm({
@@ -188,7 +188,7 @@ function PagePost() {
 
   return (
     <div>
-      <h2>{post.title}</h2>
+      <h1>{post.title}</h1>
       <h3>{post.description}</h3>
       {user && user.uid === post.author && (
         <button

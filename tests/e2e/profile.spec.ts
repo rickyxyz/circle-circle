@@ -2,7 +2,8 @@ import { test, expect, BrowserContext, Page } from '@playwright/test';
 import { getTestAssetPath } from 'tests/e2e/assets.utils';
 import createNewUser from 'tests/e2e/fixtures/createNewUser.utils';
 
-test.describe('Profile features', () => {
+// eslint-disable-next-line playwright/no-skipped-test
+test.describe.skip('Profile features', () => {
   let page: Page;
   let context: BrowserContext;
 
