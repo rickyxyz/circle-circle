@@ -9,8 +9,7 @@ import { FaUserGroup } from 'react-icons/fa6';
 const circleCardVariant = cva('', {
   variants: {
     variant: {
-      default:
-        'px-4 py-2 text-slate-900 bg-white grid grid-cols-10 items-center w-64',
+      default: '',
       compact: '',
       text: '',
     },
@@ -34,7 +33,13 @@ export default function CircleCard({
   ...props
 }: CircleCardProps) {
   return (
-    <div className={cn(circleCardVariant({ variant, className }))} {...props}>
+    <div
+      className={cn(
+        'grid w-64 grid-cols-12 items-center gap-x-3 bg-white px-4 py-2 text-slate-900',
+        circleCardVariant({ variant, className })
+      )}
+      {...props}
+    >
       <img
         src="/profile_placeholder.svg"
         alt="img"
@@ -42,9 +47,9 @@ export default function CircleCard({
       />
       <div className="col-span-7 flex flex-col">
         <Link to={`/c/${circle.name}`} className="hover:underline">
-          <h1 className="overflow-hidden text-ellipsis text-nowrap font-bold leading-5">
+          <h2 className="overflow-hidden text-ellipsis text-nowrap font-bold leading-5">
             c/{circle.name}
-          </h1>
+          </h2>
         </Link>
         <p className="overflow-hidden text-ellipsis text-nowrap leading-5">
           {circle.description}

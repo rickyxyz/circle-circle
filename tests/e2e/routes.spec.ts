@@ -34,7 +34,7 @@ test.describe('unauthed user routes', () => {
     await page.goto('/c');
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      /browse circle/i
+      /browse circles/i
     );
   });
 

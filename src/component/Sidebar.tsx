@@ -2,6 +2,7 @@ import { User } from '@/types/db';
 import { FaRegCompass } from 'react-icons/fa6';
 import { AiFillHome } from 'react-icons/ai';
 import { FaChevronDown } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 export default function Sidebar({ user }: { user: User | null }) {
   return (
@@ -9,22 +10,22 @@ export default function Sidebar({ user }: { user: User | null }) {
       <nav className="flex-1 overflow-y-auto">
         <ul className="p-4">
           <li className="mb-4">
-            <a
-              href="#"
+            <Link
+              to={'/'}
               className="flex items-center text-gray-700 hover:text-black"
             >
               <AiFillHome className="mr-2" />
               Home
-            </a>
+            </Link>
           </li>
           <li className="mb-4">
-            <a
-              href="#"
+            <Link
+              to={'/c'}
               className="flex items-center text-gray-700 hover:text-black"
             >
               <FaRegCompass className="mr-2" />
               Explore
-            </a>
+            </Link>
           </li>
           {user && (
             <li className="mb-4">

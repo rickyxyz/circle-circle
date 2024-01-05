@@ -33,4 +33,44 @@ export const DefaultLongText: Story = {
       topic: 'entertainment',
     },
   },
+  parameters: {
+    layout: 'centered',
+    viewport: {
+      defaultViewport: 'mobile_sm',
+    },
+  },
+};
+
+export const DefaultInContainer: Story = {
+  args: {
+    circle: {
+      name: 'foodLover',
+      description: 'we love food',
+      topic: 'culinary',
+    },
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: '100vw' }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const DefaultLongTextInContainer: Story = {
+  args: {
+    circle: {
+      name: 'aReallyReallyLongCircleName',
+      description: 'we really really like a long circle name',
+      topic: 'entertainment',
+    },
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: '100vw' }}>
+        <Story />
+      </div>
+    ),
+  ],
 };

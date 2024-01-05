@@ -19,7 +19,7 @@ export default function LayoutRoot() {
   const mobileLayout = (
     <div className="flex min-h-screen flex-col">
       <Header user={user} />
-      <div className="relative">
+      <div className="relative flex-grow">
         {sidebarIsOpen && (
           <div
             className="absolute inset-0 z-10 bg-black/50"
@@ -37,14 +37,14 @@ export default function LayoutRoot() {
   const desktopLayout = (
     <div className="flex min-h-screen flex-col">
       <Header user={user} />
-      <div className="grid flex-1 grid-cols-12">
-        <div className="col-span-4">
+      <div className="grid flex-1 grid-cols-4 gap-x-4">
+        <div className="col-span-1">
           <Sidebar user={user} />
         </div>
-        <div className="col-span-5">
+        <div className="col-span-2">
           <Outlet />
         </div>
-        <div className="col-span-3">Nav</div>
+        <div className="col-span-1">Nav</div>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { useAppDispatch } from '@/hook/reduxHooks';
 import { bottombarToggle, sidebarToggle } from '@/redux/menubarReducer';
 import { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 interface HeaderProps extends HTMLAttributes<HTMLDivElement> {
   user: User | null;
@@ -26,9 +27,9 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
         >
           <GiHamburgerMenu />
         </button>
-        <div className="flex items-center">
+        <Link to={'/'} className="flex items-center">
           <img src="/logo2.svg" alt="Logo" className="mr-2 h-8" />
-        </div>
+        </Link>
         <div className="hidden flex-grow items-center justify-center md:flex">
           <div className="flex w-full max-w-xl items-center rounded-md bg-gray-100 px-3 py-2 text-gray-800">
             <div className="mr-2">
