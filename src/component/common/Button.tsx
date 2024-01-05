@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 const buttonVariant = cva('', {
   variants: {
     variant: {
-      default: 'rounded bg-blue-500 px-4 py-2 text-white',
+      default: 'rounded-full bg-gray-100 px-4 py-2 text-black',
       outline: '',
     },
     size: { default: '', sm: '' },

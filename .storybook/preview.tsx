@@ -6,6 +6,7 @@ import store from '@/redux/store';
 import '../src/global.css';
 import './storybook.css';
 import { AuthProvider } from '@/context/AuthProvider';
+import { BrowserRouter } from 'react-router-dom';
 
 const customViewports = {
   mobile_sm: {
@@ -102,7 +103,9 @@ const withProvider = (Story: any) => {
   return (
     <ReduxProvider store={store}>
       <AuthProvider>
-        <Story />
+        <BrowserRouter>
+          <Story />
+        </BrowserRouter>
       </AuthProvider>
     </ReduxProvider>
   );
