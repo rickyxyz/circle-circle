@@ -1,15 +1,20 @@
 import { User } from '@/types/db';
-import { FaRegCompass } from 'react-icons/fa6';
+import { FaPlus, FaRegCompass } from 'react-icons/fa6';
 import { AiFillHome } from 'react-icons/ai';
 import { FaChevronDown } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import useModal from '@/hook/useModal';
+import CircleCreateModal from '@/component/modal/CircleCreateModal';
 
-export default function Sidebar({ user }: { user: User | null }) {
+export default function Navbar({ user }: { user: User | null }) {
+  const { setModal, openModal, closeModal } = useModal();
+  const navigate = useNavigate();
+
   return (
     <div className="relative flex h-full w-64 flex-col border-r border-gray-200 bg-white">
       <nav className="flex-1 overflow-y-auto">
-        <ul className="p-4">
-          <li className="mb-4">
+        <ul className="py-4">
+          <li className="mb-4 px-4">
             <Link
               to={'/'}
               className="flex items-center text-gray-700 hover:text-black"
@@ -18,7 +23,7 @@ export default function Sidebar({ user }: { user: User | null }) {
               Home
             </Link>
           </li>
-          <li className="mb-4">
+          <li className="mb-4 px-4">
             <Link
               to={'/c'}
               className="flex items-center text-gray-700 hover:text-black"
@@ -27,13 +32,33 @@ export default function Sidebar({ user }: { user: User | null }) {
               Explore
             </Link>
           </li>
+          <hr />
           {user && (
-            <li className="mb-4">
+            <li className="mb-4 px-4">
               <div className="flex items-center text-gray-700 hover:text-black">
                 <FaChevronDown className="mr-2" />
-                My Communities
+                Circles
               </div>
               <ul className="ml-4">
+                <li className="mb-4">
+                  <button
+                    className="flex items-center text-gray-700 hover:text-black"
+                    onClick={() => {
+                      setModal(
+                        <CircleCreateModal
+                          onSuccessCallback={(newCircle) => {
+                            closeModal();
+                            navigate(`/c/${newCircle.name}`);
+                          }}
+                        />
+                      );
+                      openModal();
+                    }}
+                  >
+                    <FaPlus className="mr-2" />
+                    Create A Circle
+                  </button>
+                </li>
                 {/* TODO: circle data fetch logic */}
                 {user.circle.map((circle) => (
                   <li key={circle} className="mb-2">
@@ -46,6 +71,7 @@ export default function Sidebar({ user }: { user: User | null }) {
             </li>
           )}
         </ul>
+        <br />
       </nav>
     </div>
   );

@@ -2,7 +2,11 @@ import { ModalContext } from '@/context/ModalProvider';
 import { useContext } from 'react';
 
 export default function useModal() {
-  const { setIsModalOpen, openModal, isModalOpen } = useContext(ModalContext);
+  const { setIsModalOpen, isModalOpen, setModal } = useContext(ModalContext);
+
+  function openModal() {
+    setIsModalOpen(true);
+  }
 
   function closeModal() {
     setIsModalOpen(false);
@@ -12,5 +16,5 @@ export default function useModal() {
     setIsModalOpen(!isModalOpen);
   }
 
-  return { openModal, closeModal, toggleModal };
+  return { openModal, closeModal, toggleModal, setModal };
 }

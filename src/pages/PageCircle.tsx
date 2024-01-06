@@ -4,19 +4,19 @@ import useAuth from '@/hook/useAuth';
 import { useLoaderData } from 'react-router-dom';
 import CircleCard from '@/component/card/CircleCard';
 import CircleJoinButton from '@/component/common/CircleJoinButton';
-import CircleCreateForm from '@/component/form/CircleCreateForm';
+import ExpandableButton from '@/component/common/ExpandableButton';
+import { FaPlus } from 'react-icons/fa6';
 
 function PageCircle() {
-  const [circles, setCircles] = useState<Circle[]>(useLoaderData() as Circle[]);
+  const [circles] = useState<Circle[]>(useLoaderData() as Circle[]);
   const { user } = useAuth();
-
-  function onSuccessCreate(newCircle: Circle) {
-    setCircles((prev) => [...prev, newCircle]);
-  }
 
   return (
     <div className="flex flex-col gap-4 py-4">
-      <h1 className="px-4 text-xl font-bold">Browse Circles</h1>
+      <span className="flex flex-row items-center justify-between pr-4">
+        <h1 className="px-4 text-xl font-bold">Browse Circles</h1>
+        <ExpandableButton icon={<FaPlus />}>create</ExpandableButton>
+      </span>
       <ul className="flex flex-col gap-y-2 px-4">
         {circles.map((circle, idx) => (
           <li
@@ -31,7 +31,6 @@ function PageCircle() {
           </li>
         ))}
       </ul>
-      <CircleCreateForm onSuccessCallback={onSuccessCreate} />
     </div>
   );
 }

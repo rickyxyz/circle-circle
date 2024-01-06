@@ -1,5 +1,5 @@
 import Header from '@/component/Header';
-import Sidebar from '@/component/Sidebar';
+import Navbar from '@/component/Navbar';
 import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
 import useAuth from '@/hook/useAuth';
 import useWindowSize from '@/hook/useWindowSize';
@@ -25,7 +25,7 @@ export default function LayoutRoot() {
             className="absolute inset-0 z-10 bg-black/50"
             onClick={() => dispatch(sideBarClose())}
           >
-            <Sidebar user={user} />
+            <Navbar user={user} />
           </div>
         )}
         <Outlet />
@@ -39,7 +39,7 @@ export default function LayoutRoot() {
       <Header user={user} />
       <div className="grid flex-1 grid-cols-4 gap-x-4">
         <div className="col-span-1">
-          <Sidebar user={user} />
+          <Navbar user={user} />
         </div>
         <div className="col-span-2">
           <Outlet />

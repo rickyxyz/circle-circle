@@ -21,12 +21,18 @@ interface ButtonWithIconProps
     VariantProps<typeof buttonWithIconVariant>,
     VariantProps<typeof buttonVariant> {
   icon: ReactNode;
+  to?: string;
 }
 
 const ButtonWithIcon = forwardRef<HTMLButtonElement, ButtonWithIconProps>(
-  ({ children, className, variant, iconPosition, icon, ...props }, ref) => {
+  ({ children, className, variant, iconPosition, icon, to, ...props }, ref) => {
     return (
-      <Button className={cn(buttonVariant({ variant }))} {...props} ref={ref}>
+      <Button
+        className={cn(buttonVariant({ variant }))}
+        {...props}
+        ref={ref}
+        to={to}
+      >
         <span
           className={cn(
             'flex flex-row items-center gap-2',

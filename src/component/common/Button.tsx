@@ -2,11 +2,12 @@
 import { VariantProps, cva } from 'class-variance-authority';
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 const buttonVariant = cva('', {
   variants: {
     variant: {
-      default: 'rounded-full bg-gray-100 px-4 py-2 text-black',
+      default: 'rounded-full bg-gray-100 px-4 py-2 text-black capitalize',
       outline: '',
     },
     size: { default: '', sm: '' },
@@ -18,12 +19,22 @@ const buttonVariant = cva('', {
 });
 
 interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariant> {}
+  extends ButtonHTMLAttributes<HTMLButtonElement | HTMLAnchorElement>,
+    VariantProps<typeof buttonVariant> {
+  to?: string;
+}
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, className, size, variant, ...props }, ref) => {
-    return (
+  ({ children, className, size, variant, to, ...props }, ref) => {
+    return to ? (
+      <Link
+        className={cn(buttonVariant({ variant, size, className }))}
+        to={to}
+        {...props}
+      >
+        {children}
+      </Link>
+    ) : (
       <button
         className={cn(buttonVariant({ variant, size, className }))}
         {...props}

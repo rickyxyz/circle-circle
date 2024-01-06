@@ -55,7 +55,11 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
               />
             </div>
           ) : (
-            <Button variant="default" className="hidden  md:flex">
+            <Button
+              to="/account/login"
+              variant="default"
+              className="hidden md:flex"
+            >
               Login
             </Button>
           )}
