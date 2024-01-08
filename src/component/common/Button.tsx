@@ -7,10 +7,11 @@ import { Link } from 'react-router-dom';
 const buttonVariant = cva('', {
   variants: {
     variant: {
-      default: 'rounded-full bg-gray-100 px-4 py-2 text-black capitalize',
+      default:
+        'rounded-full bg-gray-100 px-4 py-2 text-black capitalize text-sm md:text-base font-semibold',
       outline: '',
     },
-    size: { default: '', sm: '' },
+    size: { default: '', sm: 'md:text-sm px-3 py-1' },
   },
   defaultVariants: {
     variant: 'default',

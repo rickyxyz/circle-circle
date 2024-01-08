@@ -2,12 +2,13 @@
 import { VariantProps, cva } from 'class-variance-authority';
 import { HTMLAttributes, useMemo } from 'react';
 import { cn, timeAgo } from '@/lib/utils';
-import { Post, Circle, User } from '@/types/db';
+import { Post, Circle } from '@/types/db';
 import { Link } from 'react-router-dom';
 import { LuDot } from 'react-icons/lu';
 import { FaRegHeart, FaRegCommentAlt } from 'react-icons/fa';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { GoKebabHorizontal } from 'react-icons/go';
+import DropdownList from '@/component/common/DropdownList';
 
 const postCardVariant = cva('', {
   variants: {
@@ -25,18 +26,16 @@ const postCardVariant = cva('', {
 });
 
 interface PostCardProps extends VariantProps<typeof postCardVariant> {
-  postId: string;
   post: Post;
+  postId: string;
   circle: Circle;
-  user: User;
   className?: HTMLAttributes<HTMLDivElement>['className'];
 }
 
 export default function PostCard({
-  postId,
   post,
+  postId,
   circle,
-  user,
   variant,
   className,
   ...props
@@ -49,7 +48,7 @@ export default function PostCard({
   return (
     <article
       className={cn(
-        'container flex max-w-4xl flex-col items-start gap-y-3 rounded-2xl bg-white px-4 py-3 text-slate-900',
+        'container flex max-w-4xl flex-col items-start gap-y-2 rounded-2xl bg-white px-4 py-3 text-slate-900',
         postCardVariant({ variant, className })
       )}
       {...props}
@@ -60,24 +59,46 @@ export default function PostCard({
           <p className="font-bold text-slate-600">c/{circle.name}</p>
           <LuDot className="text-slate-400" />
           <p>
-            Posted by {user.username}{' '}
+            {/* Posted by {user.username}{' '} */}
             {timeAgo(post.postDate.toDate().toString())}
           </p>
         </span>
-        <button className="flex items-center">
-          <GoKebabHorizontal />
-        </button>
+        <DropdownList
+          className="flex items-center px-0"
+          triggerComponent={<GoKebabHorizontal />}
+          dropdownList={[
+            {
+              text: 'report',
+              onClick: () => {
+                return;
+              },
+            },
+            {
+              text: 'edit',
+              onClick: () => {
+                return;
+              },
+            },
+            {
+              text: 'delete',
+              onClick: () => {
+                return;
+              },
+              className: 'text-red-500',
+            },
+          ]}
+        />
       </header>
-      <main className="relative flex w-full flex-col gap-y-2">
+      <main className="relative flex w-full flex-col gap-y-1">
         <Link to={`/c/${circle.name}/p/${postId}`} className="hover:underline">
-          <h1 className="text-lg font-medium leading-5">c/{post.title}</h1>
+          <h1 className="text-lg font-bold">{post.title}</h1>
         </Link>
         <p className="leading-5">{post.description}</p>
         {isTextLong && (
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-white/50 to-white"></div>
         )}
       </main>
-      <div className="mt-2 flex flex-row gap-2">
+      <div className="mt-3 flex flex-row gap-2">
         <ButtonWithIcon icon={<FaRegHeart size={14} />}>123</ButtonWithIcon>
         <ButtonWithIcon icon={<FaRegCommentAlt size={14} />}>
           123

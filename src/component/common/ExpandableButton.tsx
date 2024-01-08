@@ -7,15 +7,17 @@ interface ExpandableButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariant> {
   icon: ReactNode;
+  onclick: () => void;
   to?: string;
 }
 
 const ExpandableButton = forwardRef<HTMLButtonElement, ExpandableButtonProps>(
-  ({ children, className, variant, icon, to, ...props }, ref) => {
+  ({ children, className, variant, icon, to, onclick, ...props }, ref) => {
     return (
       <Button
+        onClick={onclick}
         className={cn(
-          'group flex w-10 items-center gap-0 transition-all hover:w-[6.5rem] hover:gap-1',
+          'group flex w-10 items-center gap-0 transition-all hover:w-fit hover:gap-1',
           buttonVariant({ variant }),
           className
         )}

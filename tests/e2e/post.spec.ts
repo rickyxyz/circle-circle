@@ -7,15 +7,6 @@ const newPost = {
   text: 'Hello, this is a randomly generated post by Playwright',
 };
 
-test.describe('As Unauthed user', () => {
-  test('Create post form is not visible to unauthed user', async ({ page }) => {
-    await page.goto('/c/testCircle1');
-
-    await expect(page.getByText('Circle Description')).toBeVisible();
-    await expect(page.getByText('create a new post')).toBeHidden();
-  });
-});
-
 test.describe('As Non-member', () => {
   let page: Page;
 
@@ -24,13 +15,6 @@ test.describe('As Non-member', () => {
 
     page = await context.newPage();
     await createNewUser(page);
-  });
-
-  test('Create post form is not visible to non circle member', async () => {
-    await page.goto('/c/testCircle1');
-
-    await expect(page.getByText('Circle Description')).toBeVisible();
-    await expect(page.getByText('create a new post')).toBeHidden();
   });
 
   test('Post edit button is not visible to other user', async () => {
@@ -44,13 +28,6 @@ test.describe('As Non-member', () => {
 test.describe('As Member', () => {
   test.beforeEach(async ({ page }) => {
     await testerLogin(page);
-  });
-
-  test('Create post form is visible to the circle member', async ({ page }) => {
-    await page.goto('/c/testCircle1');
-
-    await expect(page.getByText('Circle Description')).toBeVisible();
-    await expect(page.getByText('create a new post')).toBeVisible();
   });
 
   test('Create post form can show input error', async ({ page }) => {

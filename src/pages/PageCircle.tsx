@@ -1,36 +1,132 @@
-import { useState } from 'react';
-import { Circle } from '@/types/db';
-import useAuth from '@/hook/useAuth';
+import { useEffect, useState } from 'react';
+import { FirestoreError } from 'firebase/firestore';
+import { Circle, Post } from '@/types/db';
 import { useLoaderData } from 'react-router-dom';
-import CircleCard from '@/component/card/CircleCard';
-import CircleJoinButton from '@/component/common/CircleJoinButton';
-import ExpandableButton from '@/component/common/ExpandableButton';
-import { FaPlus } from 'react-icons/fa6';
+import CircleHeader from '@/component/circle/CircleHeader';
+import { getCollectionAsObject } from '@/lib/firebase/firestore';
+import PostCard from '@/component/card/PostCard';
+// function UpdateForm({
+//   circleData,
+//   onSuccessCallback,
+// }: {
+//   circleData: Circle;
+//   onSuccessCallback?: (newCircle: Circle) => void;
+// }) {
+//   const circleCreateSchema = z.object({
+//     description: z.string().max(300),
+//   });
+//   type CircleCreateSchema = z.infer<typeof circleCreateSchema>;
+
+//   const { user } = useAuth();
+//   const {
+//     register,
+//     handleSubmit,
+//     formState: { errors },
+//   } = useForm<CircleCreateSchema>({
+//     resolver: zodResolver(circleCreateSchema),
+//     defaultValues: {
+//       description: circleData.description,
+//     },
+//   });
+//   const [createError, setCreateError] = useState<string | null>(null);
+
+//   function onSubmit(data: CircleCreateSchema) {
+//     if (!user) {
+//       throw new customError('unauthorize', 'you are not authorized to do this');
+//     }
+//     editCircle(
+//       { ...circleData, ...data },
+//       onSuccessCallback,
+//       (e: FirestoreError) => {
+//         setCreateError(e.code);
+//       }
+//     );
+//   }
+
+//   return (
+//     <form
+//       // eslint-disable-next-line @typescript-eslint/no-misused-promises
+//       onSubmit={handleSubmit(onSubmit)}
+//       className="mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
+//     >
+//       <h2 className="mb-4 text-2xl font-bold">
+//         you are editing {circleData.name}
+//       </h2>
+
+//       <div className="mb-4">
+//         <label
+//           htmlFor="circle-description"
+//           className="mb-2 block text-sm font-bold text-gray-700"
+//         >
+//           Circle Description
+//         </label>
+//         <input
+//           type="text"
+//           id="circle-description"
+//           {...register('description')}
+//           className="w-full rounded-md border border-gray-300 p-2"
+//         />
+//         <p className="text-xs italic text-red-500">
+//           {errors.description?.message}
+//         </p>
+//       </div>
+
+//       {createError && <p className="text-red-500">{createError}</p>}
+
+//       <button
+//         type="submit"
+//         className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+//       >
+//         Update
+//       </button>
+//     </form>
+//   );
+// }
 
 function PageCircle() {
-  const [circles] = useState<Circle[]>(useLoaderData() as Circle[]);
-  const { user } = useAuth();
+  const loaderData = useLoaderData() as {
+    circle: Circle;
+    isMember: boolean;
+  };
+
+  // const navigate = useNavigate();
+  const [circle] = useState(loaderData.circle);
+  const [posts, setPosts] = useState<Record<string, Post>>({});
+  const [getPostError, setGetPostError] = useState<string | null>(null);
+
+  useEffect(() => {
+    getCollectionAsObject<Post>(`circle/${circle.name}/post`)
+      .then((posts) => setPosts(posts))
+      .catch((e: FirestoreError) => {
+        setGetPostError(e.code);
+      });
+  }, [circle.name]);
+
+  // function onPostSuccess(postId: string) {
+  //   navigate(`/c/${circle.name}/p/${postId}`);
+  // }
 
   return (
-    <div className="flex flex-col gap-4 py-4">
-      <span className="flex flex-row items-center justify-between pr-4">
-        <h1 className="px-4 text-xl font-bold">Browse Circles</h1>
-        <ExpandableButton icon={<FaPlus />}>create</ExpandableButton>
-      </span>
-      <ul className="flex flex-col gap-y-2 px-4">
-        {circles.map((circle, idx) => (
-          <li
-            key={`circle_card-${circle.name}-${idx}`}
-            className="flex flex-row items-center justify-between"
-          >
-            <CircleCard circle={circle} className="px-0" />
-            <CircleJoinButton
-              circle={circle}
-              userHasJoined={user != null && user.circle.includes(circle.name)}
-            />
-          </li>
-        ))}
-      </ul>
+    <div className="flex flex-col divide-y divide-solid divide-gray-200">
+      <div>{/* TODO: add banner image here */}</div>
+      <CircleHeader circle={circle} />
+      {/* <UpdateForm circleData={circle} onSuccessCallback={onUpdateSuccess} />
+      {loaderData.isMember && (
+        <CreatePostForm
+          circleId={circle.name}
+          onSuccessCallback={onPostSuccess}
+        />
+      )} */}
+      {getPostError}
+      {Object.entries(posts).map(([postId, post], idx) => (
+        <PostCard
+          key={`post-${idx}}`}
+          post={post}
+          postId={postId}
+          className="rounded-none"
+          circle={circle}
+        />
+      ))}
     </div>
   );
 }

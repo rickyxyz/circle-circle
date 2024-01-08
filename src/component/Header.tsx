@@ -3,10 +3,11 @@ import { GoKebabHorizontal, GoSearch } from 'react-icons/go';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import Button from '@/component/common/Button';
 import { useAppDispatch } from '@/hook/reduxHooks';
-import { bottombarToggle, sidebarToggle } from '@/redux/menubarReducer';
+import { sideBarOpen } from '@/redux/menubarReducer';
 import { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import DropdownList from '@/component/common/DropdownList';
 
 interface HeaderProps extends HTMLAttributes<HTMLDivElement> {
   user: User | null;
@@ -23,7 +24,7 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
       <div className="flex items-center justify-between">
         <button
           className="mr-4 flex items-center md:hidden"
-          onClick={() => dispatch(sidebarToggle())}
+          onClick={() => dispatch(sideBarOpen())}
         >
           <GiHamburgerMenu />
         </button>
@@ -63,12 +64,30 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
               Login
             </Button>
           )}
-          <button
-            className="flex items-center md:hidden"
-            onClick={() => dispatch(bottombarToggle())}
-          >
-            <GoKebabHorizontal />
-          </button>
+          <DropdownList
+            className="flex items-center px-0 md:hidden"
+            triggerComponent={<GoKebabHorizontal />}
+            dropdownList={[
+              {
+                text: 'profile',
+                onClick: () => {
+                  return;
+                },
+              },
+              {
+                text: 'settings',
+                onClick: () => {
+                  return;
+                },
+              },
+              {
+                text: 'sign out',
+                onClick: () => {
+                  return;
+                },
+              },
+            ]}
+          />
         </div>
       </div>
     </header>

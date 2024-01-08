@@ -26,12 +26,14 @@ export interface Circle {
   topic: CircleTopic;
 }
 
+export type PostType = 'image' | 'text';
+
 export interface Post {
   author: string;
   title: string;
   description: string;
   postDate: Timestamp;
-  type: 'image' | 'text';
+  type: PostType;
 }
 
 export interface FirestoreCollection {

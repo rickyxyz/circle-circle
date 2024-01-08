@@ -9,14 +9,13 @@ import {
 } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthProvider.tsx';
 import { getCurrentUser } from '@/lib/firebase/auth';
-import { getCollection, getData } from '@/lib/firebase/firestore';
+import { getCollectionAsArray, getData } from '@/lib/firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { getDoc, doc } from 'firebase/firestore';
-import ModalProvider from '@/context/ModalProvider';
 import LayoutRoot from '@/pages/layout/LayoutRoot';
 import {
+  PageCircles,
   PageCircle,
-  PageCircleForms,
   PageError,
   PagePost,
   PageProfile,
@@ -103,15 +102,15 @@ const router = createBrowserRouter([
       },
       {
         path: '/c',
-        element: <PageCircle />,
+        element: <PageCircles />,
         loader: async () => {
-          const circleData = await getCollection('circle');
+          const circleData = await getCollectionAsArray('circle');
           return [...circleData];
         },
       },
       {
         path: '/c/:circleId',
-        element: <PageCircleForms />,
+        element: <PageCircle />,
         loader: async ({ params }) => {
           if (!params.circleId) {
             return null;
@@ -165,9 +164,7 @@ ReactDOM.createRoot(document.getElementById('root') as Element).render(
   <React.StrictMode>
     <ReduxProvider store={store}>
       <AuthProvider>
-        <ModalProvider>
-          <RouterProvider router={router} />
-        </ModalProvider>
+        <RouterProvider router={router} />
       </AuthProvider>
     </ReduxProvider>
   </React.StrictMode>

@@ -1,17 +1,16 @@
-import CircleCreateForm from '@/component/form/CircleCreateForm';
+import PostCreateForm from '@/component/form/PostCreateForm';
 import useOverlay from '@/hook/useOverlay';
-import useUser from '@/hook/useUser';
 import { cn } from '@/lib/utils';
 import { HTMLAttributes } from 'react';
 import { FaXmark } from 'react-icons/fa6';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
-export default function CircleCreateModal({
+export default function PostCreateModal({
   className,
 }: HTMLAttributes<HTMLDivElement>) {
   const { closeModal, closeBottombar } = useOverlay();
   const navigate = useNavigate();
-  const { addCircle } = useUser();
+  const params = useParams();
 
   return (
     <div
@@ -34,12 +33,12 @@ export default function CircleCreateModal({
         </button>
       </div>
       <hr />
-      <CircleCreateForm
-        onSuccessCallback={(circle) => {
+      <PostCreateForm
+        circleId={params.circleId ?? ''}
+        onSuccessCallback={(postId) => {
           closeModal();
           closeBottombar();
-          addCircle(circle.name);
-          navigate(`/c/${circle.name}`);
+          navigate(`/c/${params.circleId}/p/${postId}`);
         }}
       />
     </div>

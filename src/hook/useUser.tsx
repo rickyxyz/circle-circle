@@ -13,5 +13,13 @@ export default function useUser() {
     );
   }
 
-  return { user, setUser, updateProfile };
+  function addCircle(circleId: string) {
+    if (!user) {
+      return;
+    }
+    const newUser: User = { ...user, circle: [...user.circle, circleId] };
+    setUser(newUser);
+  }
+
+  return { user, setUser, updateProfile, addCircle };
 }

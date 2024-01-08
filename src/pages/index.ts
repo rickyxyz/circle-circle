@@ -1,5 +1,5 @@
+import PageCircles from '@/pages/PageCircles';
 import PageCircle from './PageCircle';
-import PageCircleForms from './PageCircleEdit';
 import PageError from './PageError';
 import PagePost from './PagePost';
 import PageProfile from './PageProfile';
@@ -9,8 +9,8 @@ import PageSettings from '@/pages/PageSettings';
 
 export {
   PageHome,
+  PageCircles,
   PageCircle,
-  PageCircleForms,
   PageError,
   PagePost,
   PageProfile,

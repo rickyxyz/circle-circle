@@ -1,19 +1,16 @@
 import Header from '@/component/Header';
 import Navbar from '@/component/Navbar';
+import OverlayProvider from '@/context/OverlayProvider';
 import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
 import useAuth from '@/hook/useAuth';
 import useWindowSize from '@/hook/useWindowSize';
 import { sideBarClose } from '@/redux/menubarReducer';
-import Bottombar from '@/component/Bottombar';
 import { Outlet } from 'react-router-dom';
 
 export default function LayoutRoot() {
-  const windowSize = useWindowSize();
+  const { isMobile } = useWindowSize();
   const { user } = useAuth();
   const sidebarIsOpen = useAppSelector((state) => state.menubar.sidebarIsOpen);
-  const bottombarIsOpen = useAppSelector(
-    (state) => state.menubar.bottombarIsOpen
-  );
   const dispatch = useAppDispatch();
 
   const mobileLayout = (
@@ -30,7 +27,6 @@ export default function LayoutRoot() {
         )}
         <Outlet />
       </div>
-      {bottombarIsOpen && <Bottombar />}
     </div>
   );
 
@@ -49,5 +45,7 @@ export default function LayoutRoot() {
     </div>
   );
 
-  return windowSize.width > 768 ? desktopLayout : mobileLayout;
+  return (
+    <OverlayProvider>{isMobile ? mobileLayout : desktopLayout}</OverlayProvider>
+  );
 }
