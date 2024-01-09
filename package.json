@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "firebase": "firebase emulators:start --import=./tests/assets/firebase-data",
+    "firebase:seed": "firebase emulators:start --import=./tests/assets/firebase-data --export-on-exit",
     "firebase:kill": "kill-port 9099 8080 9199 4000",
     "dev": "concurrently \"firebase emulators:start --import=./tests/assets/firebase-data\" \"vite\"",
     "build": "tsc && vite build",

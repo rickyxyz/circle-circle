@@ -48,26 +48,18 @@ test.describe('As Member', () => {
     await expect(page.getByText(newPost.title)).toBeVisible();
   });
 
-  test('Post edit button is visible to its author', async ({ page }) => {
-    await page.goto('/c/testCircle1/p/testPost1');
-
-    await expect(page.getByText('testPost1')).toBeVisible();
-    await expect(page.getByText('edit post')).toBeVisible();
-  });
-
   test('Existing post form can be edited', async ({ page }) => {
     await page.goto('/c/testCircle1/p/testPost1');
     const newPostDescription = `This is a new post description number ${Math.random().toFixed(
       5
     )}`;
 
-    await page.getByRole('button', { name: 'edit post' }).click();
+    await page.getByTestId('post-action-trigger').first().click();
+    await page.getByRole('menuitem', { name: 'edit' }).first().click();
 
     await page.getByLabel(/^edit post description$/i).fill(newPostDescription);
-    await page.getByRole('button', { name: 'update post' }).click();
+    await page.getByRole('button', { name: /update post/i }).click();
 
-    await expect(page.getByRole('heading', { level: 3 })).toHaveText(
-      newPostDescription
-    );
+    await expect(page.getByText(newPostDescription)).toBeVisible();
   });
 });

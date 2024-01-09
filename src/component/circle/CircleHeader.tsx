@@ -7,14 +7,32 @@ import DropdownList from '@/component/common/DropdownList';
 import useOverlay from '@/hook/useOverlay';
 import useWindowSize from '@/hook/useWindowSize';
 import PostCreateModal from '@/component/modal/PostCreateModal';
+import { cva, VariantProps } from 'class-variance-authority';
+import useAuth from '@/hook/useAuth';
 
-interface CircleHeaderProps {
+const cardHeaderVariant = cva('', {
+  variants: {
+    variant: {
+      default:
+        'rounded-full bg-gray-100 px-4 py-2 text-black capitalize text-sm md:text-base font-semibold',
+      outline: '',
+    },
+    size: { default: '', sm: 'md:text-sm px-3 py-1' },
+  },
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+  },
+});
+
+interface CircleHeaderProps extends VariantProps<typeof cardHeaderVariant> {
   circle: Circle;
 }
 
 export default function CircleHeader({ circle }: CircleHeaderProps) {
-  const { setModal, setBottombar, openBottombar } = useOverlay();
+  const { setModal, setBottombar, openBottombar, openModal } = useOverlay();
   const { isMobile } = useWindowSize();
+  const { user } = useAuth();
 
   function showPostCreateForm() {
     if (isMobile) {
@@ -22,6 +40,7 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
       openBottombar();
     } else {
       setModal(<PostCreateModal />);
+      openModal();
     }
   }
 
@@ -62,10 +81,15 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
         />
       </div>
       <div className="flex flex-row items-center gap-2 md:self-end">
-        <ButtonWithIcon icon={<FaPlus />} onClick={showPostCreateForm}>
-          Create A Post
-        </ButtonWithIcon>
-        <CircleJoinButton circle={circle} userHasJoined={false} />
+        {(!user || isMobile) && (
+          <ButtonWithIcon icon={<FaPlus />} onClick={showPostCreateForm}>
+            Create A Post
+          </ButtonWithIcon>
+        )}
+        <CircleJoinButton
+          circle={circle}
+          userHasJoined={user ? user.circle.includes(circle.name) : false}
+        />
       </div>
     </header>
   );

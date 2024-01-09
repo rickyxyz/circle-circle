@@ -18,6 +18,7 @@ export type CircleTopic =
 export interface Comment {
   author: string;
   text: string;
+  postDate: Timestamp;
 }
 
 export interface Circle {

@@ -22,7 +22,7 @@ export default function Navbar({ user }: { user: User | null }) {
   }
 
   return (
-    <div className="relative flex h-full w-64 flex-col border-r border-gray-200 bg-white">
+    <div className="relative flex h-full flex-col border-r border-gray-200 bg-white lg:w-64">
       <nav className="flex-1 overflow-y-auto">
         <ul className="py-4">
           <li className="mb-4 px-4">

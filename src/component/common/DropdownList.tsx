@@ -28,7 +28,7 @@ export default function DropdownList({
   ...props
 }: DropdownListProps) {
   const { isMobile } = useWindowSize();
-  const { setBottombar, openBottombar } = useOverlay();
+  const { setBottombar, openBottombar, closeBottombar } = useOverlay();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const handleButtonClick = () => {
@@ -42,6 +42,7 @@ export default function DropdownList({
               key={`dropdown-item-${listItem.text}-${idx}`}
               onClick={() => {
                 setDropdownOpen(false);
+                closeBottombar();
                 listItem.onClick();
               }}
               className={cn(
@@ -75,7 +76,7 @@ export default function DropdownList({
 
       {isDropdownOpen && (
         <div
-          className="absolute right-0 mt-1 w-max origin-top-right rounded-md bg-white py-1 shadow-sm ring-1 ring-black ring-opacity-5"
+          className="absolute right-0 z-20 mt-1 w-max origin-top-right rounded-sm bg-white py-1 shadow-sm ring-1 ring-black ring-opacity-5"
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="options-menu"

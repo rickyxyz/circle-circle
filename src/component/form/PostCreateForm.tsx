@@ -1,17 +1,20 @@
 import useAuth from '@/hook/useAuth';
 import { createNewPost } from '@/lib/post';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { FormHTMLAttributes, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+
+interface PostCreateFormProps extends FormHTMLAttributes<HTMLFormElement> {
+  circleId: string;
+  onSuccessCallback?: (postId: string) => void;
+}
 
 export default function PostCreateForm({
   circleId,
   onSuccessCallback,
-}: {
-  circleId: string;
-  onSuccessCallback?: (postId: string) => void;
-}) {
+  className,
+}: PostCreateFormProps) {
   const { user } = useAuth();
   const postCreateSchema = z.object({
     title: z.string().min(1, { message: 'Title is required' }),
@@ -45,9 +48,8 @@ export default function PostCreateForm({
     <form
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       onSubmit={handleSubmit(onSubmit)}
+      className={className}
     >
-      <h2 className="mb-4 text-2xl font-bold">Create A New Post</h2>
-
       <div className="mb-4">
         <label
           htmlFor="post-title"

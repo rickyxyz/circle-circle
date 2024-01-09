@@ -2,28 +2,22 @@ import useAuth from '@/hook/useAuth';
 import { customError } from '@/lib/error';
 import { db } from '@/lib/firebase/config';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  FirestoreError,
-  Timestamp,
-  addDoc,
-  collection,
-} from 'firebase/firestore';
-import { FormHTMLAttributes, useState } from 'react';
+import { FirestoreError, doc, updateDoc } from 'firebase/firestore';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { Comment } from '@/types/db';
 
-interface CommentFormProps extends FormHTMLAttributes<HTMLFormElement> {
-  onSuccessCallback?: (newComment: Comment, commentId: string) => void;
-  basePath: string;
-}
-
-export function CommentForm({
+export function CommentEditForm({
+  comment,
+  commentId,
   onSuccessCallback,
-  basePath,
-  className,
-  ...props
-}: CommentFormProps) {
+}: {
+  comment: Comment;
+  commentId: string;
+  onSuccessCallback?: (newComment: Comment) => void;
+}) {
   const commentSchema = z.object({
     comment: z.string().min(1, { message: "comment can't be empty" }),
   });
@@ -34,7 +28,9 @@ export function CommentForm({
     formState: { errors },
   } = useForm<CommentSchema>({
     resolver: zodResolver(commentSchema),
+    defaultValues: { comment: comment.text },
   });
+  const { circleId, postId } = useParams();
   const [commentError, setCommentError] = useState<string | null>(null);
   const { user } = useAuth();
 
@@ -43,14 +39,13 @@ export function CommentForm({
       throw new customError('unauthorize', 'you are not authorized to do this');
     }
 
-    const newComment: Comment = {
-      text: data.comment,
-      author: user.uid,
-      postDate: Timestamp.now(),
-    };
-    addDoc(collection(db, basePath), newComment)
-      .then((docref) => {
-        onSuccessCallback && onSuccessCallback(newComment, docref.id);
+    const newComment: Comment = { ...comment, text: data.comment };
+    updateDoc(
+      doc(db, `/circle/${circleId}/post/${postId}/comment/${commentId}`),
+      { ...newComment }
+    )
+      .then(() => {
+        onSuccessCallback && onSuccessCallback(newComment);
       })
       .catch((e: FirestoreError) => {
         setCommentError(e.code);
@@ -60,19 +55,17 @@ export function CommentForm({
   return (
     <form // eslint-disable-next-line @typescript-eslint/no-misused-promises
       onSubmit={handleSubmit(onSubmit)}
-      className={className}
-      {...props}
     >
       <div className="mb-4">
         <label
-          htmlFor="post-comment"
-          className="mb-1 block text-sm text-gray-700"
+          htmlFor="edit-comment"
+          className="mb-2 block text-sm font-bold text-gray-700"
         >
-          Put your comment here
+          edit this comment
         </label>
         <input
           type="text"
-          id="post-comment"
+          id="edit-comment"
           {...register('comment')}
           className="w-full rounded-md border border-gray-300 p-2"
         />
@@ -83,7 +76,7 @@ export function CommentForm({
         type="submit"
         className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
       >
-        post
+        save
       </button>
 
       {commentError && <p className="text-red-500">{commentError}</p>}

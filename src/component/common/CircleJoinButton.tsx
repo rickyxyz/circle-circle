@@ -7,6 +7,7 @@ import { joinCircle, leaveCircle } from '@/lib/circle';
 import { customError } from '@/lib/error';
 import { FirestoreError } from 'firebase/firestore';
 import { Circle } from '@/types/db';
+import useUser from '@/hook/useUser';
 
 interface CircleJoinButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
@@ -18,6 +19,7 @@ interface CircleJoinButtonProps
 const CircleJoinButton = forwardRef<HTMLButtonElement, CircleJoinButtonProps>(
   ({ circle, userHasJoined, className, variant, ...props }, ref) => {
     const { user } = useAuth();
+    const { addCircle, removeCircle } = useUser();
     const [hasJoined, setHasJoined] = useState<boolean>(userHasJoined);
 
     function handleJoin() {
@@ -33,6 +35,7 @@ const CircleJoinButton = forwardRef<HTMLButtonElement, CircleJoinButtonProps>(
         circle,
         () => {
           setHasJoined(true);
+          addCircle(circle.name);
         },
         // eslint-disable-next-line no-console
         (e: FirestoreError) => console.log(e)
@@ -52,6 +55,7 @@ const CircleJoinButton = forwardRef<HTMLButtonElement, CircleJoinButtonProps>(
         circle,
         () => {
           setHasJoined(false);
+          removeCircle(circle.name);
         },
         // eslint-disable-next-line no-console
         (e: FirestoreError) => console.log(e)

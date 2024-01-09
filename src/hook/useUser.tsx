@@ -21,5 +21,16 @@ export default function useUser() {
     setUser(newUser);
   }
 
-  return { user, setUser, updateProfile, addCircle };
+  function removeCircle(circleId: string) {
+    if (!user) {
+      return;
+    }
+    const newUser: User = {
+      ...user,
+      circle: user.circle.filter((cirleName) => circleId !== cirleName),
+    };
+    setUser(newUser);
+  }
+
+  return { user, setUser, updateProfile, addCircle, removeCircle };
 }

@@ -9,9 +9,13 @@ const buttonVariant = cva('', {
     variant: {
       default:
         'rounded-full bg-gray-100 px-4 py-2 text-black capitalize text-sm md:text-base font-semibold',
-      outline: '',
+      clear: 'rounded-full text-black capitalize',
     },
-    size: { default: '', sm: 'md:text-sm px-3 py-1' },
+    size: {
+      default: '',
+      sm: 'md:text-sm px-3 py-1',
+      xs: 'p-0 text-sm font-semibold',
+    },
   },
   defaultVariants: {
     variant: 'default',

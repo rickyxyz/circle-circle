@@ -50,7 +50,7 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
           {user ? (
             <div className="hidden items-center md:flex">
               <img
-                src={user.profilePicture}
+                src={user.profilePicture ?? '/profile_placeholder.svg'}
                 alt="User Avatar"
                 className="h-8 w-8 rounded-full"
               />

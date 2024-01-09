@@ -23,7 +23,7 @@ oneHourAgo.setHours(now.getHours() - 3);
 export const Default: Story = {
   args: {
     postId: 'some-post-id',
-    circle: { name: 'foodLover', description: 'we love food', topic: 'travel' },
+    circleId: 'foodLover',
     post: {
       author: 'some-uid',
       description:
@@ -32,22 +32,13 @@ export const Default: Story = {
       postDate: Timestamp.fromDate(oneHourAgo),
       type: 'text',
     },
-    user: {
-      uid: 'some-uid',
-      username: 'John Doe',
-      circle: [],
-    },
   },
 };
 
 export const DefaultLongText: Story = {
   args: {
     postId: 'some-post-id',
-    circle: {
-      name: 'aReallyReallyLongCircleName',
-      description: 'we really really like a long circle name',
-      topic: 'entertainment',
-    },
+    circleId: 'foodLover',
     post: {
       author: 'some-uid',
       description: `
@@ -67,11 +58,6 @@ export const DefaultLongText: Story = {
         'a really really really long title for a post that does not need a long title',
       postDate: Timestamp.fromDate(oneHourAgo),
       type: 'text',
-    },
-    user: {
-      uid: 'some-uid',
-      username: 'John Doe',
-      circle: [],
     },
   },
 };
