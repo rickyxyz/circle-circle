@@ -1,0 +1,7 @@
+.firebase-emulator-warning {
+  background-color: transparent !important;
+  border: none !important;
+  color: rgba(245, 66, 66, 0) !important;
+  display: none;
+  visibility: hidden;
+}

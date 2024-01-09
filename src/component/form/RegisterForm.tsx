@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { FirebaseError } from 'firebase/app';
+import { useNavigate } from 'react-router-dom';
 
 const registerSchema = z
   .object({
@@ -27,6 +28,7 @@ const registerSchema = z
 type RegisterSchema = z.infer<typeof registerSchema>;
 
 function RegisterForm() {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -37,24 +39,27 @@ function RegisterForm() {
 
   function handleRegister(data: RegisterSchema) {
     const { username, email, password } = data;
-    registerUser(username, email, password).catch((e: FirebaseError) => {
-      if (e.code === 'auth/email-already-in-use') {
-        setRegisterError('Email is already in use');
-      } else {
-        // eslint-disable-next-line no-console
-        console.error(e);
-      }
-    });
+    registerUser(username, email, password)
+      .then(() => {
+        navigate('/');
+      })
+      .catch((e: FirebaseError) => {
+        if (e.code === 'auth/email-already-in-use') {
+          setRegisterError('Email is already in use');
+        } else {
+          // eslint-disable-next-line no-console
+          console.error(e);
+        }
+      });
   }
 
   return (
     <form
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       onSubmit={handleSubmit(handleRegister)}
-      className="mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
+      className="container mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
     >
-      <h2 className="mb-4 text-2xl font-bold">Register</h2>
-
+      <h1 className="mb-4 text-2xl font-bold">Sign Up</h1>
       <div className="mb-4">
         <label
           htmlFor="username"

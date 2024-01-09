@@ -27,19 +27,20 @@ const config: StorybookConfig = {
   async viteFinal(config) {
     return {
       ...config,
+      define: { 'process.env': {} },
       resolve: {
         alias: [
           {
             find: '@',
-            replacement: path.resolve(__dirname, './src'),
+            replacement: path.resolve(__dirname, '../src'),
           },
           {
             find: '@assets',
-            replacement: path.resolve(__dirname, './src/assets'),
+            replacement: path.resolve(__dirname, '../src/assets'),
           },
           {
             find: '@components',
-            replacement: path.resolve(__dirname, './src/components'),
+            replacement: path.resolve(__dirname, '../src/components'),
           },
         ],
       },

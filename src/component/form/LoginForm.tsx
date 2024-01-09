@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { FirebaseError } from 'firebase/app';
+import { useNavigate } from 'react-router-dom';
 
 const loginSchema = z.object({
   email: z
@@ -17,6 +18,7 @@ const loginSchema = z.object({
 type LoginSchema = z.infer<typeof loginSchema>;
 
 function LoginForm() {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -27,25 +29,30 @@ function LoginForm() {
 
   function handleLogin(data: LoginSchema) {
     const { email, password } = data;
-    login(email, password).catch((e: FirebaseError) => {
-      if (
-        e.code === 'auth/user-not-found' ||
-        e.code === 'auth/wrong-password'
-      ) {
-        setLoginError('User not found or invalid credentials');
-      } else {
-        // eslint-disable-next-line no-console
-        console.error(e);
-      }
-    });
+    login(email, password)
+      .then(() => {
+        navigate('/');
+      })
+      .catch((e: FirebaseError) => {
+        if (
+          e.code === 'auth/user-not-found' ||
+          e.code === 'auth/wrong-password'
+        ) {
+          setLoginError('User not found or invalid credentials');
+        } else {
+          // eslint-disable-next-line no-console
+          console.error(e);
+        }
+      });
   }
 
   return (
     <form
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       onSubmit={handleSubmit(handleLogin)}
-      className="mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
+      className="container mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
     >
+      <h1 className="mb-4 text-2xl font-bold">Login</h1>
       <div className="mb-4">
         <label
           htmlFor="login-email"

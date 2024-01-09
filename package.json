@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "firebase": "firebase emulators:start --import=./tests/assets/firebase-data",
+    "firebase:seed": "firebase emulators:start --import=./tests/assets/firebase-data --export-on-exit",
     "firebase:kill": "kill-port 9099 8080 9199 4000",
     "dev": "concurrently \"firebase emulators:start --import=./tests/assets/firebase-data\" \"vite\"",
     "build": "tsc && vite build",
@@ -35,6 +36,7 @@
     "playwright": "playwright test --ui"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.0.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "firebase": "^10.7.1",
@@ -43,6 +45,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.49.2",
+    "react-icons": "^4.12.0",
+    "react-redux": "^9.0.4",
     "react-router-dom": "^6.18.0",
     "sort-by": "^1.2.0",
     "tailwind-merge": "^2.1.0",

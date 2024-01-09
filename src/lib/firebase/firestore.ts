@@ -27,7 +27,7 @@ export async function updateData<T extends keyof FirestoreCollection>(
   return updateDoc(doc(db, collectionName, id), data as DocumentData);
 }
 
-export async function getCollection<T extends keyof FirestoreCollection>(
+export async function getCollectionAsArray<T extends keyof FirestoreCollection>(
   collectionName: T
 ): Promise<FirestoreCollection[T][]> {
   const querySnapshot = await getDocs(collection(db, collectionName));
@@ -37,4 +37,18 @@ export async function getCollection<T extends keyof FirestoreCollection>(
   );
 
   return dataArray;
+}
+
+export async function getCollectionAsObject<T>(
+  collectionName: string
+): Promise<Record<string, T>> {
+  const querySnapshot = await getDocs(collection(db, collectionName));
+
+  const dataObject: Record<string, T> = {};
+
+  querySnapshot.docs.forEach((doc) => {
+    dataObject[doc.id] = doc.data() as T;
+  });
+
+  return dataObject;
 }

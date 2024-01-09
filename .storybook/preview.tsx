@@ -1,7 +1,12 @@
 import type { Preview } from '@storybook/react';
 // import { INITIAL_VIEWPORTS } from '@storybook/addon-viewport';
+import { Provider as ReduxProvider } from 'react-redux';
 import { themes } from '@storybook/theming';
+import store from '@/redux/store';
 import '../src/global.css';
+import './storybook.css';
+import { AuthProvider } from '@/context/AuthProvider';
+import { BrowserRouter } from 'react-router-dom';
 
 const customViewports = {
   mobile_sm: {
@@ -93,4 +98,18 @@ const preview: Preview = {
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const withProvider = (Story: any) => {
+  return (
+    <ReduxProvider store={store}>
+      <AuthProvider>
+        <BrowserRouter>
+          <Story />
+        </BrowserRouter>
+      </AuthProvider>
+    </ReduxProvider>
+  );
+};
+
 export default preview;
+export const decorators = [withProvider];

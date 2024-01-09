@@ -8,7 +8,7 @@ test.describe('Login Form and Logout Button', () => {
   test.beforeAll(async ({ browser }) => {
     context = await browser.newContext();
     page = await context.newPage();
-    await page.goto('/');
+    await page.goto('/account/login');
   });
 
   test('login form displays error on invalid input', async () => {
@@ -33,8 +33,9 @@ test.describe('Login Form and Logout Button', () => {
     await page.getByLabel(/^login password$/i).fill(tester.password);
 
     await page.getByRole('button', { name: 'login' }).click();
+    await page.waitForURL('**/');
 
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    await expect(page.getByRole('heading', { level: 3 })).toHaveText(
       tester.username
     );
   });
