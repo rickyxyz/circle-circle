@@ -2,7 +2,7 @@ import useWindowSize from '@/hook/useWindowSize';
 import { Outlet } from 'react-router-dom';
 
 export default function LayoutCentered() {
-  const windowSize = useWindowSize();
+  const { isMobile } = useWindowSize();
 
   const mobileLayout = (
     <div className="flex min-h-screen w-screen items-center justify-center">
@@ -16,5 +16,5 @@ export default function LayoutCentered() {
     </div>
   );
 
-  return windowSize.width > 768 ? desktopLayout : mobileLayout;
+  return isMobile ? mobileLayout : desktopLayout;
 }
