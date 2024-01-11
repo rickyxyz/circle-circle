@@ -6,8 +6,30 @@ import { Link } from 'react-router-dom';
 import useOverlay from '@/hook/useOverlay';
 import CircleCreateModal from '@/component/modal/CircleCreateModal';
 import useWindowSize from '@/hook/useWindowSize';
-import { useState } from 'react';
+import { HTMLAttributes, useState } from 'react';
 import { cn } from '@/lib/utils';
+
+interface ListItemLinkProps extends HTMLAttributes<HTMLLIElement> {
+  to: string;
+}
+
+function ListItemLink({
+  children,
+  to,
+  className,
+  ...props
+}: ListItemLinkProps) {
+  return (
+    <li className={cn('mb-4 px-4', className)} {...props}>
+      <Link
+        to={to}
+        className="flex items-center text-gray-700 hover:text-black"
+      >
+        {children}
+      </Link>
+    </li>
+  );
+}
 
 export default function Navbar({ user }: { user: User | null }) {
   const { setModal, openModal, setBottombar, openBottombar } = useOverlay();
@@ -28,24 +50,14 @@ export default function Navbar({ user }: { user: User | null }) {
     <div className="relative flex h-full flex-col border-r border-gray-200 bg-white lg:w-64">
       <nav className="flex-1 overflow-y-auto">
         <ul className="py-4">
-          <li className="mb-4 px-4">
-            <Link
-              to={'/'}
-              className="flex items-center text-gray-700 hover:text-black"
-            >
-              <AiFillHome className="mr-2" />
-              Home
-            </Link>
-          </li>
-          <li className="mb-4 px-4">
-            <Link
-              to={'/c'}
-              className="flex items-center text-gray-700 hover:text-black"
-            >
-              <FaRegCompass className="mr-2" />
-              Explore
-            </Link>
-          </li>
+          <ListItemLink to="/">
+            <AiFillHome className="mr-2" />
+            Home
+          </ListItemLink>
+          <ListItemLink to="/c">
+            <FaRegCompass className="mr-2" />
+            Explore
+          </ListItemLink>
           <hr />
           {user && (
             <li className="mb-4 p-4">
@@ -65,7 +77,7 @@ export default function Navbar({ user }: { user: User | null }) {
               <ul
                 className={cn(
                   'flex flex-col gap-4',
-                  isAccordionOpen ? 'h-fit p-4' : 'h-0 overflow-hidden'
+                  isAccordionOpen ? 'h-fit py-4 pl-2' : 'h-0 overflow-hidden'
                 )}
               >
                 <li>
@@ -78,14 +90,13 @@ export default function Navbar({ user }: { user: User | null }) {
                   </button>
                 </li>
                 {user.circle.map((circle) => (
-                  <li key={circle}>
-                    <Link
-                      to={`c/${circle}`}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      {circle}
-                    </Link>
-                  </li>
+                  <ListItemLink
+                    to={`c/${circle}`}
+                    key={circle}
+                    className="mb-0 px-0"
+                  >
+                    {circle}
+                  </ListItemLink>
                 ))}
               </ul>
             </li>

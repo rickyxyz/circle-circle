@@ -7,6 +7,7 @@ import {
   ButtonHTMLAttributes,
   HTMLAttributes,
   ReactNode,
+  useRef,
   useState,
 } from 'react';
 
@@ -20,22 +21,21 @@ interface DropdownListProps
   extends ButtonHTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
   triggerComponent: ReactNode;
   dropdownList: DropdownListItem[];
-  dropdownClassName: string;
 }
 
 export default function DropdownList({
   triggerComponent,
   dropdownList,
-  dropdownClassName,
   className,
   ...props
 }: DropdownListProps) {
   const { isMobile } = useWindowSize();
   const { setBottombar, openBottombar, closeBottombar } = useOverlay();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const buttonRef = useRef(null);
   const dropdownRef = useClickedOutside(() => {
     setDropdownOpen(false);
-  });
+  }, buttonRef);
 
   const handleButtonClick = () => {
     if (!isMobile) {
@@ -75,6 +75,7 @@ export default function DropdownList({
           'inline-flex items-center justify-center bg-transparent',
           className
         )}
+        ref={buttonRef}
         {...props}
       >
         {triggerComponent}
@@ -83,8 +84,7 @@ export default function DropdownList({
       {isDropdownOpen && (
         <div
           className={cn(
-            'absolute right-0 z-20 mt-1 w-max origin-top-right rounded-sm bg-white py-1 shadow-sm ring-1 ring-black ring-opacity-5',
-            dropdownClassName
+            'absolute right-0 z-20 mt-1 w-max origin-top-right rounded-sm bg-white py-1 shadow-sm ring-1 ring-black ring-opacity-5'
           )}
           role="menu"
           aria-orientation="vertical"
