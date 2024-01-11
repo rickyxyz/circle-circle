@@ -1,4 +1,5 @@
 import Button from '@/component/common/Button';
+import useClickedOutside from '@/hook/useClickedOutside';
 import useOverlay from '@/hook/useOverlay';
 import useWindowSize from '@/hook/useWindowSize';
 import { cn } from '@/lib/utils';
@@ -19,17 +20,22 @@ interface DropdownListProps
   extends ButtonHTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
   triggerComponent: ReactNode;
   dropdownList: DropdownListItem[];
+  dropdownClassName: string;
 }
 
 export default function DropdownList({
   triggerComponent,
   dropdownList,
+  dropdownClassName,
   className,
   ...props
 }: DropdownListProps) {
   const { isMobile } = useWindowSize();
   const { setBottombar, openBottombar, closeBottombar } = useOverlay();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useClickedOutside(() => {
+    setDropdownOpen(false);
+  });
 
   const handleButtonClick = () => {
     if (!isMobile) {
@@ -76,10 +82,14 @@ export default function DropdownList({
 
       {isDropdownOpen && (
         <div
-          className="absolute right-0 z-20 mt-1 w-max origin-top-right rounded-sm bg-white py-1 shadow-sm ring-1 ring-black ring-opacity-5"
+          className={cn(
+            'absolute right-0 z-20 mt-1 w-max origin-top-right rounded-sm bg-white py-1 shadow-sm ring-1 ring-black ring-opacity-5',
+            dropdownClassName
+          )}
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="options-menu"
+          ref={dropdownRef}
         >
           {dropdownList.map((listItem, idx) => (
             <button

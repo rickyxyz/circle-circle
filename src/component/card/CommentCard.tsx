@@ -71,6 +71,10 @@ export default function CommentCard({
           setIsEditMode(false);
         }}
         commentId={commentId}
+        onCancel={() => {
+          setIsEditMode(false);
+        }}
+        cancelable
       />
     </div>
   ) : (
@@ -129,7 +133,7 @@ export default function CommentCard({
             icon={<FaRegCommentAlt />}
             size={'xs'}
             variant={'clear'}
-            onClick={() => setIsReplyMode(true)}
+            onClick={() => setIsReplyMode(!isReplyMode)}
           >
             Reply
           </ButtonWithIcon>
@@ -139,26 +143,29 @@ export default function CommentCard({
             basePath={`${basepath}/${commentId}/comment`}
             onSuccessCallback={onComment}
             className="mt-4"
+            label="Put your reply here"
+            onCancel={() => {
+              setIsReplyMode(false);
+            }}
+            cancelable
           />
         )}
+        <div className="mt-4">
+          {Object.keys(comments).map((commentId) => (
+            <div key={`comment-${commentId}}`}>
+              <CommentCard
+                commentData={comments[commentId]}
+                commentId={commentId}
+                basepath={`${basepath}/${commentId}/comment`}
+                onSuccessCallback={(newComment) => {
+                  setComments(() => ({ ...comments, [commentId]: newComment }));
+                  setIsReplyMode(false);
+                }}
+              />
+            </div>
+          ))}
+        </div>
       </div>
-
-      {/* <div className="pl-4">
-        <p>child</p>
-        {Object.keys(comments).map((commentId) => (
-          <div key={`comment-${commentId}}`}>
-            <CommentCard
-              commentData={comments[commentId]}
-              commentId={commentId}
-              basepath={`${basepath}/${commentId}/comment`}
-              onSuccessCallback={(newComment) => {
-                setComments(() => ({ ...comments, [commentId]: newComment }));
-                setIsReplyMode(false);
-              }}
-            />
-          </div>
-        ))}
-      </div> */}
     </div>
   );
 }

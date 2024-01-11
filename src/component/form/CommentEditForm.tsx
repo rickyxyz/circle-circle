@@ -13,10 +13,14 @@ export function CommentEditForm({
   comment,
   commentId,
   onSuccessCallback,
+  onCancel,
+  cancelable = false,
 }: {
   comment: Comment;
   commentId: string;
   onSuccessCallback?: (newComment: Comment) => void;
+  onCancel?: () => void;
+  cancelable?: boolean;
 }) {
   const commentSchema = z.object({
     comment: z.string().min(1, { message: "comment can't be empty" }),
@@ -72,12 +76,23 @@ export function CommentEditForm({
         <p className="text-xs italic text-red-500">{errors.comment?.message}</p>
       </div>
 
-      <button
-        type="submit"
-        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
-      >
-        save
-      </button>
+      <div className="flex w-full flex-row justify-end gap-2">
+        {cancelable && (
+          <button
+            type="button"
+            className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+            onClick={onCancel}
+          >
+            cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+        >
+          save
+        </button>
+      </div>
 
       {commentError && <p className="text-red-500">{commentError}</p>}
     </form>

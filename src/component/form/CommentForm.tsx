@@ -15,13 +15,19 @@ import { Comment } from '@/types/db';
 
 interface CommentFormProps extends FormHTMLAttributes<HTMLFormElement> {
   onSuccessCallback?: (newComment: Comment, commentId: string) => void;
+  onCancel?: () => void;
   basePath: string;
+  label?: string;
+  cancelable?: boolean;
 }
 
 export function CommentForm({
   onSuccessCallback,
+  onCancel,
   basePath,
   className,
+  label,
+  cancelable = false,
   ...props
 }: CommentFormProps) {
   const commentSchema = z.object({
@@ -68,7 +74,7 @@ export function CommentForm({
           htmlFor="post-comment"
           className="mb-1 block text-sm text-gray-700"
         >
-          Put your comment here
+          {label ?? 'Put your comment here'}
         </label>
         <input
           type="text"
@@ -79,12 +85,23 @@ export function CommentForm({
         <p className="text-xs italic text-red-500">{errors.comment?.message}</p>
       </div>
 
-      <button
-        type="submit"
-        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
-      >
-        post
-      </button>
+      <div className="flex w-full flex-row justify-end gap-2">
+        {cancelable && (
+          <button
+            type="button"
+            className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+            onClick={onCancel}
+          >
+            cancel
+          </button>
+        )}
+        <button
+          type="submit"
+          className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+        >
+          post
+        </button>
+      </div>
 
       {commentError && <p className="text-red-500">{commentError}</p>}
     </form>

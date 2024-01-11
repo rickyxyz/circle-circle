@@ -48,13 +48,36 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
         </div>
         <div className="flex items-center justify-end md:min-w-20">
           {user ? (
-            <div className="hidden items-center md:flex">
-              <img
-                src={user.profilePicture ?? '/profile_placeholder.svg'}
-                alt="User Avatar"
-                className="h-8 w-8 rounded-full"
-              />
-            </div>
+            <DropdownList
+              className="hidden items-center md:flex"
+              triggerComponent={
+                <img
+                  src={user.profilePicture ?? '/profile_placeholder.svg'}
+                  alt="User Avatar"
+                  className="h-8 w-8 rounded-full"
+                />
+              }
+              dropdownList={[
+                {
+                  text: 'profile',
+                  onClick: () => {
+                    return;
+                  },
+                },
+                {
+                  text: 'settings',
+                  onClick: () => {
+                    return;
+                  },
+                },
+                {
+                  text: 'sign out',
+                  onClick: () => {
+                    return;
+                  },
+                },
+              ]}
+            />
           ) : (
             <Button
               to="/account/login"
