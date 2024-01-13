@@ -13,8 +13,12 @@ import PostCard from '@/component/card/PostCard';
 import { CommentForm } from '@/component/form/CommentForm';
 import CommentCard from '@/component/card/CommentCard';
 import PromptLogin from '@/component/common/PromptLogin';
+import { getData } from '@/lib/firebase/firestore';
+import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
+import { addUsers } from '@/redux/cacheReducer';
 
 function PagePost() {
+  const dispatch = useAppDispatch();
   const post = useLoaderData() as Post;
   const { circleId, postId } = useParams();
   const [commentDeleteError, setCommentDeleteError] = useState<string | null>(
@@ -22,6 +26,7 @@ function PagePost() {
   );
   const [comments, setComments] = useState<Record<string, Comment>>({});
   const [getError, setGetError] = useState<null | string>(null);
+  const userCache = useAppSelector((state) => state.cache.users);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,11 +46,35 @@ function PagePost() {
     fetchData()
       .then((comments) => {
         setComments(comments);
+
+        const uniqUID = Object.values(comments).reduce(
+          (accum: string[], comment) => {
+            if (!accum.includes(comment.author)) {
+              accum.push(comment.author);
+            }
+            return accum;
+          },
+          []
+        );
+
+        uniqUID.forEach((uid) => {
+          if (!Object.keys(userCache).includes(uid)) {
+            getData('user', uid)
+              .then((user) => {
+                if (user) {
+                  dispatch(addUsers([user]));
+                } else throw new Error('user not found');
+              })
+              .catch((e) => {
+                throw e;
+              });
+          }
+        });
       })
       .catch((e: FirestoreError) => {
         setGetError(e.code);
       });
-  }, [circleId, postId]);
+  }, [circleId, dispatch, postId, userCache]);
 
   function onPostComment(newComment: Comment, commentId: string) {
     setComments({

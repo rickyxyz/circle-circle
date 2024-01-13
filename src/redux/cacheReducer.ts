@@ -22,15 +22,16 @@ export const cacheSlice = createSlice({
       });
       state.circles = { ...state.circles, ...newCircles };
     },
-    updateCircle: (
-      state,
-      action: PayloadAction<{ circleId: string; circle: Circle }>
-    ) => {
-      state.circles[action.payload.circleId] = action.payload.circle;
+    addUsers: (state, action: PayloadAction<User[]>) => {
+      const newUsers: Record<string, User> = {};
+      action.payload.forEach((user) => {
+        newUsers[user.uid] = user;
+      });
+      state.users = { ...state.users, ...newUsers };
     },
   },
 });
 
-export const { addCircles } = cacheSlice.actions;
+export const { addCircles, addUsers } = cacheSlice.actions;
 
 export default cacheSlice.reducer;

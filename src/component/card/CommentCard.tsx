@@ -11,6 +11,7 @@ import { LuDot } from 'react-icons/lu';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
 import { CommentEditForm } from '@/component/form/CommentEditForm';
+import { useAppSelector } from '@/hook/reduxHooks';
 
 interface CommentCardProps extends HTMLAttributes<HTMLDivElement> {
   commentData: Comment;
@@ -30,6 +31,7 @@ export default function CommentCard({
   const [isReplyMode, setIsReplyMode] = useState(false);
   const { user } = useAuth();
   const [comments, setComments] = useState<Record<string, Comment>>({});
+  const userCache = useAppSelector((state) => state.cache.users);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,13 +82,29 @@ export default function CommentCard({
   ) : (
     <div className="flex flex-row gap-2 bg-white px-2 pt-2">
       <div className="flex flex-col gap-1">
-        <img src="/profile_placeholder.svg" alt="img" className="h-4" />
+        <img
+          src={
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            userCache[commentData.author] === undefined
+              ? '/profile_placeholder.svg'
+              : userCache[commentData.author].profilePicture ??
+                '/profile_placeholder.svg'
+          }
+          alt="avatar"
+          className="h-4"
+        />
         <div className="mx-auto w-px flex-1 bg-gray-300"></div>
       </div>
       <div className="flex w-full flex-col gap-1 pb-1">
         <header className="flex w-full flex-row items-center justify-between">
           <span className="flex flex-row items-center gap-1 text-xs">
-            <p className="font-bold text-slate-600">{commentData.author}</p>
+            <p className="font-bold text-slate-600">
+              {/* eslint-disable-next-line
+              @typescript-eslint/no-unnecessary-condition */}
+              {userCache[commentData.author] === undefined
+                ? commentData.author
+                : userCache[commentData.author].username}
+            </p>
             <LuDot className="text-slate-400" />
             <p>
               {/* Posted by {user.username}{' '} */}

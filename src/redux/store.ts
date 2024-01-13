@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import menubarReducer from '@/redux/menubarReducer';
+import cacheReducer from '@/redux/cacheReducer';
 
 const store = configureStore({
   reducer: {
     menubar: menubarReducer,
+    cache: cacheReducer,
   },
 });
 
