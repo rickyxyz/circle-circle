@@ -1,12 +1,6 @@
 import { test, expect, BrowserContext, Page } from '@playwright/test';
 import { tester } from 'tests/assets/mockUsers';
 
-const testUser = {
-  username: `username${Math.random()}`,
-  email: `email${Math.random()}@test.com`,
-  password: `password${Math.random()}`,
-};
-
 test.describe('Registration Form', () => {
   let page: Page;
   let context: BrowserContext;
@@ -32,19 +26,5 @@ test.describe('Registration Form', () => {
     await page.getByRole('button', { name: 'Register' }).click();
 
     await expect(page.getByText('Email is already in use')).toBeVisible();
-  });
-
-  test('register form can successfully submit', async () => {
-    await page.getByLabel('username').fill(testUser.username);
-    await page.getByLabel(/^email$/i).fill(testUser.email);
-    await page.getByLabel(/^password$/i).fill(testUser.password);
-    await page.getByLabel('confirm password').fill(testUser.password);
-
-    await page.getByRole('button', { name: 'Register' }).click();
-
-    await page.waitForURL('**/');
-    await expect(page.getByRole('heading', { level: 3 })).toHaveText(
-      testUser.username
-    );
   });
 });

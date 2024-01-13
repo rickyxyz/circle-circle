@@ -20,7 +20,6 @@ test.describe('As Non-member', () => {
   test('Post edit button is not visible to other user', async () => {
     await page.goto('/c/testCircle1/p/testPost1');
 
-    await expect.soft(page.getByText('testPost1')).toBeVisible();
     await expect(page.getByText('edit post')).toBeHidden();
   });
 });

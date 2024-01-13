@@ -60,8 +60,6 @@ test.describe('circle create form', () => {
     await modal.getByLabel('circle description').fill(newCircle.description);
     await modal.getByRole('button', { name: 'create' }).click();
 
-    await page.waitForURL(`**/c/${newCircle.name}`);
-
     await expect(page).toHaveURL(`c/${newCircle.name}`);
   });
 

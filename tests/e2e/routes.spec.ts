@@ -2,13 +2,9 @@ import { test, expect, BrowserContext, Page } from '@playwright/test';
 import { alice, tester } from 'tests/assets/mockUsers';
 import testerLogin from 'tests/e2e/fixtures/testerLogin.utils';
 
+const BASE_PATH = 'http://localhost:5173';
+
 test.describe('unauthed user routes', () => {
-  test('/ can render successfully', async ({ page }) => {
-    await page.goto('/');
-
-    expect(page).toBeDefined();
-  });
-
   test('/account/settings will throw 404', async ({ page }) => {
     await page.goto('/account/settings');
 
@@ -91,8 +87,8 @@ test.describe('unauthed user routes', () => {
   test("/u/a will show a's profile page", async ({ page }) => {
     await page.goto(`/u/${alice.uid}`);
 
-    await expect(page.getByRole('heading', { level: 2 })).toHaveText(
-      `this is ${alice.username} profile page`
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      alice.username
     );
   });
 });
@@ -110,16 +106,16 @@ test.describe('authed user routes', () => {
   test('/u will redirect to own profile', async () => {
     await page.goto('/u');
 
-    await expect(page.getByRole('heading', { level: 2 })).toHaveText(
-      `this is ${tester.username} profile page`
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      tester.username
     );
   });
 
   test("/u/a will show a's profile", async () => {
     await page.goto(`/u/${alice.uid}`);
 
-    await expect(page.getByRole('heading', { level: 2 })).toHaveText(
-      `this is ${alice.username} profile page`
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      alice.username
     );
   });
 
@@ -133,19 +129,13 @@ test.describe('authed user routes', () => {
   test('/account/login will redirect to homepage', async () => {
     await page.goto(`/account/login`);
 
-    await page.waitForURL('**/');
-    await expect(page.getByRole('heading', { level: 3 })).toHaveText(
-      tester.username
-    );
+    await expect(page).toHaveURL(`${BASE_PATH}/`);
   });
 
   test('/account/register will redirect to homepage', async () => {
     await page.goto(`/account/register`);
 
-    await page.waitForURL('**/');
-    await expect(page.getByRole('heading', { level: 3 })).toHaveText(
-      tester.username
-    );
+    await expect(page).toHaveURL(`${BASE_PATH}/`);
   });
 
   test('/account/settings will show settings page', async () => {

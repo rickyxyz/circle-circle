@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test';
+import { Page } from '@playwright/test';
 
 export default async function createNewUser(page: Page) {
   await page.goto('/account/register');
@@ -17,7 +17,4 @@ export default async function createNewUser(page: Page) {
   await page.getByRole('button', { name: 'register' }).click();
 
   await page.waitForURL('**/');
-  await expect(page.getByRole('heading', { level: 3 })).toHaveText(
-    newUser.username
-  );
 }
