@@ -53,7 +53,7 @@ export default function DropdownList({
             }}
             to={listItem.to}
             className={cn(
-              'block w-full px-4 py-2 text-center text-base capitalize text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+              'block w-full items-center justify-center px-4 py-2 text-center text-base capitalize text-gray-700 hover:bg-gray-100 hover:text-gray-900',
               listItem.className
             )}
             role="menuitem"

@@ -65,9 +65,7 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
                 },
                 {
                   text: 'settings',
-                  onClick: () => {
-                    return;
-                  },
+                  to: `/account/settings`,
                 },
                 {
                   text: 'sign out',

@@ -65,8 +65,13 @@ const router = createBrowserRouter([
     },
     children: [
       {
-        path: 'settings',
-        element: <PageSettings />,
+        element: <LayoutRoot />,
+        children: [
+          {
+            path: 'settings',
+            element: <PageSettings />,
+          },
+        ],
       },
     ],
   },
