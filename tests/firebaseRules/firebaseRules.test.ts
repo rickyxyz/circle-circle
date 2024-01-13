@@ -64,7 +64,7 @@ describe('user collection', () => {
     expect(true).toBe(true);
   });
 
-  it('can only be written by unauthenticated user', async () => {
+  it('cannot be written by unauthenticated user', async () => {
     await expectPermissionDenied(
       setDoc(doc(unauthedDb, 'user', 'u'), { field: 'val' })
     );
@@ -532,6 +532,22 @@ describe('comment recursive subcollection', () => {
           'circle/testCircle1/post/a/comment/a/comment/bb'
         )
       )
+    );
+    expect(true).toBe(true);
+  });
+});
+
+describe('feed collection', () => {
+  it('can only be written by authenticated user', async () => {
+    await expectPermissionSucceeds(
+      setDoc(doc(aliceDb, 'feed', 'a'), { field: 'val' })
+    );
+    expect(true).toBe(true);
+  });
+
+  it('cannot be written by unauthenticated user', async () => {
+    await expectPermissionDenied(
+      setDoc(doc(unauthedDb, 'feed', 'u'), { field: 'val' })
     );
     expect(true).toBe(true);
   });
