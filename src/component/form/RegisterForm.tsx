@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
 import { FirebaseError } from 'firebase/app';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const registerSchema = z
   .object({
@@ -54,93 +54,97 @@ function RegisterForm() {
   }
 
   return (
-    <form
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      onSubmit={handleSubmit(handleRegister)}
-      className="container mx-auto mt-8 max-w-md bg-white p-4 shadow-md"
-    >
-      <h1 className="mb-4 text-2xl font-bold">Sign Up</h1>
-      <div className="mb-4">
-        <label
-          htmlFor="username"
-          className="mb-2 block text-sm font-bold text-gray-700"
-        >
-          Username
-        </label>
-        <input
-          type="text"
-          id="username"
-          {...register('username')}
-          className="w-full rounded-md border border-gray-300 p-2"
-        />
-        <p className="text-xs italic text-red-500">
-          {errors.username?.message}
-        </p>
-      </div>
-
-      <div className="mb-4">
-        <label
-          htmlFor="email"
-          className="mb-2 block text-sm font-bold text-gray-700"
-        >
-          Email
-        </label>
-        <input
-          type="text"
-          id="email"
-          {...register('email')}
-          className="w-full rounded-md border border-gray-300 p-2"
-        />
-        <p className="text-xs italic text-red-500">{errors.email?.message}</p>
-      </div>
-
-      <div className="mb-4">
-        <label
-          htmlFor="password"
-          className="mb-2 block text-sm font-bold text-gray-700"
-        >
-          Password
-        </label>
-        <input
-          type="password"
-          id="password"
-          {...register('password')}
-          className="w-full rounded-md border border-gray-300 p-2"
-        />
-        <p className="text-xs italic text-red-500">
-          {errors.password?.message}
-        </p>
-      </div>
-
-      <div className="mb-4">
-        <label
-          htmlFor="confirm-password"
-          className="mb-2 block text-sm font-bold text-gray-700"
-        >
-          Confirm Password
-        </label>
-        <input
-          type="password"
-          id="confirm-password"
-          {...register('confirmPassword')}
-          className="w-full rounded-md border border-gray-300 p-2"
-        />
-        <p className="text-xs italic text-red-500">
-          {errors.confirmPassword?.message}
-        </p>
-      </div>
-
-      {registerError && (
-        <p className="mb-4 text-xs italic text-red-500">{registerError}</p>
-      )}
-
-      <button
-        type="submit"
-        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+    <div className="container mx-auto mt-8 flex max-w-md flex-col gap-4 bg-white p-4 shadow-md">
+      <form
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        onSubmit={handleSubmit(handleRegister)}
+        className="flex flex-col"
       >
-        Register
-      </button>
-    </form>
+        <h1 className="mb-4 text-center text-2xl font-bold">Sign Up</h1>
+        <div className="mb-4">
+          <label
+            htmlFor="username"
+            className="mb-2 block text-sm font-bold text-gray-700"
+          >
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            {...register('username')}
+            className="w-full rounded-md border border-gray-300 p-2"
+          />
+          <p className="text-xs italic text-red-500">
+            {errors.username?.message}
+          </p>
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="email"
+            className="mb-2 block text-sm font-bold text-gray-700"
+          >
+            Email
+          </label>
+          <input
+            type="text"
+            id="email"
+            {...register('email')}
+            className="w-full rounded-md border border-gray-300 p-2"
+          />
+          <p className="text-xs italic text-red-500">{errors.email?.message}</p>
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="password"
+            className="mb-2 block text-sm font-bold text-gray-700"
+          >
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            {...register('password')}
+            className="w-full rounded-md border border-gray-300 p-2"
+          />
+          <p className="text-xs italic text-red-500">
+            {errors.password?.message}
+          </p>
+        </div>
+        <div className="mb-4">
+          <label
+            htmlFor="confirm-password"
+            className="mb-2 block text-sm font-bold text-gray-700"
+          >
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            id="confirm-password"
+            {...register('confirmPassword')}
+            className="w-full rounded-md border border-gray-300 p-2"
+          />
+          <p className="text-xs italic text-red-500">
+            {errors.confirmPassword?.message}
+          </p>
+        </div>
+        {registerError && (
+          <p className="mb-4 text-xs italic text-red-500">{registerError}</p>
+        )}
+        <button
+          type="submit"
+          className="mt-2 rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
+        >
+          Register
+        </button>
+      </form>
+      <hr />
+      <Link
+        to={'/account/login'}
+        className="text-center text-blue-700 underline"
+      >
+        Sign in instead
+      </Link>
+    </div>
   );
 }
 

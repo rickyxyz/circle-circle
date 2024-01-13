@@ -1,4 +1,3 @@
-import useAuth from '@/hook/useAuth';
 import { db } from '@/lib/firebase/config';
 import {
   FirestoreError,
@@ -13,10 +12,10 @@ import { Comment, Post } from '@/types/db';
 import PostCard from '@/component/card/PostCard';
 import { CommentForm } from '@/component/form/CommentForm';
 import CommentCard from '@/component/card/CommentCard';
+import PromptLogin from '@/component/common/PromptLogin';
 
 function PagePost() {
   const post = useLoaderData() as Post;
-  const { user } = useAuth();
   const { circleId, postId } = useParams();
   const [commentDeleteError, setCommentDeleteError] = useState<string | null>(
     null
@@ -80,13 +79,13 @@ function PagePost() {
         postId={postId ?? ''}
         className="rounded-none"
       />
-      {user && (
+      <PromptLogin>
         <CommentForm
           onSuccessCallback={onPostComment}
           basePath={`circle/${circleId}/post/${postId}/comment`}
           className="px-3"
         />
-      )}
+      </PromptLogin>
       {getError}
       {Object.keys(comments)
         .sort((commentId1, commentId2) => {

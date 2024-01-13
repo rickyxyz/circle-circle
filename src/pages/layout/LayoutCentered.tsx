@@ -1,20 +1,14 @@
-import useWindowSize from '@/hook/useWindowSize';
 import { Outlet } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
+import Button from '@/component/common/Button';
 
 export default function LayoutCentered() {
-  const { isMobile } = useWindowSize();
-
-  const mobileLayout = (
-    <div className="flex min-h-screen w-screen items-center justify-center">
-      <Outlet />
-    </div>
-  );
-
-  const desktopLayout = (
+  return (
     <div className="flex min-h-screen items-center justify-center">
+      <Button className="absolute left-3 top-5 aspect-square" to="-1">
+        <FaArrowLeft />
+      </Button>
       <Outlet />
     </div>
   );
-
-  return isMobile ? mobileLayout : desktopLayout;
 }

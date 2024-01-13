@@ -2,7 +2,7 @@
 import { VariantProps, cva } from 'class-variance-authority';
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const buttonVariant = cva('', {
   variants: {
@@ -32,14 +32,32 @@ interface ButtonProps
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ children, className, size, variant, to, ...props }, ref) => {
+    const navigate = useNavigate();
+
     return to ? (
-      <Link
-        className={cn(buttonVariant({ variant, size, className }))}
-        to={to}
-        {...props}
-      >
-        {children}
-      </Link>
+      to === '-1' ? (
+        <button
+          className={cn(buttonVariant({ variant, size, className }))}
+          onClick={() => {
+            navigate(-1);
+          }}
+          {...props}
+          ref={ref}
+        >
+          {children}
+        </button>
+      ) : (
+        <Link
+          className={cn(
+            buttonVariant({ variant, size, className }),
+            'flex items-center'
+          )}
+          to={to}
+          {...props}
+        >
+          {children}
+        </Link>
+      )
     ) : (
       <button
         className={cn(buttonVariant({ variant, size, className }))}
