@@ -4,6 +4,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getCountFromServer,
   getDocs,
 } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
@@ -27,6 +28,22 @@ function PagePost() {
   const [comments, setComments] = useState<Record<string, Comment>>({});
   const [getError, setGetError] = useState<null | string>(null);
   const userCache = useAppSelector((state) => state.cache.users);
+  const [commentCount, setCommentCount] = useState(0);
+
+  useEffect(() => {
+    async function getCommentCount() {
+      const colRef = collection(
+        db,
+        `circle/${circleId}/post/${postId}/comment`
+      );
+      const snapshot = await getCountFromServer(colRef);
+      return snapshot.data().count;
+    }
+
+    getCommentCount()
+      .then((count) => setCommentCount(count))
+      .catch(() => setCommentCount(-1));
+  }, [circleId, postId]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,6 +94,7 @@ function PagePost() {
   }, [circleId, dispatch, postId, userCache]);
 
   function onPostComment(newComment: Comment, commentId: string) {
+    setCommentCount((p) => p + 1);
     setComments({
       ...comments,
       [commentId]: newComment,
@@ -107,6 +125,7 @@ function PagePost() {
         post={post}
         postId={postId ?? ''}
         className="rounded-none"
+        commentCountInput={commentCount}
       />
       <PromptLogin>
         <CommentForm

@@ -26,6 +26,13 @@ export function createNewPost({
 
   addDoc(collection(db, `/circle/${circleName}/post`), newPost)
     .then((docRef) => {
+      addDoc(collection(db, '/feed'), {
+        postId: docRef.id,
+        postDate: Timestamp.now(),
+        circleId: circleName,
+      }).catch((e) => {
+        throw e;
+      });
       onSuccess && onSuccess(docRef.id);
     })
     .catch((e: FirestoreError) => {

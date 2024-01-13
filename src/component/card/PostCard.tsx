@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { VariantProps, cva } from 'class-variance-authority';
-import { HTMLAttributes, useMemo, useState } from 'react';
+import { HTMLAttributes, useEffect, useMemo, useState } from 'react';
 import { cn, timeAgo } from '@/lib/utils';
 import { Post } from '@/types/db';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,7 +12,12 @@ import DropdownList from '@/component/common/DropdownList';
 import PostEditForm from '@/component/form/PostEditForm';
 import { db } from '@/lib/firebase/config';
 import { FirebaseError } from 'firebase/app';
-import { deleteDoc, doc } from 'firebase/firestore';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getCountFromServer,
+} from 'firebase/firestore';
 import useAuth from '@/hook/useAuth';
 
 const postCardVariant = cva('', {
@@ -36,6 +41,7 @@ interface PostCardProps extends VariantProps<typeof postCardVariant> {
   circleId: string;
   className?: HTMLAttributes<HTMLDivElement>['className'];
   blur?: boolean;
+  commentCountInput?: number;
 }
 
 export default function PostCard({
@@ -44,6 +50,7 @@ export default function PostCard({
   circleId,
   variant,
   className,
+  commentCountInput,
   blur = false,
   ...props
 }: PostCardProps) {
@@ -56,6 +63,7 @@ export default function PostCard({
   const [postData, setPostData] = useState(post);
   const navigate = useNavigate();
   const [, setDeleteError] = useState<string | null>(null);
+  const [commentCount, setCommentCount] = useState(0);
 
   function onDelete() {
     deleteDoc(doc(db, `/circle/${circleId}/post/${postId}`))
@@ -64,6 +72,22 @@ export default function PostCard({
       })
       .catch((e: FirebaseError) => setDeleteError(e.code));
   }
+
+  useEffect(() => {
+    async function getCommentCount() {
+      const colRef = collection(
+        db,
+        `circle/${circleId}/post/${postId}/comment`
+      );
+      const snapshot = await getCountFromServer(colRef);
+      return snapshot.data().count;
+    }
+
+    !commentCountInput &&
+      getCommentCount()
+        .then((count) => setCommentCount(count))
+        .catch(() => setCommentCount(-1));
+  }, [circleId, commentCountInput, postId]);
 
   return (
     <article
@@ -75,8 +99,13 @@ export default function PostCard({
     >
       <header className="flex w-full flex-row items-center justify-between">
         <span className="flex flex-row items-center gap-1 text-xs">
-          <img src="/profile_placeholder.svg" alt="img" className="h-4" />
-          <p className="font-bold text-slate-600">c/{circleId}</p>
+          <Link
+            to={`/c/${circleId}`}
+            className="flex flex-row items-center gap-1 hover:underline"
+          >
+            <img src="/profile_placeholder.svg" alt="img" className="h-4" />
+            <p className="font-bold text-slate-600">c/{circleId}</p>
+          </Link>
           <LuDot className="text-slate-400" />
           <p>
             {/* Posted by {user.username}{' '} */}
@@ -135,7 +164,7 @@ export default function PostCard({
       <div className="mt-3 flex flex-row gap-2">
         <ButtonWithIcon icon={<FaRegHeart size={14} />}>123</ButtonWithIcon>
         <ButtonWithIcon icon={<FaRegCommentAlt size={14} />}>
-          123
+          {commentCountInput ?? commentCount}
         </ButtonWithIcon>
       </div>
     </article>

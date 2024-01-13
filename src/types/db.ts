@@ -37,8 +37,20 @@ export interface Post {
   type: PostType;
 }
 
+export interface Feed {
+  postId: string;
+  postDate: Timestamp;
+  circleId: string;
+}
+
+export interface PostFeed extends Post {
+  postId: string;
+  circleId: string;
+}
+
 export interface FirestoreCollection {
   user: User;
   circle: Circle;
   post: Post;
+  feed: Feed;
 }
