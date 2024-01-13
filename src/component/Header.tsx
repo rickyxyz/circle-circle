@@ -1,13 +1,14 @@
 import { User } from '@/types/db';
-import { GoKebabHorizontal, GoSearch } from 'react-icons/go';
+import { GoSearch } from 'react-icons/go';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import Button from '@/component/common/Button';
 import { useAppDispatch } from '@/hook/reduxHooks';
-import { sideBarOpen } from '@/redux/menubarReducer';
+import { sidebarToggle } from '@/redux/menubarReducer';
 import { HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import DropdownList from '@/component/common/DropdownList';
+import useAuth from '@/hook/useAuth';
 
 interface HeaderProps extends HTMLAttributes<HTMLDivElement> {
   user: User | null;
@@ -15,6 +16,7 @@ interface HeaderProps extends HTMLAttributes<HTMLDivElement> {
 
 const Header = ({ user, className, ...props }: HeaderProps) => {
   const dispatch = useAppDispatch();
+  const { logout } = useAuth();
 
   return (
     <header
@@ -24,7 +26,7 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
       <div className="flex items-center justify-between">
         <button
           className="mr-4 flex items-center md:hidden"
-          onClick={() => dispatch(sideBarOpen())}
+          onClick={() => dispatch(sidebarToggle())}
         >
           <GiHamburgerMenu />
         </button>
@@ -49,20 +51,17 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
         <div className="flex items-center justify-end md:min-w-20">
           {user ? (
             <DropdownList
-              className="hidden items-center md:flex"
               triggerComponent={
                 <img
                   src={user.profilePicture ?? '/profile_placeholder.svg'}
                   alt="User Avatar"
-                  className="h-8 w-8 rounded-full"
+                  className="h-8 w-8 items-center rounded-full"
                 />
               }
               dropdownList={[
                 {
                   text: 'profile',
-                  onClick: () => {
-                    return;
-                  },
+                  to: `/u/${user.uid}`,
                 },
                 {
                   text: 'settings',
@@ -73,44 +72,18 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
                 {
                   text: 'sign out',
                   onClick: () => {
-                    return;
+                    logout();
                   },
                 },
               ]}
             />
           ) : (
-            <Button
-              to="/account/login"
-              variant="default"
-              className="hidden md:flex"
-            >
-              Login
-            </Button>
+            <>
+              <Button to="/account/login" variant="default">
+                Login
+              </Button>
+            </>
           )}
-          <DropdownList
-            className="flex items-center px-0 md:hidden"
-            triggerComponent={<GoKebabHorizontal />}
-            dropdownList={[
-              {
-                text: 'profile',
-                onClick: () => {
-                  return;
-                },
-              },
-              {
-                text: 'settings',
-                onClick: () => {
-                  return;
-                },
-              },
-              {
-                text: 'sign out',
-                onClick: () => {
-                  return;
-                },
-              },
-            ]}
-          />
         </div>
       </div>
     </header>

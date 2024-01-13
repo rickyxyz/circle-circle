@@ -10,6 +10,7 @@ const buttonVariant = cva('', {
       default:
         'rounded-full bg-gray-100 px-4 py-2 text-black capitalize text-sm md:text-base font-semibold',
       clear: 'rounded-full text-black capitalize',
+      noStyle: '',
     },
     size: {
       default: '',

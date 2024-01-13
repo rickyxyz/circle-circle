@@ -21,6 +21,10 @@ export const menubarSlice = createSlice({
       state.sidebarIsOpen = true;
       state.bottombarIsOpen = false;
     },
+    sidebarToggle: (state) => {
+      state.sidebarIsOpen = !state.sidebarIsOpen;
+      state.bottombarIsOpen = false;
+    },
     bottombarClose: (state) => {
       state.bottombarIsOpen = false;
     },
@@ -31,7 +35,12 @@ export const menubarSlice = createSlice({
   },
 });
 
-export const { sideBarClose, sideBarOpen, bottombarClose, bottombarOpen } =
-  menubarSlice.actions;
+export const {
+  sideBarClose,
+  sideBarOpen,
+  bottombarClose,
+  bottombarOpen,
+  sidebarToggle,
+} = menubarSlice.actions;
 
 export default menubarSlice.reducer;

@@ -40,7 +40,7 @@ export default function LayoutRoot() {
         <div className="col-span-2">
           <Outlet />
         </div>
-        <div className="col-span-1">Nav</div>
+        <div className="col-span-1"></div>
       </div>
     </div>
   );

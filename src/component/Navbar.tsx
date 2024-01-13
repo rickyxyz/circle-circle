@@ -8,6 +8,8 @@ import CircleCreateModal from '@/component/modal/CircleCreateModal';
 import useWindowSize from '@/hook/useWindowSize';
 import { HTMLAttributes, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useAppDispatch } from '@/hook/reduxHooks';
+import { sideBarClose } from '@/redux/menubarReducer';
 
 interface ListItemLinkProps extends HTMLAttributes<HTMLLIElement> {
   to: string;
@@ -19,11 +21,16 @@ function ListItemLink({
   className,
   ...props
 }: ListItemLinkProps) {
+  const dispatch = useAppDispatch();
+
   return (
     <li className={cn('mb-4 px-4', className)} {...props}>
       <Link
         to={to}
         className="flex items-center text-gray-700 hover:text-black"
+        onClick={() => {
+          dispatch(sideBarClose());
+        }}
       >
         {children}
       </Link>
@@ -33,7 +40,7 @@ function ListItemLink({
 
 export default function Navbar({ user }: { user: User | null }) {
   const { setModal, openModal, setBottombar, openBottombar } = useOverlay();
-  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const [isAccordionOpen, setIsAccordionOpen] = useState(true);
   const { isMobile } = useWindowSize();
 
   function showCreateCircleForm() {
@@ -47,7 +54,10 @@ export default function Navbar({ user }: { user: User | null }) {
   }
 
   return (
-    <div className="relative flex h-full flex-col border-r border-gray-200 bg-white lg:w-64">
+    <div
+      className="relative flex h-full w-9/12 flex-col border-r border-gray-200 bg-white lg:w-64"
+      onClick={(e) => e.stopPropagation()}
+    >
       <nav className="flex-1 overflow-y-auto">
         <ul className="py-4">
           <ListItemLink to="/">
