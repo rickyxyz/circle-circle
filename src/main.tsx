@@ -7,34 +7,84 @@ import {
   redirect,
   RouterProvider,
 } from 'react-router-dom';
-import PageError from '@/pages/PageError';
 import { AuthProvider } from '@/context/AuthProvider.tsx';
-import PageAuth from '@/pages/PageAuth';
-import PageRoot from '@/pages/PageRoot';
-import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
-import PageProtected from '@/pages/PageProtected';
-import PageProfile from '@/pages/PageProfile';
 import { getCurrentUser } from '@/lib/firebase/auth';
-import { getCollection, getData } from '@/lib/firebase/firestore';
-import PageCircle from '@/pages/PageCircle';
-import PageCircleForms from '@/pages/PageCircleEdit';
+import { getCollectionAsArray, getData } from '@/lib/firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { getDoc, doc } from 'firebase/firestore';
-import PagePost from '@/pages/PagePost';
-import ModalProvider from '@/context/ModalProvider';
+import LayoutRoot from '@/pages/layout/LayoutRoot';
+import {
+  PageCircles,
+  PageCircle,
+  PageError,
+  PagePost,
+  PageProfile,
+  PageHome,
+  PageSettings,
+} from '@/pages';
+import { Provider as ReduxProvider } from 'react-redux';
+import store from '@/redux/store';
+import RegisterForm from '@/component/form/RegisterForm';
+import LoginForm from '@/component/form/LoginForm';
+import LayoutCentered from '@/pages/layout/LayoutCentered';
+import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <PageRoot />,
+    path: '/account',
+    errorElement: <PageError />,
+    element: <LayoutCentered />,
+    loader: async () => {
+      const currentUser = await getCurrentUser();
+      if (currentUser) {
+        return redirect('/');
+      }
+      return null;
+    },
+    children: [
+      {
+        path: 'login',
+        element: <LoginForm />,
+      },
+      {
+        path: 'register',
+        element: <RegisterForm />,
+      },
+    ],
+  },
+  {
+    path: '/account',
+    errorElement: <PageError />,
+    element: <ProtectedRoute />,
+    loader: async () => {
+      const currentUser = await getCurrentUser();
+      if (!currentUser) {
+        throw new Response('Not Found', { status: 404 });
+      }
+      return { isLoggedIn: Boolean(currentUser) };
+    },
+    children: [
+      {
+        element: <LayoutRoot />,
+        children: [
+          {
+            path: 'settings',
+            element: <PageSettings />,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    element: <LayoutRoot />,
     errorElement: <PageError />,
     children: [
       {
         index: true,
-        element: <PageAuth />,
+        element: <PageHome />,
       },
       {
-        path: 'profile/:userId?',
+        path: 'u/:userId?',
         element: <PageProfile />,
         loader: async ({ params }) => {
           const currentUser = await getCurrentUser();
@@ -56,16 +106,16 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: '/circle',
-        element: <PageCircle />,
+        path: '/c',
+        element: <PageCircles />,
         loader: async () => {
-          const circleData = await getCollection('circle');
+          const circleData = await getCollectionAsArray('circle');
           return [...circleData];
         },
       },
       {
-        path: '/circle/:circleId',
-        element: <PageCircleForms />,
+        path: '/c/:circleId',
+        element: <PageCircle />,
         loader: async ({ params }) => {
           if (!params.circleId) {
             return null;
@@ -94,7 +144,7 @@ const router = createBrowserRouter([
         },
       },
       {
-        path: '/circle/:circleId/post/:postId',
+        path: '/c/:circleId/p/:postId',
         element: <PagePost />,
         loader: async ({ params }) => {
           if (!params.postId) {
@@ -111,33 +161,16 @@ const router = createBrowserRouter([
           }
         },
       },
-      {
-        path: 'auth',
-        element: <ProtectedRoute />,
-        loader: async () => {
-          const currentUser = await getCurrentUser();
-          if (!currentUser) {
-            throw new Response('Not Found', { status: 404 });
-          }
-          return { isLoggedIn: Boolean(currentUser) };
-        },
-        children: [
-          {
-            index: true,
-            element: <PageProtected />,
-          },
-        ],
-      },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root') as Element).render(
   <React.StrictMode>
-    <AuthProvider>
-      <ModalProvider>
+    <ReduxProvider store={store}>
+      <AuthProvider>
         <RouterProvider router={router} />
-      </ModalProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </ReduxProvider>
   </React.StrictMode>
 );

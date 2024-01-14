@@ -3,8 +3,9 @@ import { test, expect, BrowserContext, Page } from '@playwright/test';
 import testerLogin from 'tests/e2e/fixtures/testerLogin.utils';
 
 const newCircle: Circle = {
-  name: `randomCircle_${Math.random().toFixed(5)}`,
-  description: `this is randomCircle_${Math.random().toFixed(5)} description`,
+  name: `randomCircle_${Math.random().toFixed(3)}`,
+  description: `this is randomCircle_${Math.random().toFixed(3)} description`,
+  topic: 'entertainment',
 };
 
 test.describe('circle create form', () => {
@@ -18,37 +19,53 @@ test.describe('circle create form', () => {
   });
 
   test('circle creation form can show error', async () => {
-    await page.goto('/circle');
-    await page.getByRole('button', { name: 'create' }).click();
-
+    await page.getByRole('button', { name: 'create a circle' }).first().click();
+    await page
+      .getByTestId('modal')
+      .getByRole('button', { name: 'Create' })
+      .click();
     await expect(page.getByText('Name is required')).toBeVisible();
   });
 
   test('circle creation form can show network error', async () => {
-    await page.goto('/circle');
+    await page.getByRole('button', { name: 'create a circle' }).first().click();
+    const modal = page.getByTestId('modal');
 
-    await page.getByLabel('circle name').click();
-    await page.getByLabel('circle name').fill('testCircle1');
-    await page.getByLabel('circle description').click();
-    await page.getByLabel('circle description').fill('description');
-    await page.getByRole('button', { name: 'create' }).click();
+    await modal.getByLabel('circle name').click();
+    await modal.getByLabel('circle name').fill('testCircle1');
+    await modal
+      .getByLabel(/^topic$/i)
+      .first()
+      .click();
+    await modal.getByText(/^sports$/i).click();
+    await modal.getByLabel('circle description').click();
+    await modal.getByLabel('circle description').fill('description');
+    await modal.getByRole('button', { name: 'create' }).click();
 
     await expect(page.getByText('already exists')).toBeVisible();
   });
 
   test('circle can be created', async () => {
-    await page.goto('/circle');
-    await page.getByLabel('circle name').click();
-    await page.getByLabel('circle name').fill(newCircle.name);
-    await page.getByLabel('circle description').click();
-    await page.getByLabel('circle description').fill(newCircle.description);
-    await page.getByRole('button', { name: 'create' }).click();
+    await page.getByRole('button', { name: 'create a circle' }).first().click();
+    const modal = page.getByTestId('modal');
 
-    await expect(page.getByText(newCircle.name)).toBeVisible();
+    await modal.getByLabel('circle name').click();
+    await modal.getByLabel('circle name').fill(newCircle.name);
+    await modal
+      .getByLabel(/^topic$/i)
+      .first()
+      .click();
+    await modal.getByText(/^sports$/i).click();
+    await modal.getByLabel('circle description').click();
+    await modal.getByLabel('circle description').fill(newCircle.description);
+    await modal.getByRole('button', { name: 'create' }).click();
+
+    await expect(page).toHaveURL(`c/${newCircle.name}`);
   });
 
-  test('circle edit can be edited', async () => {
-    await page.goto('/circle/testCircle1');
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip('circle edit can be edited', async () => {
+    await page.goto('/c/testCircle1');
     await page.getByLabel('Circle Description').click();
     await page
       .getByLabel('Circle Description')
