@@ -87,6 +87,11 @@ export default function PostCreateForm({
           id="post-description"
           theme="snow"
           value={editorContent}
+          modules={{
+            toolbar: {
+              container: [['bold', 'italic', 'underline', 'strike'], ['link']],
+            },
+          }}
           onChange={onQuillChange}
         />
         <p className="text-xs italic text-red-500">
