@@ -5,7 +5,7 @@ import { updateDoc, doc, FirestoreError } from 'firebase/firestore';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
-import { PostSchema, postSchema } from '@/lib/schemas/PostSchema';
+import { PostSchema, postSchema } from '@/lib/schemas/postSchema';
 import Button from '@/component/common/Button';
 import TextEditor from '@/component/common/TextEditor';
 

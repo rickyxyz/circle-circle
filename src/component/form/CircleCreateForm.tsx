@@ -10,7 +10,7 @@ import {
   CircleSchema,
   circleSchema,
   TopicOption,
-} from '@/lib/schemas/CircleSchema';
+} from '@/lib/schemas/circleSchema';
 
 export default function CircleCreateForm({
   onSuccessCallback,

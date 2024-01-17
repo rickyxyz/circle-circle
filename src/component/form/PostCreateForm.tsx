@@ -3,7 +3,7 @@ import { createNewPost } from '@/lib/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormHTMLAttributes, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { PostSchema, postSchema } from '@/lib/schemas/PostSchema';
+import { PostSchema, postSchema } from '@/lib/schemas/postSchema';
 import TextEditor from '@/component/common/TextEditor';
 import { Post } from '@/types/db';
 import Button from '@/component/common/Button';

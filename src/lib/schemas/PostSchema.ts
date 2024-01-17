@@ -1,7 +1,8 @@
+import customErrorMap from '@/lib/schemas/errorMap';
 import { z } from 'zod';
 
 const postSchema = z.object({
-  title: z.string().min(1),
+  title: z.string({ errorMap: customErrorMap }).min(1),
   description: z.string().max(300),
 });
 

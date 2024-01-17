@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 import { Comment } from '@/types/db';
 import Button from '@/component/common/Button';
 import TextEditor from '@/component/common/TextEditor';
-import { CommentSchema, commentSchema } from '@/lib/schemas/CommentSchema';
+import { CommentSchema, commentSchema } from '@/lib/schemas/commentSchema';
 
 interface CommentFormProps extends FormHTMLAttributes<HTMLFormElement> {
   onSuccessCallback?: (newComment: Comment, commentId: string) => void;
@@ -74,7 +74,11 @@ export function CommentForm({
         >
           {label ?? 'Put your comment here'}
         </label>
-        <TextEditor<CommentSchema> control={control} name="comment" />
+        <TextEditor<CommentSchema>
+          control={control}
+          name="comment"
+          id="post-comment"
+        />
         <p className="text-xs italic text-red-500">{errors.comment?.message}</p>
       </div>
 

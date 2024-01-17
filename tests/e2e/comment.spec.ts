@@ -23,13 +23,13 @@ test.describe('Comment', () => {
 
     await page.getByRole('button', { name: 'post' }).click();
 
-    await expect(page.getByText(/comment can't be empty/i)).toBeVisible();
+    await expect(page.getByText(/comment cannot be empty/i)).toBeVisible();
   });
 
   test('can successfully create a new comment', async () => {
     await page.goto('/c/testCircle1/p/testPost1');
 
-    await page.getByLabel(/^put your comment here$/i).fill(newComment.text);
+    await page.locator('#post-description div').nth(2).fill(newComment.text);
     await page.getByRole('button', { name: 'post' }).click();
 
     await expect(page.getByText(newComment.text)).toBeVisible();
