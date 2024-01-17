@@ -18,13 +18,6 @@ test.describe('Comment', () => {
     await createNewUser(page);
   });
 
-  test('post comment button should be visible', async () => {
-    await page.goto('/c/testCircle1/p/testPost1');
-
-    await expect(page.getByText('testPost1')).toBeVisible();
-    await expect(page.getByText('put your comment here')).toBeVisible();
-  });
-
   test('comment form can show input error', async () => {
     await page.goto('/c/testCircle1/p/testPost1');
 

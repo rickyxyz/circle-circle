@@ -12,6 +12,7 @@ import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
 import { CommentEditForm } from '@/component/form/CommentEditForm';
 import { useAppSelector } from '@/hook/reduxHooks';
+import parse from 'html-react-parser';
 
 interface CommentCardProps extends HTMLAttributes<HTMLDivElement> {
   commentData: Comment;
@@ -96,7 +97,7 @@ export default function CommentCard({
         <div className="mx-auto w-px flex-1 bg-gray-300"></div>
       </div>
       <div className="flex w-full flex-col gap-1 pb-1">
-        <header className="flex w-full flex-row items-center justify-between">
+        <header className="flex w-full flex-row items-start justify-between">
           <span className="flex flex-row items-center gap-1 text-xs">
             <p className="font-bold text-slate-600">
               {/* eslint-disable-next-line
@@ -141,7 +142,7 @@ export default function CommentCard({
           )}
         </header>
         <main className="flex flex-row">
-          <p className="">{commentData.text}</p>
+          <div>{parse(commentData.text)}</div>
         </main>
         <div className="mt-1 flex flex-row gap-3">
           <ButtonWithIcon icon={<FaRegHeart />} size={'xs'} variant={'clear'}>
@@ -160,7 +161,7 @@ export default function CommentCard({
           <CommentForm
             basePath={`${basepath}/${commentId}/comment`}
             onSuccessCallback={onComment}
-            className="mt-4"
+            className="pt-4"
             label="Put your reply here"
             onCancel={() => {
               setIsReplyMode(false);
@@ -168,21 +169,26 @@ export default function CommentCard({
             cancelable
           />
         )}
-        <div className="mt-4">
-          {Object.keys(comments).map((commentId) => (
-            <div key={`comment-${commentId}}`}>
-              <CommentCard
-                commentData={comments[commentId]}
-                commentId={commentId}
-                basepath={`${basepath}/${commentId}/comment`}
-                onSuccessCallback={(newComment) => {
-                  setComments(() => ({ ...comments, [commentId]: newComment }));
-                  setIsReplyMode(false);
-                }}
-              />
-            </div>
-          ))}
-        </div>
+        {Object.keys(comments).length > 0 && (
+          <div className="pt-4">
+            {Object.keys(comments).map((commentId) => (
+              <div key={`comment-${commentId}}`}>
+                <CommentCard
+                  commentData={comments[commentId]}
+                  commentId={commentId}
+                  basepath={`${basepath}/${commentId}/comment`}
+                  onSuccessCallback={(newComment) => {
+                    setComments(() => ({
+                      ...comments,
+                      [commentId]: newComment,
+                    }));
+                    setIsReplyMode(false);
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

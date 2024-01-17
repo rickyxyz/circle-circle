@@ -58,6 +58,7 @@ export default function DropdownList({
             )}
             role="menuitem"
             variant={'noStyle'}
+            size={'xs'}
           >
             {listItem.text}
           </Button>
@@ -80,7 +81,10 @@ export default function DropdownList({
       <Button
         type="button"
         onClick={handleButtonClick}
-        className={cn('inline-flex items-center justify-center bg-transparent')}
+        className={cn(
+          'inline-flex items-center justify-center bg-transparent',
+          className
+        )}
         ref={buttonRef}
         {...props}
       >
@@ -89,10 +93,7 @@ export default function DropdownList({
 
       {isDropdownOpen && (
         <div
-          className={cn(
-            'absolute right-0 z-20 mt-1 w-max origin-top-right rounded-sm bg-white py-1 shadow-sm ring-1 ring-black ring-opacity-5',
-            className
-          )}
+          className="absolute right-0 z-20 mt-1 w-max origin-top-right rounded-sm bg-white py-1 shadow-sm ring-1 ring-black ring-opacity-5"
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="options-menu"

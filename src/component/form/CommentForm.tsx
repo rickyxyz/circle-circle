@@ -10,9 +10,10 @@ import {
 } from 'firebase/firestore';
 import { FormHTMLAttributes, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { Comment } from '@/types/db';
 import Button from '@/component/common/Button';
+import TextEditor from '@/component/common/TextEditor';
+import { CommentSchema, commentSchema } from '@/lib/schemas/CommentSchema';
 
 interface CommentFormProps extends FormHTMLAttributes<HTMLFormElement> {
   onSuccessCallback?: (newComment: Comment, commentId: string) => void;
@@ -31,14 +32,10 @@ export function CommentForm({
   cancelable = false,
   ...props
 }: CommentFormProps) {
-  const commentSchema = z.object({
-    comment: z.string().min(1, { message: "comment can't be empty" }),
-  });
-  type CommentSchema = z.infer<typeof commentSchema>;
   const {
-    register,
     handleSubmit,
     formState: { errors },
+    control,
   } = useForm<CommentSchema>({
     resolver: zodResolver(commentSchema),
   });
@@ -77,24 +74,15 @@ export function CommentForm({
         >
           {label ?? 'Put your comment here'}
         </label>
-        <input
-          type="text"
-          id="post-comment"
-          {...register('comment')}
-          className="w-full rounded-md border border-gray-300 p-2"
-        />
+        <TextEditor<CommentSchema> control={control} name="comment" />
         <p className="text-xs italic text-red-500">{errors.comment?.message}</p>
       </div>
 
       <div className="flex w-full flex-row justify-end gap-2">
         {cancelable && (
-          <button
-            type="button"
-            className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
-            onClick={onCancel}
-          >
+          <Button type="button" onClick={onCancel}>
             cancel
-          </button>
+          </Button>
         )}
         <Button type="submit">post</Button>
       </div>

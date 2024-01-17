@@ -3,9 +3,10 @@ import { createNewPost } from '@/lib/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormHTMLAttributes, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import ReactQuill from 'react-quill';
-import { z } from 'zod';
-import 'react-quill/dist/quill.snow.css';
+import { PostSchema, postSchema } from '@/lib/schemas/PostSchema';
+import TextEditor from '@/component/common/TextEditor';
+import { Post } from '@/types/db';
+import Button from '@/component/common/Button';
 
 interface PostCreateFormProps extends FormHTMLAttributes<HTMLFormElement> {
   circleId: string;
@@ -18,34 +19,22 @@ export default function PostCreateForm({
   className,
 }: PostCreateFormProps) {
   const { user } = useAuth();
-  const postCreateSchema = z.object({
-    title: z.string().min(1, { message: 'Title is required' }),
-    description: z.string(),
-  });
-  type PostCreateSchema = z.infer<typeof postCreateSchema>;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
-    setValue,
-  } = useForm<PostCreateSchema>({ resolver: zodResolver(postCreateSchema) });
+    control,
+  } = useForm<PostSchema>({ resolver: zodResolver(postSchema) });
   const [createError, setCreateError] = useState<string | null>(null);
 
-  function onQuillChange(editorState: string) {
-    setValue('description', editorState);
-  }
-
-  const editorContent = watch('description');
-
-  function onSubmit(data: PostCreateSchema) {
+  function onSubmit(data: PostSchema) {
     if (!user) {
       throw new Error('Unauthorized');
     }
     createNewPost({
       circleName: circleId,
-      post: { ...data, type: 'text' },
+      post: { ...data, type: 'text' } as Post,
       userId: user.uid,
       onSuccess: onSuccessCallback,
       onFail: (e) => {
@@ -83,28 +72,13 @@ export default function PostCreateForm({
         >
           Post Description
         </label>
-        <ReactQuill
-          id="post-description"
-          theme="snow"
-          value={editorContent}
-          modules={{
-            toolbar: {
-              container: [['bold', 'italic', 'underline', 'strike'], ['link']],
-            },
-          }}
-          onChange={onQuillChange}
-        />
+        <TextEditor name="description" control={control} id="description" />
         <p className="text-xs italic text-red-500">
           {errors.description?.message}
         </p>
       </div>
 
-      <button
-        type="submit"
-        className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
-      >
-        Post
-      </button>
+      <Button type="submit">Post</Button>
 
       {createError && <p className="text-red-500">{createError}</p>}
     </form>

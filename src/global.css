@@ -9,3 +9,13 @@
   display: none;
   visibility: hidden;
 }
+
+@layer components {
+  .quill-style .ql-toolbar {
+    @apply rounded-t-md;
+  }
+
+  .quill-style .ql-container {
+    @apply rounded-b-md;
+  }
+}

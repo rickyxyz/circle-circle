@@ -1,28 +1,16 @@
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useState } from 'react';
 import { customError } from '@/lib/error';
 import { Circle } from '@/types/db';
 import useAuth from '@/hook/useAuth';
 import { createNewCircle } from '@/lib/circle';
 import InputDropdown from '@/component/input/InputDropdown';
-
-enum TopicOption {
-  Sports = 'sports',
-  Entertainment = 'entertainment',
-  Travel = 'travel',
-  Gaming = 'gaming',
-  Social = 'social',
-  Culinary = 'culinary',
-}
-
-const circleCreateSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }).max(100),
-  description: z.string().max(300),
-  topic: z.nativeEnum(TopicOption, { required_error: 'Please select a topic' }),
-});
-type CircleCreateSchema = z.infer<typeof circleCreateSchema>;
+import {
+  CircleSchema,
+  circleSchema,
+  TopicOption,
+} from '@/lib/schemas/CircleSchema';
 
 export default function CircleCreateForm({
   onSuccessCallback,
@@ -36,12 +24,12 @@ export default function CircleCreateForm({
     formState: { errors },
     control,
     setValue,
-  } = useForm<CircleCreateSchema>({
-    resolver: zodResolver(circleCreateSchema),
+  } = useForm<CircleSchema>({
+    resolver: zodResolver(circleSchema),
   });
   const [createError, setCreateError] = useState<string | null>(null);
 
-  function onSubmit(data: CircleCreateSchema) {
+  function onSubmit(data: CircleSchema) {
     if (!user) {
       throw new customError('unauthorize', 'you are not authorized to do this');
     }
