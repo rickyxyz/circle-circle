@@ -3,7 +3,9 @@ import { createNewPost } from '@/lib/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormHTMLAttributes, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import ReactQuill from 'react-quill';
 import { z } from 'zod';
+import 'react-quill/dist/quill.snow.css';
 
 interface PostCreateFormProps extends FormHTMLAttributes<HTMLFormElement> {
   circleId: string;
@@ -26,8 +28,16 @@ export default function PostCreateForm({
     register,
     handleSubmit,
     formState: { errors },
+    watch,
+    setValue,
   } = useForm<PostCreateSchema>({ resolver: zodResolver(postCreateSchema) });
   const [createError, setCreateError] = useState<string | null>(null);
+
+  function onQuillChange(editorState: string) {
+    setValue('description', editorState);
+  }
+
+  const editorContent = watch('description');
 
   function onSubmit(data: PostCreateSchema) {
     if (!user) {
@@ -73,11 +83,16 @@ export default function PostCreateForm({
         >
           Post Description
         </label>
-        <input
-          type="text"
+        <ReactQuill
           id="post-description"
-          {...register('description')}
-          className="w-full rounded-md border border-gray-300 p-2"
+          theme="snow"
+          value={editorContent}
+          modules={{
+            toolbar: {
+              container: [['bold', 'italic', 'underline', 'strike'], ['link']],
+            },
+          }}
+          onChange={onQuillChange}
         />
         <p className="text-xs italic text-red-500">
           {errors.description?.message}

@@ -12,6 +12,7 @@ import { FormHTMLAttributes, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Comment } from '@/types/db';
+import Button from '@/component/common/Button';
 
 interface CommentFormProps extends FormHTMLAttributes<HTMLFormElement> {
   onSuccessCallback?: (newComment: Comment, commentId: string) => void;
@@ -95,12 +96,7 @@ export function CommentForm({
             cancel
           </button>
         )}
-        <button
-          type="submit"
-          className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
-        >
-          post
-        </button>
+        <Button type="submit">post</Button>
       </div>
 
       {commentError && <p className="text-red-500">{commentError}</p>}

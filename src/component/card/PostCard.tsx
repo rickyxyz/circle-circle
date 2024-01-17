@@ -19,6 +19,7 @@ import {
   getCountFromServer,
 } from 'firebase/firestore';
 import useAuth from '@/hook/useAuth';
+import parse from 'html-react-parser';
 
 const postCardVariant = cva('', {
   variants: {
@@ -155,14 +156,19 @@ export default function PostCard({
           <Link to={`/c/${circleId}/p/${postId}`} className="hover:underline">
             <h1 className="text-lg font-bold">{postData.title}</h1>
           </Link>
-          <p className="leading-5">{postData.description}</p>
+          <div className="post-content">{parse(postData.description)}</div>
           {!blur && isTextLong && (
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-white/50 to-white"></div>
           )}
         </main>
       )}
       <div className="mt-3 flex flex-row gap-2">
-        <ButtonWithIcon icon={<FaRegHeart size={14} />}>123</ButtonWithIcon>
+        <ButtonWithIcon
+          icon={<FaRegHeart size={14} />}
+          className="items-center"
+        >
+          123
+        </ButtonWithIcon>
         <ButtonWithIcon icon={<FaRegCommentAlt size={14} />}>
           {commentCountInput ?? commentCount}
         </ButtonWithIcon>
