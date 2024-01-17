@@ -2,9 +2,11 @@ import { Circle } from '@/types/db';
 import { test, expect, BrowserContext, Page } from '@playwright/test';
 import testerLogin from 'tests/e2e/fixtures/testerLogin.utils';
 
+const randomNumber = Math.floor(Math.random() * 1000);
+
 const newCircle: Circle = {
-  name: `randomCircle_${Math.random().toFixed(3)}`,
-  description: `this is randomCircle_${Math.random().toFixed(3)} description`,
+  name: `randomCircle_${randomNumber}`,
+  description: `this is randomCircle_${randomNumber} description`,
   topic: 'entertainment',
 };
 

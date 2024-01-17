@@ -55,10 +55,7 @@ export default function PostCard({
   blur = false,
   ...props
 }: PostCardProps) {
-  const isTextLong = useMemo(
-    () => post.description.length > 1000,
-    [post.description]
-  );
+  const isTextLong = useMemo(() => post.description.length > 1000, [post]);
   const { user } = useAuth();
   const [isEditMode, setIsEditMode] = useState(false);
   const [postData, setPostData] = useState(post);
