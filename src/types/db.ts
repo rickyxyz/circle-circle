@@ -25,6 +25,7 @@ export interface Circle {
   name: string;
   description: string;
   topic: CircleTopic;
+  thumbnailUrl?: string;
 }
 
 export type PostType = 'image' | 'text';

@@ -1,10 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { VariantProps, cva } from 'class-variance-authority';
-import { HTMLAttributes } from 'react';
-import { cn } from '@/lib/utils';
+import { HTMLAttributes, useEffect, useState } from 'react';
+import { cn, truncateMemberCount } from '@/lib/utils';
 import { Circle } from '@/types/db';
 import { Link } from 'react-router-dom';
 import { FaUserGroup } from 'react-icons/fa6';
+import { db } from '@/lib/firebase/config';
+import { collection, getCountFromServer } from 'firebase/firestore';
 
 const circleCardVariant = cva('', {
   variants: {
@@ -32,6 +34,20 @@ export default function CircleCard({
   className,
   ...props
 }: CircleCardProps) {
+  const [memberCount, setMemberCount] = useState(0);
+
+  useEffect(() => {
+    async function getMemberCount() {
+      const colRef = collection(db, `circle/${circle.name}/member`);
+      const snapshot = await getCountFromServer(colRef);
+      return snapshot.data().count;
+    }
+
+    getMemberCount()
+      .then((count) => setMemberCount(count))
+      .catch(() => setMemberCount(-1));
+  }, [circle.name]);
+
   return (
     <div
       className={cn(
@@ -41,9 +57,9 @@ export default function CircleCard({
       {...props}
     >
       <img
-        src="/profile_placeholder.svg"
+        src={circle.thumbnailUrl ?? '/profile_placeholder.svg'}
         alt="img"
-        className="col-span-3 mr-3 h-14"
+        className="col-span-3 mr-3 aspect-square h-14 overflow-hidden rounded-full object-cover"
       />
       <div className="col-span-7 flex flex-col">
         <Link to={`/c/${circle.name}`} className="hover:underline">
@@ -55,8 +71,8 @@ export default function CircleCard({
           {circle.description}
         </p>
         <span className="flex flex-row items-center gap-1">
-          <FaUserGroup />
-          <p className="text-slate-400">10 members</p>
+          <FaUserGroup className="text-slate-400" size={13} />
+          <p className="text-slate-400">{truncateMemberCount(memberCount)}</p>
         </span>
       </div>
     </div>

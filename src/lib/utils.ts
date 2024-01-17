@@ -32,3 +32,19 @@ export function timeAgo(postedDate: string) {
     return `${days} days ago`;
   }
 }
+
+export function truncateMemberCount(memberCount: number): string {
+  if (memberCount < 1) {
+    return 'no member';
+  } else if (memberCount === 1) {
+    return '1 member';
+  } else if (memberCount < 1000) {
+    return `${memberCount} members`;
+  } else if (memberCount < 10000) {
+    const truncatedCount = (memberCount / 1000).toFixed(1);
+    return `${truncatedCount}K members`;
+  } else {
+    const truncatedCount = Math.floor(memberCount / 1000);
+    return `${truncatedCount}K members`;
+  }
+}
