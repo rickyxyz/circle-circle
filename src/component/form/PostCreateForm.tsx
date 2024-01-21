@@ -119,7 +119,7 @@ export default function PostCreateForm({
         </div>
       </div>
       {activeTab === 'image' && (
-        <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-b-md border border-gray-300 border-t-white p-4">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-b-md border border-gray-300 border-t-white p-4">
           {uploadedFiles.length > 0 && (
             <ImageCarousel
               editable={true}

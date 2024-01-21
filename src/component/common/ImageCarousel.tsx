@@ -29,7 +29,7 @@ export default function ImageCarousel({
           <MdKeyboardArrowLeft />
         </Button>
       )}
-      <div className="relative flex h-full flex-1 items-center justify-center bg-black">
+      <div className="relative flex flex-1 items-center justify-center bg-black">
         {editable && (
           <Button
             variant={'icon'}
@@ -43,7 +43,7 @@ export default function ImageCarousel({
         )}
         <img
           src={imageUrls[activeImage]}
-          className="aspect-square w-full object-cover"
+          className="aspect-square w-full object-contain"
         />
       </div>
       {activeImage !== imageUrls.length - 1 && (
