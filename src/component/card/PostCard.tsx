@@ -3,7 +3,12 @@ import { VariantProps, cva } from 'class-variance-authority';
 import { HTMLAttributes, useEffect, useMemo, useState } from 'react';
 import { cn, timeAgo } from '@/lib/utils';
 import { Post } from '@/types/db';
-import { Link, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  createSearchParams,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { LuDot } from 'react-icons/lu';
 import { FaRegHeart, FaRegCommentAlt } from 'react-icons/fa';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
@@ -59,7 +64,10 @@ export default function PostCard({
 }: PostCardProps) {
   const isTextLong = useMemo(() => post.description.length > 1000, [post]);
   const { user } = useAuth();
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [isEditMode, setIsEditMode] = useState(
+    searchParams.get('edit') === 'true'
+  );
   const [postData, setPostData] = useState(post);
   const navigate = useNavigate();
   const [, setDeleteError] = useState<string | null>(null);
@@ -150,6 +158,14 @@ export default function PostCard({
               {
                 text: 'edit',
                 onClick: () => {
+                  if (blur) {
+                    navigate({
+                      pathname: `/c/${circleId}/p/${postId}`,
+                      search: createSearchParams({
+                        edit: 'true',
+                      }).toString(),
+                    });
+                  }
                   setIsEditMode(true);
                 },
               },
