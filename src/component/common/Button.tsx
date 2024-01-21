@@ -11,6 +11,7 @@ const buttonVariant = cva('', {
         'rounded-full bg-gray-100 px-4 py-2 text-black capitalize text-sm md:text-base font-semibold',
       clear: 'rounded-full text-black capitalize',
       noStyle: '',
+      icon: 'rounded-full p-1 flex items-center justify-center font-bold bg-gray-100 aspect-square',
     },
     size: {
       default: '',
@@ -31,7 +32,7 @@ interface ButtonProps
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, className, size, variant, to, ...props }, ref) => {
+  ({ children, className, size, variant, to, type, ...props }, ref) => {
     const navigate = useNavigate();
 
     return to ? (
@@ -60,6 +61,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       )
     ) : (
       <button
+        type={type ?? 'button'}
         className={cn(buttonVariant({ variant, size, className }))}
         {...props}
         ref={ref}

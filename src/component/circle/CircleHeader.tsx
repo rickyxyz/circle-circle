@@ -42,9 +42,9 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
 
   const [file, setFile] = useState<File | null>(null);
   const [fileURL, setFileURL] = useState<string | null>(null);
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | undefined>(
-    ''
-  );
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<
+    string | undefined
+  >();
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files) {
@@ -124,8 +124,7 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
         </div>
         {isEditMode ? (
           <Button
-            variant={'noStyle'}
-            size={'xs'}
+            variant={'icon'}
             className="self-start"
             onClick={() => {
               setIsEditMode(false);

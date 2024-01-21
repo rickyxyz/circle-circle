@@ -9,12 +9,14 @@ interface TextEditorProps<T extends FieldValues>
   extends HTMLAttributes<HTMLDivElement> {
   name: Path<T>;
   control: Control<T>;
+  type?: 'tabbed' | 'normal';
 }
 
 export default function TextEditor<T extends FieldValues>({
   name,
   control,
   className,
+  type = 'normal',
 }: TextEditorProps<T>) {
   return (
     <Controller
@@ -31,7 +33,10 @@ export default function TextEditor<T extends FieldValues>({
             },
           }}
           onChange={onChange}
-          className={cn('quill-style', className)}
+          className={cn(
+            type === 'tabbed' ? 'quill-style-tabbed' : 'quill-style',
+            className
+          )}
           ref={ref}
         />
       )}

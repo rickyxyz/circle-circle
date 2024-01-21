@@ -28,14 +28,12 @@ export interface Circle {
   thumbnailUrl?: string;
 }
 
-export type PostType = 'image' | 'text';
-
 export interface Post {
   author: string;
   title: string;
   description: string;
   postDate: Timestamp;
-  type: PostType;
+  hasImage: boolean;
 }
 
 export interface Feed {

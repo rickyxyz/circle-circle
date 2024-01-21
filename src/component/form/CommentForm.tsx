@@ -83,11 +83,7 @@ export function CommentForm({
       </div>
 
       <div className="flex w-full flex-row justify-end gap-2">
-        {cancelable && (
-          <Button type="button" onClick={onCancel}>
-            cancel
-          </Button>
-        )}
+        {cancelable && <Button onClick={onCancel}>cancel</Button>}
         <Button type="submit">post</Button>
       </div>
 

@@ -79,7 +79,6 @@ export default function DropdownList({
   return (
     <div className="relative inline-block text-left">
       <Button
-        type="button"
         onClick={handleButtonClick}
         className={cn(
           'inline-flex items-center justify-center bg-transparent',
