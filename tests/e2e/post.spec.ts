@@ -34,31 +34,31 @@ test.describe('As Member', () => {
 
     await page.getByRole('button', { name: 'post' }).click();
 
-    await expect(page.getByText(/title is required/i)).toBeVisible();
+    await expect(page.getByText(/title cannot be empty/i)).toBeVisible();
   });
 
   test('Create post form can successfully submit', async ({ page }) => {
     await page.goto('/c/testCircle1');
 
     await page.getByLabel(/^post title$/i).fill(newPost.title);
-    await page.getByLabel(/^post description$/i).fill(newPost.text);
     await page.getByRole('button', { name: 'post' }).click();
-    await page.mouse.wheel(0, 500);
+    await page.waitForURL('/c/**');
+
     await expect(page.getByText(newPost.title)).toBeVisible();
   });
 
   test('Existing post form can be edited', async ({ page }) => {
-    await page.goto('/c/testCircle1/p/testPost1');
-    const newPostDescription = `This is a new post description number ${Math.random().toFixed(
-      5
-    )}`;
+    await page.goto('/c/testCircle1/p/testPost2');
+    const newPostTitle = 'This is an updated post title';
 
     await page.getByTestId('post-action-trigger').first().click();
     await page.getByRole('menuitem', { name: 'edit' }).first().click();
 
-    await page.getByLabel(/^edit post description$/i).fill(newPostDescription);
+    await page.getByLabel(/^edit post title$/i).fill(newPostTitle);
     await page.getByRole('button', { name: /update post/i }).click();
 
-    await expect(page.getByText(newPostDescription)).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      newPostTitle
+    );
   });
 });

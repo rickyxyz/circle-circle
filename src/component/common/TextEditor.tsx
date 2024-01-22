@@ -16,6 +16,7 @@ export default function TextEditor<T extends FieldValues>({
   name,
   control,
   className,
+  id,
   type = 'normal',
 }: TextEditorProps<T>) {
   return (
@@ -24,7 +25,7 @@ export default function TextEditor<T extends FieldValues>({
       name={name}
       render={({ field: { onChange, value, ref } }) => (
         <ReactQuill
-          id="post-description"
+          id={id}
           theme="snow"
           value={value}
           modules={{

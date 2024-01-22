@@ -202,12 +202,16 @@ export default function PostEditForm({
       ) : (
         <div className="mb-4">
           <label
-            htmlFor="description"
+            htmlFor="post-description"
             className="mb-2 block text-sm font-bold text-gray-700"
           >
             Edit Post Description
           </label>
-          <TextEditor name="description" control={control} id="description" />
+          <TextEditor
+            name="description"
+            control={control}
+            id="post-description"
+          />
           <p className="text-xs italic text-red-500">
             {errors.description?.message}
           </p>

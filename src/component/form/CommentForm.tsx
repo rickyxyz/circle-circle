@@ -36,6 +36,7 @@ export function CommentForm({
     handleSubmit,
     formState: { errors },
     control,
+    reset,
   } = useForm<CommentSchema>({
     resolver: zodResolver(commentSchema),
   });
@@ -54,6 +55,7 @@ export function CommentForm({
     };
     addDoc(collection(db, basePath), newComment)
       .then((docref) => {
+        reset();
         onSuccessCallback && onSuccessCallback(newComment, docref.id);
       })
       .catch((e: FirestoreError) => {

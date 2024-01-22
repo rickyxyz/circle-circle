@@ -10,7 +10,9 @@ const ACCEPTED_IMAGE_MIME_TYPES = [
 ];
 
 const postSchema = z.object({
-  title: z.string({ errorMap: customErrorMap }).min(1),
+  title: z
+    .string({ errorMap: customErrorMap })
+    .min(1, { message: 'Title cannot be empty' }),
   description: z.string().max(300).optional(),
   image_urls: z
     .custom<FileList>()

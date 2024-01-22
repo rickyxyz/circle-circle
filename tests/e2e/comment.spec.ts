@@ -29,7 +29,7 @@ test.describe('Comment', () => {
   test('can successfully create a new comment', async () => {
     await page.goto('/c/testCircle1/p/testPost1');
 
-    await page.locator('#post-description div').nth(2).fill(newComment.text);
+    await page.locator('#post-comment div').nth(2).fill(newComment.text);
     await page.getByRole('button', { name: 'post' }).click();
 
     await expect(page.getByText(newComment.text)).toBeVisible();
