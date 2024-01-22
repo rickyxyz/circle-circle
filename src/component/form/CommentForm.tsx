@@ -36,6 +36,7 @@ export function CommentForm({
     handleSubmit,
     formState: { errors },
     control,
+    reset,
   } = useForm<CommentSchema>({
     resolver: zodResolver(commentSchema),
   });
@@ -54,6 +55,7 @@ export function CommentForm({
     };
     addDoc(collection(db, basePath), newComment)
       .then((docref) => {
+        reset();
         onSuccessCallback && onSuccessCallback(newComment, docref.id);
       })
       .catch((e: FirestoreError) => {
@@ -83,11 +85,7 @@ export function CommentForm({
       </div>
 
       <div className="flex w-full flex-row justify-end gap-2">
-        {cancelable && (
-          <Button type="button" onClick={onCancel}>
-            cancel
-          </Button>
-        )}
+        {cancelable && <Button onClick={onCancel}>cancel</Button>}
         <Button type="submit">post</Button>
       </div>
 

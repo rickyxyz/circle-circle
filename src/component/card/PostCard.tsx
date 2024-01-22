@@ -3,14 +3,19 @@ import { VariantProps, cva } from 'class-variance-authority';
 import { HTMLAttributes, useEffect, useMemo, useState } from 'react';
 import { cn, timeAgo } from '@/lib/utils';
 import { Post } from '@/types/db';
-import { Link, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  createSearchParams,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { LuDot } from 'react-icons/lu';
 import { FaRegHeart, FaRegCommentAlt } from 'react-icons/fa';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { GoKebabHorizontal } from 'react-icons/go';
 import DropdownList from '@/component/common/DropdownList';
 import PostEditForm from '@/component/form/PostEditForm';
-import { db } from '@/lib/firebase/config';
+import { db, storage } from '@/lib/firebase/config';
 import { FirebaseError } from 'firebase/app';
 import {
   collection,
@@ -20,6 +25,8 @@ import {
 } from 'firebase/firestore';
 import useAuth from '@/hook/useAuth';
 import parse from 'html-react-parser';
+import { ref, listAll, getDownloadURL, StorageError } from 'firebase/storage';
+import ImageCarousel from '@/component/common/ImageCarousel';
 
 const postCardVariant = cva('', {
   variants: {
@@ -57,11 +64,15 @@ export default function PostCard({
 }: PostCardProps) {
   const isTextLong = useMemo(() => post.description.length > 1000, [post]);
   const { user } = useAuth();
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [isEditMode, setIsEditMode] = useState(
+    searchParams.get('edit') === 'true'
+  );
   const [postData, setPostData] = useState(post);
   const navigate = useNavigate();
   const [, setDeleteError] = useState<string | null>(null);
   const [commentCount, setCommentCount] = useState(0);
+  const [errors, setErrors] = useState<string | null>(null);
 
   function onDelete() {
     deleteDoc(doc(db, `/circle/${circleId}/post/${postId}`))
@@ -70,6 +81,28 @@ export default function PostCard({
       })
       .catch((e: FirebaseError) => setDeleteError(e.code));
   }
+
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!post.hasImage) return;
+    async function getImageUrls() {
+      const imagesRef = ref(storage, `c/${circleId}/p/${postId}`);
+
+      const imageList = await listAll(imagesRef);
+
+      const downloadPromises = imageList.items.map(async (item) => {
+        const url = await getDownloadURL(item);
+        return url;
+      });
+
+      const fetchedImageUrls = await Promise.all(downloadPromises);
+
+      setImageUrls(fetchedImageUrls);
+    }
+
+    getImageUrls().catch((e: StorageError) => setErrors(e.code));
+  }, [circleId, post.hasImage, postId]);
 
   useEffect(() => {
     async function getCommentCount() {
@@ -125,6 +158,14 @@ export default function PostCard({
               {
                 text: 'edit',
                 onClick: () => {
+                  if (blur) {
+                    navigate({
+                      pathname: `/c/${circleId}/p/${postId}`,
+                      search: createSearchParams({
+                        edit: 'true',
+                      }).toString(),
+                    });
+                  }
                   setIsEditMode(true);
                 },
               },
@@ -143,21 +184,31 @@ export default function PostCard({
         <PostEditForm
           post={postData}
           onSuccessCallback={(newPost) => {
-            setPostData(newPost);
-            setIsEditMode(false);
+            if (post.hasImage) {
+              navigate(0);
+            } else {
+              setPostData(newPost);
+              setIsEditMode(false);
+            }
           }}
           onCancel={() => setIsEditMode(false)}
         />
-      ) : (
+      ) : !errors ? (
         <main className="relative flex w-full flex-col gap-y-1">
           <Link to={`/c/${circleId}/p/${postId}`} className="hover:underline">
             <h1 className="text-lg font-bold">{postData.title}</h1>
           </Link>
-          <div className="post-content">{parse(postData.description)}</div>
+          {post.hasImage ? (
+            <ImageCarousel imageUrls={imageUrls} />
+          ) : (
+            <div className="post-content">{parse(postData.description)}</div>
+          )}
           {!blur && isTextLong && (
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-white/50 to-white"></div>
           )}
         </main>
+      ) : (
+        <p>{errors}</p>
       )}
       <div className="mt-3 flex flex-row gap-2">
         <ButtonWithIcon

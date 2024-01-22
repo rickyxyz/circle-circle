@@ -26,18 +26,18 @@ service firebase.storage {
       allow read, write: if false;
     }
 
-    match /user/{user_id} {
+    match /u/{user_id} {
       allow read: if true;
       allow write: if isLoggedIn() && isLessThanMbs(5) && isImage() && request.auth.uid == user_id;
     }
 
     
-    match /circle/{circle_id}/{allFile=**} {
+    match /c/{circle_id}/{allFile=**} {
       allow read: if true;
       allow write: if isLoggedIn() && isLessThanMbs(5) && isImage() && isMember(circle_id);
     }
     
-    match /circle/{circle_id}/post/{post_id}/{allFile=**} {
+    match /c/{circle_id}/p/{post_id}/{allFile=**} {
       allow read: if true;
       allow write: if isLoggedIn() && isMember(circle_id);
       allow delete, update: if isLoggedIn() && (isAdmin(circle_id) || firestore.get(/databases/(default)/documents/circle/$(circle_id)/post/$(post_id)).data.author == request.auth.uid);

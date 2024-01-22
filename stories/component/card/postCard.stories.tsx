@@ -30,7 +30,7 @@ export const Default: Story = {
         "As I sit back and relax, there's nothing quite like the simple pleasure of savoring a piece of chocolate. The rich, velvety goodness melts on my tongue, sending waves of delight through my taste buds. Whether it's the smoothness of milk chocolate, the intense flavor of dark chocolate, or the delightful crunch of a chocolate-covered treat, each bite feels like a moment of pure bliss. Chocolate, with its comforting and indulgent nature, has a magical way of turning ordinary moments into extraordinary experiences. Who else can't resist the allure of this sweet temptation? Share your favorite chocolate delights and let's celebrate the joy it brings to our lives! 🍫✨ #ChocolateLovers #SweetIndulgence #ChocolateHeaven",
       title: 'I like chocolate',
       postDate: Timestamp.fromDate(oneHourAgo),
-      type: 'text',
+      hasImage: false,
     },
   },
 };
@@ -57,7 +57,7 @@ export const DefaultLongText: Story = {
       title:
         'a really really really long title for a post that does not need a long title',
       postDate: Timestamp.fromDate(oneHourAgo),
-      type: 'text',
+      hasImage: false,
     },
   },
 };

@@ -57,26 +57,26 @@ describe('Firebase Storage Rules', () => {
 
   describe('profile picture', () => {
     it('authenticated user can upload profile picture', async () => {
-      const aliceRef = ref(aliceContext.storage(), 'user/a');
+      const aliceRef = ref(aliceContext.storage(), 'u/a');
       await expectDatabaseSucceeds(uploadBytes(aliceRef, mockImage));
       expect(true).toBe(true);
     });
 
     it('unauthenticated user cannot upload profile picture', async () => {
-      const unauthedRef = ref(unauthedContext.storage(), 'user/a');
+      const unauthedRef = ref(unauthedContext.storage(), 'u/a');
       await expectPermissionDenied(uploadBytes(unauthedRef, mockImage));
       expect(true).toBe(true);
     });
 
     it('user cannot change other user profile picture', async () => {
-      const bobRef = ref(bobContext.storage(), 'user/a');
+      const bobRef = ref(bobContext.storage(), 'u/a');
       await expectPermissionDenied(uploadBytes(bobRef, mockImage));
       expect(true).toBe(true);
     });
 
     it('profile picture is publicaly available', async () => {
-      const aliceRef = ref(aliceContext.storage(), 'user/a');
-      const unauthedRef = ref(unauthedContext.storage(), 'user/a');
+      const aliceRef = ref(aliceContext.storage(), 'u/a');
+      const unauthedRef = ref(unauthedContext.storage(), 'u/a');
 
       await expectDatabaseSucceeds(getDownloadURL(aliceRef));
       await expectDatabaseSucceeds(getDownloadURL(unauthedRef));
@@ -97,7 +97,7 @@ describe('Firebase Storage Rules', () => {
           role: 'admin',
         });
       });
-      const imageRef = ref(aliceContext.storage(), 'circle/testCircle1/banner');
+      const imageRef = ref(aliceContext.storage(), 'c/testCircle1/banner');
       await expectDatabaseSucceeds(uploadBytes(imageRef, mockImage));
       expect(true).toBe(true);
     });
@@ -113,16 +113,13 @@ describe('Firebase Storage Rules', () => {
           role: 'member',
         });
       });
-      const imageRef = ref(bobContext.storage(), 'circle/testCircle1/banner');
+      const imageRef = ref(bobContext.storage(), 'c/testCircle1/banner');
       await expectDatabaseSucceeds(uploadBytes(imageRef, mockImage));
       expect(true).toBe(true);
     });
 
     it('non member cannot upload circle picture', async () => {
-      const imageRef = ref(
-        unauthedContext.storage(),
-        'circle/testCircle1/banner'
-      );
+      const imageRef = ref(unauthedContext.storage(), 'c/testCircle1/banner');
       await expectPermissionDenied(uploadBytes(imageRef, mockImage));
       expect(true).toBe(true);
     });
@@ -132,7 +129,7 @@ describe('Firebase Storage Rules', () => {
     it('member can add picture to post', async () => {
       const imageRef = ref(
         aliceContext.storage(),
-        'circle/testCircle1/post/alicePost/1.jpg'
+        'c/testCircle1/p/alicePost/1.jpg'
       );
       await expectDatabaseSucceeds(uploadBytes(imageRef, mockImage));
       expect(true).toBe(true);
@@ -140,42 +137,36 @@ describe('Firebase Storage Rules', () => {
 
     it('author can delete picture from their own post', async () => {
       await testEnv.withSecurityRulesDisabled(async (context) => {
-        await setDoc(doc(context.firestore(), 'circle/testCircle1/post/a'), {
+        await setDoc(doc(context.firestore(), 'c/testCircle1/p/a'), {
           author: 'a',
         });
       });
       await testEnv.withSecurityRulesDisabled(async (context) => {
         await uploadBytes(
-          ref(context.storage(), 'circle/testCircle1/post/a/1.jpg'),
+          ref(context.storage(), 'c/testCircle1/p/a/1.jpg'),
           mockImage
         );
       });
 
-      const imageRef = ref(
-        aliceContext.storage(),
-        'circle/testCircle1/post/a/1.jpg'
-      );
+      const imageRef = ref(aliceContext.storage(), 'c/testCircle1/p/a/1.jpg');
       await expectPermissionSucceeds(deleteObject(imageRef));
       expect(true).toBe(true);
     });
 
     it('other user cannot delete picture from other user post', async () => {
       await testEnv.withSecurityRulesDisabled(async (context) => {
-        await setDoc(doc(context.firestore(), 'circle/testCircle1/post/a'), {
+        await setDoc(doc(context.firestore(), 'c/testCircle1/p/a'), {
           author: 'a',
         });
       });
       await testEnv.withSecurityRulesDisabled(async (context) => {
         await uploadBytes(
-          ref(context.storage(), 'circle/testCircle1/post/a/1.jpg'),
+          ref(context.storage(), 'c/testCircle1/p/a/1.jpg'),
           mockImage
         );
       });
 
-      const imageRef = ref(
-        bobContext.storage(),
-        'circle/testCircle1/post/a/1.jpg'
-      );
+      const imageRef = ref(bobContext.storage(), 'c/testCircle1/p/a/1.jpg');
       await expectPermissionSucceeds(deleteObject(imageRef));
       expect(true).toBe(true);
     });

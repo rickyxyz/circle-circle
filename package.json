@@ -31,7 +31,7 @@
     "test:watch": "vitest watch",
     "test:e2e": "firebase emulators:exec --import=./tests/assets/firebase-data \"playwright test\"",
     "test:coverage": "vitest --coverage",
-    "storybook": "storybook dev -p 6006 --ci",
+    "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
     "playwright": "playwright test --ui"
   },
@@ -45,6 +45,7 @@
     "match-sorter": "^6.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.49.2",
     "react-icons": "^4.12.0",
     "react-quill": "^2.0.0",
@@ -52,6 +53,7 @@
     "react-router-dom": "^6.18.0",
     "sort-by": "^1.2.0",
     "tailwind-merge": "^2.1.0",
+    "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

@@ -76,7 +76,6 @@ export default function UpdateProfileForm({
         </label>
         <span className="flex flex-row gap-2 self-end">
           <Button
-            type="button"
             onClick={() => {
               onCancel && onCancel();
             }}

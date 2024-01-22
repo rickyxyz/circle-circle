@@ -25,16 +25,15 @@ export interface Circle {
   name: string;
   description: string;
   topic: CircleTopic;
+  thumbnailUrl?: string;
 }
-
-export type PostType = 'image' | 'text';
 
 export interface Post {
   author: string;
   title: string;
   description: string;
   postDate: Timestamp;
-  type: PostType;
+  hasImage: boolean;
 }
 
 export interface Feed {

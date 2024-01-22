@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 import { z } from 'zod';
 import { Comment } from '@/types/db';
+import Button from '@/component/common/Button';
 
 export function CommentEditForm({
   comment,
@@ -78,20 +79,20 @@ export function CommentEditForm({
 
       <div className="flex w-full flex-row justify-end gap-2">
         {cancelable && (
-          <button
+          <Button
             type="button"
             className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
             onClick={onCancel}
           >
             cancel
-          </button>
+          </Button>
         )}
-        <button
+        <Button
           type="submit"
           className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
         >
           save
-        </button>
+        </Button>
       </div>
 
       {commentError && <p className="text-red-500">{commentError}</p>}
