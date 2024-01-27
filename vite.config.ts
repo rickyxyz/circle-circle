@@ -24,7 +24,21 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['/stories/.*', '/tests/.*'],
+      external: ['/stories/.*', '/tests/.*', '**/*.test.ts', '**/*.spec.ts'],
+      output: {
+        manualChunks(id: string) {
+          if (
+            id.includes('react-router-dom') ||
+            id.includes('@remix-run') ||
+            id.includes('react-router')
+          ) {
+            return '@react-router';
+          }
+          if (id.includes('firebase')) {
+            return '@firebase';
+          }
+        },
+      },
     },
   },
 });

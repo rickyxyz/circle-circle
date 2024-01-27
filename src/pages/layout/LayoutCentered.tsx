@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
 import Button from '@/component/common/Button';
+import { Suspense } from 'react';
 
 export default function LayoutCentered() {
   return (
@@ -8,7 +9,9 @@ export default function LayoutCentered() {
       <Button className="absolute left-3 top-5 aspect-square" to="-1">
         <FaArrowLeft />
       </Button>
-      <Outlet />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Outlet />
+      </Suspense>
     </div>
   );
 }

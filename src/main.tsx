@@ -1,5 +1,6 @@
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-throw-literal */
-import React from 'react';
+import React, { lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/global.css';
 import {
@@ -13,21 +14,20 @@ import { getCollectionAsArray, getData } from '@/lib/firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { getDoc, doc } from 'firebase/firestore';
 import LayoutRoot from '@/pages/layout/LayoutRoot';
-import {
-  PageCircles,
-  PageCircle,
-  PageError,
-  PagePost,
-  PageProfile,
-  PageHome,
-  PageSettings,
-} from '@/pages';
 import { Provider as ReduxProvider } from 'react-redux';
 import store from '@/redux/store';
 import RegisterForm from '@/component/form/RegisterForm';
 import LoginForm from '@/component/form/LoginForm';
 import LayoutCentered from '@/pages/layout/LayoutCentered';
 import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
+
+const PageCircles = lazy(() => import('@/pages/PageCircles'));
+const PageCircle = lazy(() => import('@/pages/PageCircle'));
+const PageError = lazy(() => import('@/pages/PageError'));
+const PagePost = lazy(() => import('@/pages/PagePost'));
+const PageProfile = lazy(() => import('@/pages/PageProfile'));
+const PageHome = lazy(() => import('@/pages/PageHome'));
+const PageSettings = lazy(() => import('@/pages/PageSettings'));
 
 const router = createBrowserRouter([
   {
