@@ -166,10 +166,9 @@ export default function PostCard({
       return snapshot.data().count;
     }
 
-    !commentCountInput &&
-      getLikeCount()
-        .then((count) => setLikeCount(count))
-        .catch(() => setLikeCount(-1));
+    getLikeCount()
+      .then((count) => setLikeCount(count))
+      .catch(() => setLikeCount(-1));
   }, [circleId, commentCountInput, postId]);
 
   return (
