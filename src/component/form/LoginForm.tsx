@@ -34,15 +34,7 @@ function LoginForm() {
         navigate('/');
       })
       .catch((e: FirebaseError) => {
-        if (
-          e.code === 'auth/user-not-found' ||
-          e.code === 'auth/wrong-password'
-        ) {
-          setLoginError('User not found or invalid credentials');
-        } else {
-          // eslint-disable-next-line no-console
-          console.error(e);
-        }
+        setLoginError(e.code);
       });
   }
 

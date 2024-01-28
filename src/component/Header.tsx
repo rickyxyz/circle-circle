@@ -31,7 +31,30 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
           <GiHamburgerMenu />
         </button>
         <Link to={'/'} className="flex items-center">
-          <img src="/logo2.svg" alt="Logo" className="mr-2 h-8" />
+          <svg
+            width="283"
+            height="204"
+            viewBox="0 0 283 204"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-8 w-10"
+          >
+            <circle cx="101.5" cy="101.5" r="52.5" fill="#155E75" />
+            <circle
+              cx="181"
+              cy="102"
+              r="90"
+              stroke="#155E75"
+              strokeWidth="24"
+            />
+            <circle
+              cx="102"
+              cy="102"
+              r="90"
+              stroke="#155E75"
+              strokeWidth="24"
+            />
+          </svg>
         </Link>
         <div className="hidden flex-grow items-center justify-center md:flex">
           <div className="flex w-full max-w-xl items-center rounded-md bg-gray-100 px-3 py-2 text-gray-800">

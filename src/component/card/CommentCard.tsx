@@ -9,7 +9,7 @@ import { timeAgo } from '@/lib/utils';
 import { GoKebabHorizontal } from 'react-icons/go';
 import { LuDot } from 'react-icons/lu';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
-import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
+import { FaRegCommentAlt } from 'react-icons/fa';
 import { CommentEditForm } from '@/component/form/CommentEditForm';
 import { useAppSelector } from '@/hook/reduxHooks';
 import parse from 'html-react-parser';
@@ -145,9 +145,10 @@ export default function CommentCard({
           <div>{parse(commentData.text)}</div>
         </main>
         <div className="mt-1 flex flex-row gap-3">
-          <ButtonWithIcon icon={<FaRegHeart />} size={'xs'} variant={'clear'}>
+          {/* implement like feature later */}
+          {/* <ButtonWithIcon icon={<FaRegHeart />} size={'xs'} variant={'clear'}>
             123
-          </ButtonWithIcon>
+          </ButtonWithIcon> */}
           <ButtonWithIcon
             icon={<FaRegCommentAlt />}
             size={'xs'}

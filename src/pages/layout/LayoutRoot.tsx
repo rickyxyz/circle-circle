@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
 import useAuth from '@/hook/useAuth';
 import useWindowSize from '@/hook/useWindowSize';
 import { sideBarClose } from '@/redux/menubarReducer';
+import { Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 
 export default function LayoutRoot() {
@@ -25,7 +26,9 @@ export default function LayoutRoot() {
             <Navbar user={user} />
           </div>
         )}
-        <Outlet />
+        <Suspense fallback={<div>Loading...</div>}>
+          <Outlet />
+        </Suspense>
       </div>
     </div>
   );
@@ -38,7 +41,9 @@ export default function LayoutRoot() {
           <Navbar user={user} />
         </div>
         <div className="col-span-2">
-          <Outlet />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Outlet />
+          </Suspense>
         </div>
         <div className="col-span-1"></div>
       </div>

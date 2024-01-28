@@ -10,7 +10,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { LuDot } from 'react-icons/lu';
-import { FaRegHeart, FaRegCommentAlt } from 'react-icons/fa';
+import { FaRegCommentAlt } from 'react-icons/fa';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { GoKebabHorizontal } from 'react-icons/go';
 import DropdownList from '@/component/common/DropdownList';
@@ -211,12 +211,13 @@ export default function PostCard({
         <p>{errors}</p>
       )}
       <div className="mt-3 flex flex-row gap-2">
-        <ButtonWithIcon
+        {/* implement like feature later */}
+        {/* <ButtonWithIcon
           icon={<FaRegHeart size={14} />}
           className="items-center"
         >
           123
-        </ButtonWithIcon>
+        </ButtonWithIcon> */}
         <ButtonWithIcon icon={<FaRegCommentAlt size={14} />}>
           {commentCountInput ?? commentCount}
         </ButtonWithIcon>
