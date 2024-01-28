@@ -27,6 +27,7 @@ export default defineConfig({
     },
   },
   build: {
+    cssMinify: 'lightningcss',
     rollupOptions: {
       external: ['/stories/.*', '/tests/.*', '**/*.test.ts', '**/*.spec.ts'],
       output: {
