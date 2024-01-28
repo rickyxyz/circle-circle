@@ -2,12 +2,16 @@
 /// <reference types="vite/client" />
 
 import { UserConfig, defineConfig } from 'vitest/config';
+import cleanup from 'rollup-plugin-cleanup';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()] as UserConfig['plugins'],
+  plugins: [
+    react(),
+    cleanup({ comments: 'istanbul', extensions: ['js', 'ts'] }),
+  ] as UserConfig['plugins'],
   test: {
     globals: true,
     environment: 'node',
