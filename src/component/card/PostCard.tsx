@@ -10,7 +10,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { LuDot } from 'react-icons/lu';
-import { FaRegCommentAlt } from 'react-icons/fa';
+import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { GoKebabHorizontal } from 'react-icons/go';
 import DropdownList from '@/component/common/DropdownList';
@@ -18,10 +18,13 @@ import PostEditForm from '@/component/form/PostEditForm';
 import { db, storage } from '@/lib/firebase/config';
 import { FirebaseError } from 'firebase/app';
 import {
+  FirestoreError,
   collection,
   deleteDoc,
   doc,
   getCountFromServer,
+  getDoc,
+  setDoc,
 } from 'firebase/firestore';
 import useAuth from '@/hook/useAuth';
 import parse from 'html-react-parser';
@@ -72,6 +75,7 @@ export default function PostCard({
   const navigate = useNavigate();
   const [, setDeleteError] = useState<string | null>(null);
   const [commentCount, setCommentCount] = useState(0);
+  const [likeCount, setLikeCount] = useState(0);
   const [errors, setErrors] = useState<string | null>(null);
 
   function onDelete() {
@@ -118,6 +122,54 @@ export default function PostCard({
       getCommentCount()
         .then((count) => setCommentCount(count))
         .catch(() => setCommentCount(-1));
+  }, [circleId, commentCountInput, postId]);
+
+  function likePost() {
+    if (user) {
+      const docRef = doc(
+        db,
+        `circle/${circleId}/post/${postId}/like/${user.uid}`
+      );
+      getDoc(docRef)
+        .then((doc) => {
+          if (doc.exists()) {
+            deleteDoc(docRef)
+              .then(() => {
+                setLikeCount((p) => p - 1);
+              })
+              .catch((e) => {
+                throw e;
+              });
+          } else {
+            setDoc(docRef, {
+              uid: user.uid,
+            })
+              .then(() => {
+                setLikeCount((p) => p + 1);
+              })
+              .catch((e) => {
+                throw e;
+              });
+          }
+        })
+        .catch((e: FirestoreError) => {
+          // eslint-disable-next-line no-console
+          console.error(e.code);
+        });
+    }
+  }
+
+  useEffect(() => {
+    async function getLikeCount() {
+      const colRef = collection(db, `circle/${circleId}/post/${postId}/like`);
+      const snapshot = await getCountFromServer(colRef);
+      return snapshot.data().count;
+    }
+
+    !commentCountInput &&
+      getLikeCount()
+        .then((count) => setLikeCount(count))
+        .catch(() => setLikeCount(-1));
   }, [circleId, commentCountInput, postId]);
 
   return (
@@ -211,13 +263,13 @@ export default function PostCard({
         <p>{errors}</p>
       )}
       <div className="mt-3 flex flex-row gap-2">
-        {/* implement like feature later */}
-        {/* <ButtonWithIcon
+        <ButtonWithIcon
           icon={<FaRegHeart size={14} />}
           className="items-center"
+          onClick={likePost}
         >
-          123
-        </ButtonWithIcon> */}
+          {likeCount}
+        </ButtonWithIcon>
         <ButtonWithIcon icon={<FaRegCommentAlt size={14} />}>
           {commentCountInput ?? commentCount}
         </ButtonWithIcon>
