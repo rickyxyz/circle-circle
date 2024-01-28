@@ -3,13 +3,22 @@ import { HTMLAttributes, useEffect, useState } from 'react';
 import { Comment } from '@/types/db';
 import { CommentForm } from '@/component/form/CommentForm';
 import { db } from '@/lib/firebase/config';
-import { getDocs, collection, FirestoreError } from 'firebase/firestore';
+import {
+  getDocs,
+  collection,
+  FirestoreError,
+  deleteDoc,
+  doc,
+  getCountFromServer,
+  getDoc,
+  setDoc,
+} from 'firebase/firestore';
 import DropdownList from '@/component/common/DropdownList';
 import { timeAgo } from '@/lib/utils';
 import { GoKebabHorizontal } from 'react-icons/go';
 import { LuDot } from 'react-icons/lu';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
-import { FaRegCommentAlt } from 'react-icons/fa';
+import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
 import { CommentEditForm } from '@/component/form/CommentEditForm';
 import { useAppSelector } from '@/hook/reduxHooks';
 import parse from 'html-react-parser';
@@ -32,6 +41,7 @@ export default function CommentCard({
   const [isReplyMode, setIsReplyMode] = useState(false);
   const { user } = useAuth();
   const [comments, setComments] = useState<Record<string, Comment>>({});
+  const [likeCount, setLikeCount] = useState(0);
   const userCache = useAppSelector((state) => state.cache.users);
 
   useEffect(() => {
@@ -64,6 +74,50 @@ export default function CommentCard({
     });
     setIsReplyMode(false);
   }
+
+  function likeComment() {
+    if (user) {
+      const docRef = doc(db, `${basepath}/${commentId}/like/${user.uid}`);
+      getDoc(docRef)
+        .then((doc) => {
+          if (doc.exists()) {
+            deleteDoc(docRef)
+              .then(() => {
+                setLikeCount((p) => p - 1);
+              })
+              .catch((e) => {
+                throw e;
+              });
+          } else {
+            setDoc(docRef, {
+              uid: user.uid,
+            })
+              .then(() => {
+                setLikeCount((p) => p + 1);
+              })
+              .catch((e) => {
+                throw e;
+              });
+          }
+        })
+        .catch((e: FirestoreError) => {
+          // eslint-disable-next-line no-console
+          console.error(e.code);
+        });
+    }
+  }
+
+  useEffect(() => {
+    const colRef = collection(db, `${basepath}/${commentId}/like`);
+    async function getLikeCount() {
+      const snapshot = await getCountFromServer(colRef);
+      return snapshot.data().count;
+    }
+
+    getLikeCount()
+      .then((count) => setLikeCount(count))
+      .catch(() => setLikeCount(-1));
+  }, [basepath, commentId]);
 
   return isEditMode ? (
     <div>
@@ -145,10 +199,14 @@ export default function CommentCard({
           <div>{parse(commentData.text)}</div>
         </main>
         <div className="mt-1 flex flex-row gap-3">
-          {/* implement like feature later */}
-          {/* <ButtonWithIcon icon={<FaRegHeart />} size={'xs'} variant={'clear'}>
-            123
-          </ButtonWithIcon> */}
+          <ButtonWithIcon
+            icon={<FaRegHeart />}
+            size={'xs'}
+            variant={'clear'}
+            onClick={likeComment}
+          >
+            {likeCount}
+          </ButtonWithIcon>
           <ButtonWithIcon
             icon={<FaRegCommentAlt />}
             size={'xs'}
