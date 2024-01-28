@@ -51,6 +51,13 @@ service cloud.firestore {
         allow update: if isSignedIn() && resource.data.author == request.auth.uid;
         allow delete: if isSignedIn() && (resource.data.author == request.auth.uid || isAdmin());
 
+        match /like/{uid} {
+          allow read: if true;
+          allow update: if false;
+          allow create: if isSignedIn();
+          allow delete: if isSignedIn() && uid == request.auth.uid;
+        }
+
         match /comment/{commentRecur=**} {
           allow read: if true;
           allow create: if isSignedIn();
