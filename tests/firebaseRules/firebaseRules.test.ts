@@ -337,6 +337,22 @@ describe('post subcollection', () => {
   });
 });
 
+describe('post like subcollection', () => {
+  it('can be written by authenticated user', async () => {
+    await expectPermissionSucceeds(
+      setDoc(doc(aliceDb, 'circle/testCircle1/post/a/like/a'), { field: 'val' })
+    );
+    expect(true).toBe(true);
+  });
+
+  it('can be deleted by its creator', async () => {
+    await expectPermissionSucceeds(
+      deleteDoc(doc(aliceDb, 'circle/testCircle1/post/a/like/a'))
+    );
+    expect(true).toBe(true);
+  });
+});
+
 describe('comment subcollection', () => {
   it('can be accessed publicaly', async () => {
     await expectDatabaseSucceeds(

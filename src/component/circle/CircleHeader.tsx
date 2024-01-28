@@ -9,11 +9,14 @@ import useWindowSize from '@/hook/useWindowSize';
 import PostCreateModal from '@/component/modal/PostCreateModal';
 import { cva, VariantProps } from 'class-variance-authority';
 import useAuth from '@/hook/useAuth';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import Button from '@/component/common/Button';
 import { FaXmark } from 'react-icons/fa6';
 import { uploadFile } from '@/lib/firebase/storage';
 import { updateData } from '@/lib/firebase/firestore';
+import { db } from '@/lib/firebase/config';
+import { collection, getCountFromServer } from 'firebase/firestore';
+import { truncateMemberCount } from '@/lib/utils';
 
 const cardHeaderVariant = cva('', {
   variants: {
@@ -39,6 +42,7 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
   const { setModal, setBottombar, openBottombar, openModal } = useOverlay();
   const { isMobile } = useWindowSize();
   const { user } = useAuth();
+  const [memberCount, setMemberCount] = useState(-1);
 
   const [file, setFile] = useState<File | null>(null);
   const [fileURL, setFileURL] = useState<string | null>(null);
@@ -83,6 +87,18 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
     }
   }
 
+  useEffect(() => {
+    async function getMemberCount() {
+      const colRef = collection(db, `circle/${circle.name}/member`);
+      const snapshot = await getCountFromServer(colRef);
+      return snapshot.data().count;
+    }
+
+    getMemberCount()
+      .then((count) => setMemberCount(count))
+      .catch(() => setMemberCount(-1));
+  }, [circle.name]);
+
   return (
     <header className="flex flex-col gap-3 bg-white p-4">
       <div className="flex flex-row gap-2">
@@ -120,7 +136,9 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
           <h1 className="text-xl font-bold leading-4 md:text-3xl md:leading-6">
             {circle.name}
           </h1>
-          <p className="text-sm text-gray-500">123 members</p>
+          <p className="text-sm text-gray-500">
+            {truncateMemberCount(memberCount)}
+          </p>
         </div>
         {isEditMode ? (
           <Button

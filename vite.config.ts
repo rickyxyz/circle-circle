@@ -2,12 +2,16 @@
 /// <reference types="vite/client" />
 
 import { UserConfig, defineConfig } from 'vitest/config';
+import cleanup from 'rollup-plugin-cleanup';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()] as UserConfig['plugins'],
+  plugins: [
+    react(),
+    cleanup({ comments: 'istanbul', extensions: ['js', 'ts'] }),
+  ] as UserConfig['plugins'],
   test: {
     globals: true,
     environment: 'node',
@@ -23,8 +27,23 @@ export default defineConfig({
     },
   },
   build: {
+    cssMinify: 'lightningcss',
     rollupOptions: {
-      external: ['/stories/.*', '/tests/.*'],
+      external: ['/stories/.*', '/tests/.*', '**/*.test.ts', '**/*.spec.ts'],
+      output: {
+        manualChunks(id: string) {
+          if (
+            id.includes('react-router-dom') ||
+            id.includes('@remix-run') ||
+            id.includes('react-router')
+          ) {
+            return '@react-router';
+          }
+          if (id.includes('firebase')) {
+            return '@firebase';
+          }
+        },
+      },
     },
   },
 });
