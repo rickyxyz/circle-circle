@@ -8,7 +8,7 @@ const buttonVariant = cva('', {
   variants: {
     variant: {
       default:
-        'rounded-full bg-gray-100 px-4 py-2 text-black capitalize text-sm md:text-base font-semibold',
+        'rounded-full bg-gray-100 px-4 py-2 text-black capitalize text-sm md:text-base font-semibold hover:bg-gray-300',
       clear: 'rounded-full text-black capitalize',
       noStyle: '',
       icon: 'rounded-full p-1 flex items-center justify-center font-bold bg-gray-100 aspect-square',

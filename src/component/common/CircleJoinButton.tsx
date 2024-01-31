@@ -66,7 +66,7 @@ const CircleJoinButton = forwardRef<HTMLButtonElement, CircleJoinButtonProps>(
       <Button
         className={cn(
           buttonVariant({ variant }),
-          !hasJoined && 'bg-emerald-600 text-white'
+          !hasJoined && 'bg-emerald-600 text-white hover:bg-emerald-800'
         )}
         {...props}
         ref={ref}

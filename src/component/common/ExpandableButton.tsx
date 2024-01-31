@@ -1,5 +1,5 @@
 import { VariantProps } from 'class-variance-authority';
-import { ButtonHTMLAttributes, ReactNode, forwardRef } from 'react';
+import { ButtonHTMLAttributes, ReactNode, forwardRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import Button, { buttonVariant } from '@/component/common/Button';
 
@@ -13,11 +13,21 @@ interface ExpandableButtonProps
 
 const ExpandableButton = forwardRef<HTMLButtonElement, ExpandableButtonProps>(
   ({ children, className, variant, icon, to, onclick, ...props }, ref) => {
+    const [isMounted, setIsMounted] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+
     return (
       <Button
         onClick={onclick}
+        onMouseEnter={() => {
+          setIsExpanded(true);
+        }}
+        onMouseLeave={() => {
+          setIsExpanded(false);
+          setIsMounted(false);
+        }}
         className={cn(
-          'group flex w-10 items-center gap-0 transition-all hover:w-fit hover:gap-1',
+          'flex h-10 w-fit items-center gap-0 duration-100 hover:gap-1',
           buttonVariant({ variant }),
           className
         )}
@@ -25,10 +35,17 @@ const ExpandableButton = forwardRef<HTMLButtonElement, ExpandableButtonProps>(
         ref={ref}
         to={to}
       >
-        {icon}
-        <p className="w-0 overflow-hidden transition-all group-hover:w-fit">
-          {children}
-        </p>
+        <span className="w-fit">{icon}</span>
+        {isExpanded && (
+          <p
+            className={cn(!isMounted && 'animation-expand')}
+            onAnimationEnd={() => {
+              if (!isMounted) setIsMounted(true);
+            }}
+          >
+            {children}
+          </p>
+        )}
       </Button>
     );
   }
