@@ -7,18 +7,18 @@ interface ExpandableButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariant> {
   icon: ReactNode;
-  onclick: () => void;
+  onClick: () => void;
   to?: string;
 }
 
 const ExpandableButton = forwardRef<HTMLButtonElement, ExpandableButtonProps>(
-  ({ children, className, variant, icon, to, onclick, ...props }, ref) => {
+  ({ children, className, variant, icon, to, onClick, ...props }, ref) => {
     const [isMounted, setIsMounted] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
       <Button
-        onClick={onclick}
+        onClick={onClick}
         onMouseEnter={() => {
           setIsExpanded(true);
         }}

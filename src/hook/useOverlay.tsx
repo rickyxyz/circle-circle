@@ -1,6 +1,6 @@
 import { OverlayContext } from '@/context/OverlayProvider';
 import { useAppDispatch } from '@/hook/reduxHooks';
-import { useContext } from 'react';
+import { HTMLAttributes, useContext } from 'react';
 import { bottombarClose, bottombarOpen } from '@/redux/menubarReducer';
 
 export default function useOverlay() {
@@ -22,10 +22,24 @@ export default function useOverlay() {
     dispatch(bottombarClose());
   }
 
+  function showModal(
+    Modal: React.ComponentType<HTMLAttributes<HTMLDivElement>>,
+    isMobile: boolean
+  ) {
+    if (isMobile) {
+      setBottombar(<Modal className="h-screen pt-12" />);
+      dispatch(bottombarOpen());
+    } else {
+      setModal(<Modal />);
+      setIsModalOpen(true);
+    }
+  }
+
   return {
     openModal,
     closeModal,
     setModal,
+    showModal,
     openBottombar,
     closeBottombar,
     setBottombar,

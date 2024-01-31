@@ -5,11 +5,11 @@ import { FaChevronDown } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import useOverlay from '@/hook/useOverlay';
 import CircleCreateModal from '@/component/modal/CircleCreateModal';
-import useWindowSize from '@/hook/useWindowSize';
 import { HTMLAttributes, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useAppDispatch } from '@/hook/reduxHooks';
 import { sideBarClose } from '@/redux/menubarReducer';
+import useWindowSize from '@/hook/useWindowSize';
 
 interface ListItemLinkProps extends HTMLAttributes<HTMLLIElement> {
   to: string;
@@ -39,19 +39,9 @@ function ListItemLink({
 }
 
 export default function Navbar({ user }: { user: User | null }) {
-  const { setModal, openModal, setBottombar, openBottombar } = useOverlay();
-  const [isAccordionOpen, setIsAccordionOpen] = useState(true);
+  const { showModal } = useOverlay();
   const { isMobile } = useWindowSize();
-
-  function showCreateCircleForm() {
-    if (isMobile) {
-      setBottombar(<CircleCreateModal className="h-screen pt-12" />);
-      openBottombar();
-    } else {
-      setModal(<CircleCreateModal />);
-      openModal();
-    }
-  }
+  const [isAccordionOpen, setIsAccordionOpen] = useState(true);
 
   return (
     <div
@@ -93,7 +83,9 @@ export default function Navbar({ user }: { user: User | null }) {
                 <li>
                   <button
                     className="flex items-center text-gray-700 hover:text-black"
-                    onClick={showCreateCircleForm}
+                    onClick={() => {
+                      showModal(CircleCreateModal, isMobile);
+                    }}
                   >
                     <FaPlus className="mr-2" />
                     Create A Circle
