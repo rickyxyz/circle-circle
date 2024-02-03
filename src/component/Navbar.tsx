@@ -24,7 +24,7 @@ function ListItemLink({
   const dispatch = useAppDispatch();
 
   return (
-    <li className={cn('mb-4 px-4', className)} {...props}>
+    <li className={cn('px-4 py-2 hover:bg-gray-200', className)} {...props}>
       <Link
         to={to}
         className="flex items-center text-gray-700 hover:text-black"
@@ -50,6 +50,7 @@ export default function Navbar({ user }: { user: User | null }) {
       className={cn(
         'relative flex h-full w-9/12 flex-col border-r border-gray-200 bg-white lg:w-64',
         !hasMounted &&
+          isMobile &&
           'origin-left animate-expand overflow-hidden whitespace-nowrap'
       )}
       onClick={(e) => e.stopPropagation()}
@@ -58,7 +59,7 @@ export default function Navbar({ user }: { user: User | null }) {
       }}
     >
       <nav className="flex-1 overflow-y-auto">
-        <ul className="py-4">
+        <ul className="pb-4">
           <ListItemLink to="/">
             <AiFillHome className="mr-2" />
             Home
@@ -85,11 +86,11 @@ export default function Navbar({ user }: { user: User | null }) {
               </button>
               <ul
                 className={cn(
-                  'flex flex-col gap-4',
+                  'flex flex-col',
                   isAccordionOpen ? 'h-fit py-4 pl-2' : 'h-0 overflow-hidden'
                 )}
               >
-                <li>
+                <li className="mb-2">
                   <button
                     className="flex items-center text-gray-700 hover:text-black"
                     onClick={() => {
@@ -104,7 +105,7 @@ export default function Navbar({ user }: { user: User | null }) {
                   <ListItemLink
                     to={`c/${circle}`}
                     key={circle}
-                    className="mb-0 px-0"
+                    className="mb-0 rounded-md px-1"
                   >
                     {circle}
                   </ListItemLink>
