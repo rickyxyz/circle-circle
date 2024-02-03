@@ -27,16 +27,19 @@ dist-ssr
 # Test files
 coverage/
 storybook-static
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 
 # Secrets
 .env
 .env.local
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
+
+# etc
+package-lock.json
 tsconfig.tsbuildinfo

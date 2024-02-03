@@ -18,10 +18,15 @@ const buttonVariant = cva('', {
       sm: 'md:text-sm px-3 py-1',
       xs: 'p-0 text-sm font-semibold',
     },
+    hover: {
+      default: 'hover:bg-gray-300',
+      none: '',
+    },
   },
   defaultVariants: {
     variant: 'default',
     size: 'default',
+    hover: 'default',
   },
 });
 
@@ -32,13 +37,13 @@ interface ButtonProps
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, className, size, variant, to, type, ...props }, ref) => {
+  ({ children, className, size, variant, to, type, hover, ...props }, ref) => {
     const navigate = useNavigate();
 
     return to ? (
       to === '-1' ? (
         <button
-          className={cn(buttonVariant({ variant, size, className }))}
+          className={cn(buttonVariant({ variant, size, hover, className }))}
           onClick={() => {
             navigate(-1);
           }}
@@ -50,7 +55,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ) : (
         <Link
           className={cn(
-            buttonVariant({ variant, size, className }),
+            buttonVariant({ variant, size, hover, className }),
             'flex items-center'
           )}
           to={to}
@@ -62,7 +67,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ) : (
       <button
         type={type ?? 'button'}
-        className={cn(buttonVariant({ variant, size, className }))}
+        className={cn(buttonVariant({ variant, size, hover, className }))}
         {...props}
         ref={ref}
       >

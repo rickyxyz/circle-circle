@@ -39,7 +39,7 @@ interface CircleHeaderProps extends VariantProps<typeof cardHeaderVariant> {
 
 export default function CircleHeader({ circle }: CircleHeaderProps) {
   const [isEditMode, setIsEditMode] = useState(false);
-  const { setModal, setBottombar, openBottombar, openModal } = useOverlay();
+  const { showModal } = useOverlay();
   const { isMobile } = useWindowSize();
   const { user } = useAuth();
   const [memberCount, setMemberCount] = useState(-1);
@@ -74,16 +74,6 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
         .finally(() => {
           setIsEditMode(false);
         });
-    }
-  }
-
-  function showPostCreateForm() {
-    if (isMobile) {
-      setBottombar(<PostCreateModal className="h-screen pt-12" />);
-      openBottombar();
-    } else {
-      setModal(<PostCreateModal />);
-      openModal();
     }
   }
 
@@ -189,7 +179,9 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
           {(!user || isMobile) && (
             <ButtonWithIcon
               icon={<FaPlus />}
-              onClick={showPostCreateForm}
+              onClick={() => {
+                showModal(PostCreateModal, isMobile);
+              }}
               disabled={isEditMode}
             >
               Create A Post

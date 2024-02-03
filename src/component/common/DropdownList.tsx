@@ -81,10 +81,11 @@ export default function DropdownList({
       <Button
         onClick={handleButtonClick}
         className={cn(
-          'inline-flex items-center justify-center bg-transparent',
+          'flex items-center justify-center bg-transparent',
           className
         )}
         ref={buttonRef}
+        hover={'none'}
         {...props}
       >
         {triggerComponent}

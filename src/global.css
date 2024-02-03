@@ -11,6 +11,10 @@
 }
 
 @layer components {
+  .animation-expand {
+    @apply animate-expand overflow-hidden whitespace-nowrap text-nowrap;
+  }
+
   .quill-style {
     @apply flex flex-1 flex-col;
   }

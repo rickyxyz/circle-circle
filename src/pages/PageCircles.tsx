@@ -13,25 +13,19 @@ import CircleCreateModal from '@/component/modal/CircleCreateModal';
 function PageCircles() {
   const [circles] = useState<Circle[]>(useLoaderData() as Circle[]);
   const { isMobile } = useWindowSize();
-  const { setModal, setBottombar } = useOverlay();
+  const { showModal } = useOverlay();
   const { user } = useAuth();
-  const { openModal, openBottombar } = useOverlay();
-
-  function showCreateCircleForm() {
-    if (isMobile) {
-      setBottombar(<CircleCreateModal className="h-screen pt-12" />);
-      openBottombar();
-    } else {
-      setModal(<CircleCreateModal />);
-      openModal();
-    }
-  }
 
   return (
     <div className="flex flex-col gap-4 py-4">
       <span className="flex flex-row items-center justify-between pr-4">
         <h1 className="px-4 text-xl font-bold">Browse Circles</h1>
-        <ExpandableButton icon={<FaPlus />} onclick={showCreateCircleForm}>
+        <ExpandableButton
+          icon={<FaPlus />}
+          onClick={() => {
+            showModal(CircleCreateModal, isMobile);
+          }}
+        >
           create
         </ExpandableButton>
       </span>
