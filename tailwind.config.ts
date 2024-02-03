@@ -6,12 +6,22 @@ const config: Config = {
     extend: {
       keyframes: {
         expand: {
-          '0%': { width: '0%' },
-          '100%': { width: '100%' },
+          '0%': { transform: 'scale(0,1)' },
+          '100%': { transform: 'scale(1,1)' },
+        },
+        slideup: {
+          '0%': { transform: 'scale(1,0)' },
+          '100%': { transform: 'scale(1,1)' },
+        },
+        popup: {
+          '0%': { transform: 'scale(0)' },
+          '100%': { transform: 'scale(1)' },
         },
       },
       animation: {
         expand: 'expand 0.3s ease-in',
+        slideup: 'slideup 0.3s ease-in',
+        popup: 'popup 0.3s ease-in',
       },
     },
   },
