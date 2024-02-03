@@ -6,8 +6,8 @@ const config: Config = {
     extend: {
       keyframes: {
         expand: {
-          '0%': { transform: 'scale(0,1)' },
-          '100%': { transform: 'scale(1,1)' },
+          '0%': { width: '0%' },
+          '100%': { witdh: '100%' },
         },
         slideup: {
           '0%': { transform: 'scale(1,0)' },
@@ -19,7 +19,7 @@ const config: Config = {
         },
       },
       animation: {
-        expand: 'expand 0.3s ease-in',
+        expand: 'expand 0.2s ease-in',
         slideup: 'slideup 0.3s ease-in',
         popup: 'popup 0.3s ease-in',
       },

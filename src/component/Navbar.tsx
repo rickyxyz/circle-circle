@@ -7,8 +7,8 @@ import useOverlay from '@/hook/useOverlay';
 import CircleCreateModal from '@/component/modal/CircleCreateModal';
 import { HTMLAttributes, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { useAppDispatch } from '@/hook/reduxHooks';
-import { sideBarClose } from '@/redux/menubarReducer';
+import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
+import { sideBarClose, unMountMenubarAnimation } from '@/redux/menubarReducer';
 import useWindowSize from '@/hook/useWindowSize';
 
 interface ListItemLinkProps extends HTMLAttributes<HTMLLIElement> {
@@ -42,11 +42,20 @@ export default function Navbar({ user }: { user: User | null }) {
   const { showModal } = useOverlay();
   const { isMobile } = useWindowSize();
   const [isAccordionOpen, setIsAccordionOpen] = useState(true);
+  const hasMounted = useAppSelector((state) => state.menubar.hasMounted);
+  const dispatch = useAppDispatch();
 
   return (
     <div
-      className="relative flex h-full w-9/12 flex-col border-r border-gray-200 bg-white lg:w-64"
+      className={cn(
+        'relative flex h-full w-9/12 flex-col border-r border-gray-200 bg-white lg:w-64',
+        !hasMounted &&
+          'origin-left animate-expand overflow-hidden whitespace-nowrap'
+      )}
       onClick={(e) => e.stopPropagation()}
+      onAnimationEnd={() => {
+        dispatch(unMountMenubarAnimation());
+      }}
     >
       <nav className="flex-1 overflow-y-auto">
         <ul className="py-4">
