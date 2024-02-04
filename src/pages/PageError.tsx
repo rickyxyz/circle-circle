@@ -13,7 +13,7 @@ function PageError() {
   } else if (typeof error === 'string') {
     errorMessage = error;
   } else {
-    errorMessage = 'Unknown error';
+    errorMessage = 'Something went wrong';
   }
 
   return (
