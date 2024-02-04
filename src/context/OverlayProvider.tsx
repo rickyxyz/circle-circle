@@ -38,10 +38,10 @@ export default function OverlayProvider({ children }: OverlayContextProps) {
   const [modal, setModal] = useState<ReactElement | null>(null);
   const [bottombar, setBottombar] = useState<ReactElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { isBottombarOpen, hasMounted } = useAppSelector((state) => ({
-    isBottombarOpen: state.menubar.bottombarIsOpen,
-    hasMounted: state.menubar.hasMounted,
-  }));
+  const isBottombarOpen = useAppSelector(
+    (state) => state.menubar.bottombarIsOpen
+  );
+  const hasMounted = useAppSelector((state) => state.menubar.hasMounted);
   const dispatch = useAppDispatch();
 
   return (
