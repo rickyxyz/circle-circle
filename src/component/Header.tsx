@@ -1,26 +1,84 @@
-import { User } from '@/types/db';
+import { Circle, User } from '@/types/db';
 import { GoSearch } from 'react-icons/go';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import Button from '@/component/common/Button';
 import { useAppDispatch } from '@/hook/reduxHooks';
 import { sidebarToggle } from '@/redux/menubarReducer';
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import DropdownList from '@/component/common/DropdownList';
 import useAuth from '@/hook/useAuth';
+import { searchCircle } from '@/lib/search';
+import useClickedOutside from '@/hook/useClickedOutside';
+import { FirebaseError } from 'firebase/app';
 
 interface HeaderProps extends HTMLAttributes<HTMLDivElement> {
   user: User | null;
 }
 
-const Header = ({ user, className, ...props }: HeaderProps) => {
+interface SearchResultProps extends HTMLAttributes<HTMLAnchorElement> {
+  resultId: string;
+  result: Circle;
+}
+
+function SearchResult({ result, resultId, ...props }: SearchResultProps) {
+  return (
+    <Link
+      to={`/c/${resultId}`}
+      className="flex flex-row items-center gap-2 px-4 py-2 hover:bg-gray-100"
+      {...props}
+    >
+      <img
+        src={result.thumbnailUrl ?? '/profile_placeholder.svg'}
+        alt={result.name}
+        className="h-4 w-4 rounded-full"
+      />
+      c/{result.name}
+    </Link>
+  );
+}
+
+export default function Header({ user, className, ...props }: HeaderProps) {
   const dispatch = useAppDispatch();
   const { logout } = useAuth();
+  const [query, setQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Record<string, Circle>>(
+    {}
+  );
+  const [isLoadingSearch, setIsLoadingSearch] = useState(true);
+  const [isResultVisible, setIsResultVisible] = useState(false);
+  const searchBarRef = useRef(null);
+  const resultRef = useClickedOutside(() => {
+    setIsResultVisible(false);
+  }, searchBarRef);
+  const [searchError, setSearchError] = useState('');
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (query.length > 0) {
+        setIsLoadingSearch(true);
+        searchCircle(query)
+          .then((result) => {
+            setSearchResults(result);
+          })
+          .catch((e: FirebaseError) => {
+            setSearchError(e.code);
+          })
+          .finally(() => {
+            setIsLoadingSearch(false);
+          });
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [query]);
 
   return (
     <header
-      className={cn('border-b border-gray-200 bg-white p-4', className)}
+      className={cn('border-b border-gray-100 bg-white p-4', className)}
       {...props}
     >
       <div className="flex items-center justify-between">
@@ -56,7 +114,10 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
             />
           </svg>
         </Link>
-        <div className="hidden flex-grow items-center justify-center md:flex">
+        <div
+          className="relative hidden flex-grow items-center justify-center md:flex"
+          ref={searchBarRef}
+        >
           <div className="flex w-full max-w-xl items-center rounded-md bg-gray-100 px-3 py-2 text-gray-800">
             <div className="mr-2">
               <GoSearch />
@@ -65,10 +126,41 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
               type="text"
               placeholder="Search"
               className="w-full bg-gray-100 focus:outline-none"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onFocus={() => {
+                setIsResultVisible(true);
+              }}
             />
           </div>
+          {isResultVisible && query.length > 0 && (
+            <div
+              className="absolute -bottom-1 z-30 flex w-full max-w-xl translate-y-full flex-col rounded-md bg-white text-black shadow-md"
+              ref={resultRef}
+            >
+              {isLoadingSearch && <span>Loading</span>}
+              {!isLoadingSearch && searchError && <span>{searchError}</span>}
+              {!isLoadingSearch &&
+              !searchError &&
+              Object.keys(searchResults).length > 0
+                ? Object.keys(searchResults).map((result) => (
+                    <SearchResult
+                      key={`sr-${result}`}
+                      resultId={result}
+                      result={searchResults[result]}
+                      onClick={() => {
+                        setIsLoadingSearch(true);
+                        setIsResultVisible(false);
+                        setSearchResults({});
+                        setQuery('');
+                      }}
+                    />
+                  ))
+                : !isLoadingSearch && !searchError && 'No result'}
+            </div>
+          )}
         </div>
-        <div className="mr-4 flex flex-grow items-center justify-end md:hidden">
+        <div className="relative mr-4 flex flex-grow items-center justify-end md:hidden">
           <GoSearch />
         </div>
         <div className="flex items-center justify-end md:min-w-20">
@@ -105,6 +197,4 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
       </div>
     </header>
   );
-};
-
-export default Header;
+}
