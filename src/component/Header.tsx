@@ -86,10 +86,10 @@ const Header = ({ user, className, ...props }: HeaderProps) => {
                   text: 'profile',
                   to: `/u/${user.uid}`,
                 },
-                {
-                  text: 'settings',
-                  to: `/account/settings`,
-                },
+                // {
+                //   text: 'settings',
+                //   to: `/account/settings`,
+                // },
                 {
                   text: 'sign out',
                   onClick: () => {

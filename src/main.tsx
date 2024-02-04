@@ -19,7 +19,7 @@ import store from '@/redux/store';
 import RegisterForm from '@/component/form/RegisterForm';
 import LoginForm from '@/component/form/LoginForm';
 import LayoutCentered from '@/pages/layout/LayoutCentered';
-import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
+// import ProtectedRoute from '@/pages/middleware/ProtectedRoute';
 
 const PageCircles = lazy(() => import('@/pages/PageCircles'));
 const PageCircle = lazy(() => import('@/pages/PageCircle'));
@@ -27,7 +27,7 @@ const PageError = lazy(() => import('@/pages/PageError'));
 const PagePost = lazy(() => import('@/pages/PagePost'));
 const PageProfile = lazy(() => import('@/pages/PageProfile'));
 const PageHome = lazy(() => import('@/pages/PageHome'));
-const PageSettings = lazy(() => import('@/pages/PageSettings'));
+// const PageSettings = lazy(() => import('@/pages/PageSettings'));
 
 const router = createBrowserRouter([
   {
@@ -52,29 +52,29 @@ const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: '/account',
-    errorElement: <PageError />,
-    element: <ProtectedRoute />,
-    loader: async () => {
-      const currentUser = await getCurrentUser();
-      if (!currentUser) {
-        throw new Response('Not Found', { status: 404 });
-      }
-      return { isLoggedIn: Boolean(currentUser) };
-    },
-    children: [
-      {
-        element: <LayoutRoot />,
-        children: [
-          {
-            path: 'settings',
-            element: <PageSettings />,
-          },
-        ],
-      },
-    ],
-  },
+  // {
+  //   path: '/account',
+  //   errorElement: <PageError />,
+  //   element: <ProtectedRoute />,
+  //   loader: async () => {
+  //     const currentUser = await getCurrentUser();
+  //     if (!currentUser) {
+  //       throw new Response('Not Found', { status: 404 });
+  //     }
+  //     return { isLoggedIn: Boolean(currentUser) };
+  //   },
+  //   children: [
+  //     {
+  //       element: <LayoutRoot />,
+  //       children: [
+  //         {
+  //           path: 'settings',
+  //           element: <PageSettings />,
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
   {
     element: <LayoutRoot />,
     errorElement: <PageError />,
