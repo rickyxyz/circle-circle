@@ -1,11 +1,16 @@
 import { db } from '@/lib/firebase/config';
 import {
+  DocumentData,
   FirestoreError,
   collection,
   deleteDoc,
   doc,
   getCountFromServer,
   getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
 } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { useLoaderData, useParams } from 'react-router-dom';
@@ -17,6 +22,7 @@ import PromptLogin from '@/component/common/PromptLogin';
 import { getData } from '@/lib/firebase/firestore';
 import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
 import { addUsers } from '@/redux/cacheReducer';
+import usePageBottom from '@/hook/usePageBottom';
 
 function PagePost() {
   const dispatch = useAppDispatch();
@@ -29,6 +35,10 @@ function PagePost() {
   const [getError, setGetError] = useState<null | string>(null);
   const userCache = useAppSelector((state) => state.cache.users);
   const [commentCount, setCommentCount] = useState(0);
+  const isBottom = usePageBottom();
+  const [lastVisibleDoc, setLastVisibleDoc] = useState<DocumentData | null>(
+    null
+  );
 
   useEffect(() => {
     async function getCommentCount() {
@@ -47,9 +57,19 @@ function PagePost() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const querySnapshot = await getDocs(
-        collection(db, `circle/${circleId}/post/${postId}/comment`)
+      const commentColRef = collection(
+        db,
+        `circle/${circleId}/post/${postId}/comment`
       );
+      const q = query(
+        commentColRef,
+        orderBy('postDate'),
+        startAfter(lastVisibleDoc),
+        limit(25)
+      );
+
+      const querySnapshot = await getDocs(q);
+      setLastVisibleDoc(querySnapshot.docs[querySnapshot.docs.length - 1]);
 
       const dataObject: Record<string, Comment> = {};
 
@@ -60,38 +80,49 @@ function PagePost() {
       return dataObject;
     };
 
-    fetchData()
-      .then((comments) => {
-        setComments(comments);
+    if (Object.keys(comments).length < commentCount) {
+      fetchData()
+        .then((comments) => {
+          setComments(comments);
 
-        const uniqUID = Object.values(comments).reduce(
-          (accum: string[], comment) => {
-            if (!accum.includes(comment.author)) {
-              accum.push(comment.author);
+          const uniqUID = Object.values(comments).reduce(
+            (accum: string[], comment) => {
+              if (!accum.includes(comment.author)) {
+                accum.push(comment.author);
+              }
+              return accum;
+            },
+            []
+          );
+
+          uniqUID.forEach((uid) => {
+            if (!Object.keys(userCache).includes(uid)) {
+              getData('user', uid)
+                .then((user) => {
+                  if (user) {
+                    dispatch(addUsers([user]));
+                  } else throw new Error('user not found');
+                })
+                .catch((e) => {
+                  throw e;
+                });
             }
-            return accum;
-          },
-          []
-        );
-
-        uniqUID.forEach((uid) => {
-          if (!Object.keys(userCache).includes(uid)) {
-            getData('user', uid)
-              .then((user) => {
-                if (user) {
-                  dispatch(addUsers([user]));
-                } else throw new Error('user not found');
-              })
-              .catch((e) => {
-                throw e;
-              });
-          }
+          });
+        })
+        .catch((e: FirestoreError) => {
+          setGetError(e.code);
         });
-      })
-      .catch((e: FirestoreError) => {
-        setGetError(e.code);
-      });
-  }, [circleId, dispatch, postId, userCache]);
+    }
+  }, [
+    circleId,
+    dispatch,
+    postId,
+    userCache,
+    isBottom,
+    comments,
+    commentCount,
+    lastVisibleDoc,
+  ]);
 
   function onPostComment(newComment: Comment, commentId: string) {
     setCommentCount((p) => p + 1);
@@ -119,7 +150,7 @@ function PagePost() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 pb-8">
       <PostCard
         circleId={circleId ?? ''}
         post={post}
@@ -136,11 +167,7 @@ function PagePost() {
       </PromptLogin>
       {getError}
       {Object.keys(comments)
-        .sort((commentId1, commentId2) => {
-          return comments[commentId1].postDate < comments[commentId2].postDate
-            ? 1
-            : -1;
-        })
+        .reverse()
         .map((commentId) => (
           <div key={`comment-${commentId}}`} className="px-3">
             <CommentCard
