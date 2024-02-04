@@ -86,6 +86,7 @@ export default function DropdownList({
         )}
         ref={buttonRef}
         hover={'none'}
+        variant={'noStyle'}
         {...props}
       >
         {triggerComponent}
