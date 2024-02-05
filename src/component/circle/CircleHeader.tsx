@@ -69,8 +69,9 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
             throw e;
           });
         })
-        // eslint-disable-next-line no-console
-        .catch((e) => console.log(e))
+        .catch((e) => {
+          throw e;
+        })
         .finally(() => {
           setIsEditMode(false);
         });

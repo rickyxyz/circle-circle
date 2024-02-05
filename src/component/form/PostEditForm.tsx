@@ -43,6 +43,7 @@ export default function PostEditForm({
   });
   const { circleId, postId } = useParams();
   const [editError, setEditError] = useState<string | null>(null);
+  const [getImageError, setGetImageError] = useState<boolean>(false);
   const [imageRefs, setImageRefs] = useState<Record<string, StorageReference>>(
     {}
   );
@@ -51,38 +52,40 @@ export default function PostEditForm({
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [largestImageIndex, setLargestImageIndex] = useState(0);
 
+  const getImageUrls = useCallback(async () => {
+    const imagesRef = ref(storage, `c/${circleId}/p/${postId}`);
+
+    const imageList = await listAll(imagesRef);
+    const linkToRefMap: Record<string, StorageReference> = {};
+
+    const downloadPromises = imageList.items.map(async (item) => {
+      const url = await getDownloadURL(item);
+      linkToRefMap[url] = item;
+      return url;
+    });
+
+    const fetchedImageUrls = await Promise.all(downloadPromises);
+
+    setImageUrls(fetchedImageUrls);
+    const lastItem = fetchedImageUrls[fetchedImageUrls.length - 1];
+    const lastCharacter = lastItem[lastItem.length - 1];
+    setLargestImageIndex(parseInt(lastCharacter));
+    setImageRefs(linkToRefMap);
+
+    return fetchedImageUrls;
+  }, [circleId, postId]);
+
   useEffect(() => {
     if (!post.hasImage) return;
-    async function getImageUrls() {
-      const imagesRef = ref(storage, `c/${circleId}/p/${postId}`);
-
-      const imageList = await listAll(imagesRef);
-      const linkToRefMap: Record<string, StorageReference> = {};
-
-      const downloadPromises = imageList.items.map(async (item) => {
-        const url = await getDownloadURL(item);
-        linkToRefMap[url] = item;
-        return url;
-      });
-
-      const fetchedImageUrls = await Promise.all(downloadPromises);
-
-      setImageUrls(fetchedImageUrls);
-      const lastItem = fetchedImageUrls[fetchedImageUrls.length - 1];
-      const lastCharacter = lastItem[lastItem.length - 1];
-      setLargestImageIndex(parseInt(lastCharacter));
-      setImageRefs(linkToRefMap);
-
-      return fetchedImageUrls;
-    }
 
     getImageUrls()
       .then((fetchedImageUrls) => {
         setPreviewURL(fetchedImageUrls);
       })
-      // eslint-disable-next-line no-console
-      .catch((e: StorageError) => console.log(e.code));
-  }, [circleId, post.hasImage, postId]);
+      .catch(() => {
+        setGetImageError(true);
+      });
+  }, [circleId, getImageUrls, post.hasImage, postId]);
 
   function handleImageUpdate() {
     // delete files
@@ -171,16 +174,34 @@ export default function PostEditForm({
 
       {post.hasImage ? (
         <div className="flex min-h-32 flex-col items-center justify-center gap-2 rounded-md border border-gray-300 p-4">
-          {imageUrls.length > 0 && (
-            <ImageCarousel
-              editable={true}
-              imageUrls={previewURL}
-              onRemove={(idx) => {
-                setFiles((p) => p.filter((_, i) => i !== idx));
-                setPreviewURL((p) => p.filter((_, i) => i !== idx));
-              }}
-            />
-          )}
+          {imageUrls.length > 0 &&
+            (getImageError ? (
+              <div className="flex flex-col items-center justify-center gap-2">
+                <p>Whoops something went wrong when getting your image</p>
+                <Button
+                  onClick={() => {
+                    getImageUrls()
+                      .then((fetchedImageUrls) => {
+                        setPreviewURL(fetchedImageUrls);
+                      })
+                      .catch(() => {
+                        setGetImageError(true);
+                      });
+                  }}
+                >
+                  Try again
+                </Button>
+              </div>
+            ) : (
+              <ImageCarousel
+                editable={true}
+                imageUrls={previewURL}
+                onRemove={(idx) => {
+                  setFiles((p) => p.filter((_, i) => i !== idx));
+                  setPreviewURL((p) => p.filter((_, i) => i !== idx));
+                }}
+              />
+            ))}
           <div
             {...getRootProps()}
             className={
