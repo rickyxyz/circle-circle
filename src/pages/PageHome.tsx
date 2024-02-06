@@ -61,7 +61,7 @@ export default function PageHome() {
         <h2>{getFeedError}</h2>
       </div>
       <div className="divide-y">
-        {posts.map((post) => (
+        {posts.reverse().map((post) => (
           <PostCard
             key={`pf-${post.circleId}-${post.postId}`}
             circleId={post.circleId}
