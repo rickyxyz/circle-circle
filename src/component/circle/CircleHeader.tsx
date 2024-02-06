@@ -59,7 +59,7 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
 
   function onSave() {
     if (file) {
-      uploadFile('circle', circle.name, file)
+      uploadFile('c', circle.name, file)
         .then((downloadUrl) => setUploadedImageUrl(downloadUrl))
         .then(() => {
           updateData('circle', circle.name, {
@@ -169,6 +169,7 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
               setIsEditMode(false);
               setFile(null);
               setFileURL(null);
+              setUploadedImageUrl(undefined);
             }}
           >
             Cancel
