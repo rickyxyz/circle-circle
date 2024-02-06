@@ -37,7 +37,6 @@ const CircleJoinButton = forwardRef<HTMLButtonElement, CircleJoinButtonProps>(
           setHasJoined(true);
           addCircle(circle.name);
         },
-        // eslint-disable-next-line no-console
         (e: FirestoreError) => {
           throw e;
         }
