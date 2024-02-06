@@ -13,7 +13,7 @@ const postSchema = z.object({
   title: z
     .string({ errorMap: customErrorMap })
     .min(1, { message: 'Title cannot be empty' }),
-  description: z.string().max(300).optional(),
+  description: z.string().max(3000).optional(),
   image_urls: z
     .custom<FileList>()
     .refine((files) => {

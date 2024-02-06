@@ -150,12 +150,13 @@ export default function PostCreateForm({
         </div>
       )}
       {activeTab === 'text' && (
-        <div className="flex min-h-32">
+        <div className="flex min-h-32 flex-col">
           <TextEditor
             type="tabbed"
             name="description"
             control={control}
             id="description"
+            className="max-h-80 overflow-auto"
           />
           <p className="text-xs italic text-red-500">
             {errors.description?.message}
