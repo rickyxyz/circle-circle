@@ -57,7 +57,7 @@ function PageProfile() {
             <img
               src={userData.profilePicture ?? '/profile_placeholder.svg'}
               alt="profile picture"
-              className="h-16 w-16 rounded-full"
+              className="aspect-square h-16 w-16 rounded-full object-cover"
             />
             {isSelf ? ButtonSelf : ButtonOther}
           </div>

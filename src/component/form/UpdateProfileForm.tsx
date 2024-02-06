@@ -36,7 +36,7 @@ export default function UpdateProfileForm({
       setUpdateError(true);
     });
     if (file) {
-      uploadFile('user', user.uid, file)
+      uploadFile('u', user.uid, file)
         .then((downloadUrl) => updateProfile({ profilePicture: downloadUrl }))
         .catch(() => setImageUploadError(true));
     }
@@ -52,7 +52,7 @@ export default function UpdateProfileForm({
               previewURL ?? user?.profilePicture ?? '/profile_placeholder.svg'
             }
             alt="profile picture"
-            className="h-16 w-16 rounded-full"
+            className="aspect-square h-16 w-16 rounded-full object-cover"
           />
           <label htmlFor="upload image">
             Change profile picture
