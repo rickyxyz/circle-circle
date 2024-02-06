@@ -60,11 +60,14 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
   function onSave() {
     if (file) {
       uploadFile('c', circle.name, file)
-        .then((downloadUrl) => setUploadedImageUrl(downloadUrl))
-        .then(() => {
+        .then((downloadUrl) => {
+          setUploadedImageUrl(downloadUrl);
+          return downloadUrl;
+        })
+        .then((downloadUrl) => {
           updateData('circle', circle.name, {
             ...circle,
-            thumbnailUrl: uploadedImageUrl,
+            thumbnailUrl: downloadUrl,
           }).catch((e) => {
             throw e;
           });
