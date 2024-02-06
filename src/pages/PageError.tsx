@@ -2,8 +2,6 @@ import { useRouteError, isRouteErrorResponse } from 'react-router-dom';
 
 function PageError() {
   const error = useRouteError();
-  // eslint-disable-next-line no-console
-  console.log(error);
   let errorMessage: string;
 
   if (isRouteErrorResponse(error)) {
@@ -13,7 +11,7 @@ function PageError() {
   } else if (typeof error === 'string') {
     errorMessage = error;
   } else {
-    errorMessage = 'Unknown error';
+    errorMessage = 'Something went wrong';
   }
 
   return (

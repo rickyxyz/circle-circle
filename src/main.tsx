@@ -19,6 +19,7 @@ import store from '@/redux/store';
 import RegisterForm from '@/component/form/RegisterForm';
 import LoginForm from '@/component/form/LoginForm';
 import LayoutCentered from '@/pages/layout/LayoutCentered';
+import ErrorBoundary from '@/component/common/ErrorBoundary';
 
 const PageCircles = lazy(() => import('@/pages/PageCircles'));
 const PageCircle = lazy(() => import('@/pages/PageCircle'));
@@ -26,6 +27,7 @@ const PageError = lazy(() => import('@/pages/PageError'));
 const PagePost = lazy(() => import('@/pages/PagePost'));
 const PageProfile = lazy(() => import('@/pages/PageProfile'));
 const PageHome = lazy(() => import('@/pages/PageHome'));
+
 const router = createBrowserRouter([
   {
     path: '/account',
@@ -141,10 +143,12 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root') as Element).render(
   <React.StrictMode>
-    <ReduxProvider store={store}>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </ReduxProvider>
+    <ErrorBoundary fallback={<PageError />}>
+      <ReduxProvider store={store}>
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </ReduxProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );

@@ -1,5 +1,5 @@
 import useAuth from '@/hook/useAuth';
-import { HTMLAttributes, useEffect, useState } from 'react';
+import { HTMLAttributes, useCallback, useEffect, useState } from 'react';
 import { Comment } from '@/types/db';
 import { CommentForm } from '@/component/form/CommentForm';
 import { db } from '@/lib/firebase/config';
@@ -22,6 +22,20 @@ import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
 import { CommentEditForm } from '@/component/form/CommentEditForm';
 import { useAppSelector } from '@/hook/reduxHooks';
 import parse from 'html-react-parser';
+import Button from '@/component/common/Button';
+
+function CommentCardFallback({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div>
+      <p>Uh oh something went wrong</p>
+      <Button
+        onClick={() => {
+          onRetry();
+        }}
+      ></Button>
+    </div>
+  );
+}
 
 interface CommentCardProps extends HTMLAttributes<HTMLDivElement> {
   commentData: Comment;
@@ -43,29 +57,33 @@ export default function CommentCard({
   const [comments, setComments] = useState<Record<string, Comment>>({});
   const [likeCount, setLikeCount] = useState(0);
   const userCache = useAppSelector((state) => state.cache.users);
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
+    const querySnapshot = await getDocs(
+      collection(db, `${basepath}/${commentId}/comment`)
+    );
+
+    const dataObject: Record<string, Comment> = {};
+
+    querySnapshot.forEach((doc) => {
+      dataObject[doc.id] = doc.data() as Comment;
+    });
+
+    return dataObject;
+  }, [basepath, commentId]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const querySnapshot = await getDocs(
-        collection(db, `${basepath}/${commentId}/comment`)
-      );
-
-      const dataObject: Record<string, Comment> = {};
-
-      querySnapshot.forEach((doc) => {
-        dataObject[doc.id] = doc.data() as Comment;
-      });
-
-      return dataObject;
-    };
-
     fetchData()
       .then((comments) => setComments(comments))
-      .catch((e: FirestoreError) => {
-        // eslint-disable-next-line no-console
-        console.log(e.code);
+      .catch(() => {
+        setHasError(true);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-  }, [basepath, commentId]);
+  }, [basepath, commentId, fetchData]);
 
   function onComment(newComment: Comment, commentId: string) {
     setComments({
@@ -119,136 +137,153 @@ export default function CommentCard({
       .catch(() => setLikeCount(-1));
   }, [basepath, commentId]);
 
-  return isEditMode ? (
-    <div>
-      <CommentEditForm
-        comment={commentData}
-        onSuccessCallback={(newComment: Comment) => {
-          onSuccessCallback && onSuccessCallback(newComment);
-          setIsEditMode(false);
+  if (isLoading) {
+    return <>Loading</>;
+  } else if (hasError) {
+    return (
+      <CommentCardFallback
+        onRetry={() => {
+          setHasError(false);
+          fetchData()
+            .then((comments) => setComments(comments))
+            .catch(() => {
+              setHasError(true);
+            });
         }}
-        commentId={commentId}
-        onCancel={() => {
-          setIsEditMode(false);
-        }}
-        cancelable
       />
-    </div>
-  ) : (
-    <div className="flex flex-row gap-2 bg-white px-2 pt-2">
-      <div className="flex flex-col gap-1">
-        <img
-          src={
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            userCache[commentData.author] === undefined
-              ? '/profile_placeholder.svg'
-              : userCache[commentData.author].profilePicture ??
-                '/profile_placeholder.svg'
-          }
-          alt="avatar"
-          className="h-4"
+    );
+  } else {
+    return isEditMode ? (
+      <div>
+        <CommentEditForm
+          comment={commentData}
+          onSuccessCallback={(newComment: Comment) => {
+            onSuccessCallback && onSuccessCallback(newComment);
+            setIsEditMode(false);
+          }}
+          commentId={commentId}
+          onCancel={() => {
+            setIsEditMode(false);
+          }}
+          cancelable
         />
-        <div className="mx-auto w-px flex-1 bg-gray-300"></div>
       </div>
-      <div className="flex w-full flex-col gap-1 pb-1">
-        <header className="flex w-full flex-row items-start justify-between">
-          <span className="flex flex-row items-center gap-1 text-xs">
-            <p className="font-bold text-slate-600">
-              {/* eslint-disable-next-line
-              @typescript-eslint/no-unnecessary-condition */}
-              {userCache[commentData.author] === undefined
-                ? commentData.author
-                : userCache[commentData.author].username}
-            </p>
-            <LuDot className="text-slate-400" />
-            <p>
-              {/* Posted by {user.username}{' '} */}
-              {timeAgo(commentData.postDate.toDate().toString())}
-            </p>
-          </span>
-          {user && user.uid === commentData.author && (
-            <DropdownList
-              data-testid={'comment-action-trigger'}
-              className="flex items-center p-0"
-              triggerComponent={<GoKebabHorizontal />}
-              dropdownList={[
-                {
-                  text: 'report',
-                  onClick: () => {
-                    return;
+    ) : (
+      <div className="flex flex-row gap-2 bg-white px-2 pt-2">
+        <div className="flex flex-col gap-1">
+          <img
+            src={
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+              userCache[commentData.author] === undefined
+                ? '/profile_placeholder.svg'
+                : userCache[commentData.author].profilePicture ??
+                  '/profile_placeholder.svg'
+            }
+            alt="avatar"
+            className="h-4"
+          />
+          <div className="mx-auto w-px flex-1 bg-gray-300"></div>
+        </div>
+        <div className="flex w-full flex-col gap-1 pb-1">
+          <header className="flex w-full flex-row items-start justify-between">
+            <span className="flex flex-row items-center gap-1 text-xs">
+              <p className="font-bold text-slate-600">
+                {/* eslint-disable-next-line
+                @typescript-eslint/no-unnecessary-condition */}
+                {userCache[commentData.author] === undefined
+                  ? commentData.author
+                  : userCache[commentData.author].username}
+              </p>
+              <LuDot className="text-slate-400" />
+              <p>
+                {/* Posted by {user.username}{' '} */}
+                {timeAgo(commentData.postDate.toDate().toString())}
+              </p>
+            </span>
+            {user && user.uid === commentData.author && (
+              <DropdownList
+                data-testid={'comment-action-trigger'}
+                className="flex items-center p-0"
+                triggerComponent={<GoKebabHorizontal />}
+                dropdownList={[
+                  {
+                    text: 'report',
+                    onClick: () => {
+                      return;
+                    },
                   },
-                },
-                {
-                  text: 'edit',
-                  onClick: () => {
-                    setIsEditMode(true);
+                  {
+                    text: 'edit',
+                    onClick: () => {
+                      setIsEditMode(true);
+                    },
                   },
-                },
-                {
-                  text: 'delete',
-                  onClick: () => {
-                    return;
+                  {
+                    text: 'delete',
+                    onClick: () => {
+                      return;
+                    },
+                    className: 'text-red-500',
                   },
-                  className: 'text-red-500',
-                },
-              ]}
+                ]}
+              />
+            )}
+          </header>
+          <main className="flex flex-row">
+            <div>{parse(commentData.text)}</div>
+          </main>
+          <div className="mt-1 flex flex-row gap-3">
+            <ButtonWithIcon
+              icon={<FaRegHeart />}
+              size={'xs'}
+              variant={'clear'}
+              onClick={likeComment}
+            >
+              {likeCount}
+            </ButtonWithIcon>
+            <ButtonWithIcon
+              icon={<FaRegCommentAlt />}
+              size={'xs'}
+              variant={'clear'}
+              onClick={() => setIsReplyMode(!isReplyMode)}
+            >
+              Reply
+            </ButtonWithIcon>
+          </div>
+          {isReplyMode && (
+            <CommentForm
+              basePath={`${basepath}/${commentId}/comment`}
+              onSuccessCallback={onComment}
+              className="pt-4"
+              label="Put your reply here"
+              onCancel={() => {
+                setIsReplyMode(false);
+              }}
+              cancelable
             />
           )}
-        </header>
-        <main className="flex flex-row">
-          <div>{parse(commentData.text)}</div>
-        </main>
-        <div className="mt-1 flex flex-row gap-3">
-          <ButtonWithIcon
-            icon={<FaRegHeart />}
-            size={'xs'}
-            variant={'clear'}
-            onClick={likeComment}
-          >
-            {likeCount}
-          </ButtonWithIcon>
-          <ButtonWithIcon
-            icon={<FaRegCommentAlt />}
-            size={'xs'}
-            variant={'clear'}
-            onClick={() => setIsReplyMode(!isReplyMode)}
-          >
-            Reply
-          </ButtonWithIcon>
+          {Object.keys(comments).length > 0 && (
+            <div className="pt-4">
+              {Object.keys(comments).map((commentId) => (
+                <div key={`comment-${commentId}}`}>
+                  <CommentCard
+                    commentData={comments[commentId]}
+                    commentId={commentId}
+                    basepath={`${basepath}/${commentId}/comment`}
+                    onSuccessCallback={(newComment) => {
+                      setComments(() => ({
+                        ...comments,
+                        [commentId]: newComment,
+                      }));
+                      setIsReplyMode(false);
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        {isReplyMode && (
-          <CommentForm
-            basePath={`${basepath}/${commentId}/comment`}
-            onSuccessCallback={onComment}
-            className="pt-4"
-            label="Put your reply here"
-            onCancel={() => {
-              setIsReplyMode(false);
-            }}
-            cancelable
-          />
-        )}
-        {Object.keys(comments).length > 0 && (
-          <div className="pt-4">
-            {Object.keys(comments).map((commentId) => (
-              <div key={`comment-${commentId}}`}>
-                <CommentCard
-                  commentData={comments[commentId]}
-                  commentId={commentId}
-                  basepath={`${basepath}/${commentId}/comment`}
-                  onSuccessCallback={(newComment) => {
-                    setComments(() => ({
-                      ...comments,
-                      [commentId]: newComment,
-                    }));
-                    setIsReplyMode(false);
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        )}
       </div>
-    </div>
-  );
+    );
+  }
 }

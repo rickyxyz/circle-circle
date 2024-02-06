@@ -21,6 +21,10 @@ export interface Comment {
   postDate: Timestamp;
 }
 
+export interface CommentWithId extends Comment {
+  commentId: string;
+}
+
 export interface Circle {
   name: string;
   description: string;

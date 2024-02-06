@@ -69,8 +69,9 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
             throw e;
           });
         })
-        // eslint-disable-next-line no-console
-        .catch((e) => console.log(e))
+        .catch((e) => {
+          throw e;
+        })
         .finally(() => {
           setIsEditMode(false);
         });
@@ -102,24 +103,24 @@ export default function CircleHeader({ circle }: CircleHeaderProps) {
                   '/profile_placeholder.svg'
             }
             alt={`${circle.name} picture`}
-            className="aspect-square h-12 object-cover md:h-16"
+            className={'aspect-square h-12 object-cover md:h-16'}
           />
           {isEditMode && (
-            <Button
-              variant={'noStyle'}
-              className="absolute top-0 h-full w-full"
+            <label
+              className="absolute left-0 top-0 h-full w-full cursor-pointer"
+              htmlFor="upload image"
             >
+              <div className="absolute bottom-0 flex h-1/3 w-full items-center justify-center bg-black bg-opacity-50">
+                <FaCamera className="text-white" size={10} />
+              </div>
               <input
                 type="file"
                 id="upload image"
                 name="upload image"
                 onChange={handleChange}
-                className="absolute h-full w-full rounded-full opacity-0"
+                className="hidden opacity-0"
               />
-              <div className="absolute bottom-0 flex h-1/3 w-full items-center justify-center bg-black bg-opacity-50">
-                <FaCamera className="text-white" size={10} />
-              </div>
-            </Button>
+            </label>
           )}
         </div>
         <div className="flex flex-1 flex-col justify-end gap-1">

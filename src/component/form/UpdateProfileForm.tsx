@@ -18,6 +18,8 @@ export default function UpdateProfileForm({
   );
   const [file, setFile] = useState<File | undefined>();
   const [previewURL, setPreviewURL] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState(false);
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     if (event.target.files) {
@@ -30,14 +32,13 @@ export default function UpdateProfileForm({
     e.preventDefault();
     if (!user) throw new Error('not logged in');
     e.preventDefault();
-    updateProfile({ username: inputUsername })
-      // eslint-disable-next-line no-console
-      .catch((e) => console.log(e));
+    updateProfile({ username: inputUsername }).catch(() => {
+      setUpdateError(true);
+    });
     if (file) {
       uploadFile('user', user.uid, file)
         .then((downloadUrl) => updateProfile({ profilePicture: downloadUrl }))
-        // eslint-disable-next-line no-console
-        .catch((e) => console.log(e));
+        .catch(() => setImageUploadError(true));
     }
     onSucces && onSucces();
   }
@@ -85,6 +86,11 @@ export default function UpdateProfileForm({
           <Button type="submit">save update</Button>
         </span>
       </form>
+      {(updateError || imageUploadError) && (
+        <span className="w-full text-right text-sm text-red-500">
+          Uh oh something went wrong, please try again later
+        </span>
+      )}
     </header>
   );
 }
