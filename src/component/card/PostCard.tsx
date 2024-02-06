@@ -30,6 +30,7 @@ import useAuth from '@/hook/useAuth';
 import parse from 'html-react-parser';
 import { ref, listAll, getDownloadURL, StorageError } from 'firebase/storage';
 import ImageCarousel from '@/component/common/ImageCarousel';
+import { getDownloadUrl } from '@/lib/firebase/storage';
 
 const postCardVariant = cva('', {
   variants: {
@@ -77,6 +78,9 @@ export default function PostCard({
   const [commentCount, setCommentCount] = useState(0);
   const [likeCount, setLikeCount] = useState(0);
   const [errors, setErrors] = useState<string | null>(null);
+  const [circleImageUrl, setCircleImageUrl] = useState<string>(
+    '/profile_placeholder.svg'
+  );
 
   function onDelete() {
     deleteDoc(doc(db, `/circle/${circleId}/post/${postId}`))
@@ -87,6 +91,16 @@ export default function PostCard({
   }
 
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    getDownloadUrl('c', circleId)
+      .then((downloadUrl) => {
+        setCircleImageUrl(downloadUrl);
+      })
+      .catch(() => {
+        setCircleImageUrl('/profile_placeholder.svg');
+      });
+  }, [circleId]);
 
   useEffect(() => {
     if (!post.hasImage) return;
@@ -185,14 +199,11 @@ export default function PostCard({
             to={`/c/${circleId}`}
             className="flex flex-row items-center gap-1 hover:underline"
           >
-            <img src="/profile_placeholder.svg" alt="img" className="h-4" />
+            <img src={circleImageUrl} alt="img" className="h-4" />
             <p className="font-bold text-slate-600">c/{circleId}</p>
           </Link>
           <LuDot className="text-slate-400" />
-          <p>
-            {/* Posted by {user.username}{' '} */}
-            {timeAgo(post.postDate.toDate().toString())}
-          </p>
+          <p>{timeAgo(post.postDate.toDate().toString())}</p>
         </span>
         {user && user.uid === post.author && (
           <DropdownList
