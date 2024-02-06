@@ -22,7 +22,7 @@ export default function PostCreateModal({
       data-testid={'modal'}
     >
       <div className="flex flex-row items-center justify-between">
-        <span className="text-lg font-bold">Create A Circle</span>
+        <span className="text-lg font-bold">Create A Post</span>
         <button
           onClick={() => {
             closeModal();
