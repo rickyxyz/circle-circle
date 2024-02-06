@@ -56,7 +56,7 @@ export default function PageHome() {
   }, []);
 
   return (
-    <main className="flex flex-col gap-6 py-8">
+    <main className="flex flex-col gap-6 pb-8">
       <div>
         <h2>{getFeedError}</h2>
       </div>
