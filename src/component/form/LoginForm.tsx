@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { FirebaseError } from 'firebase/app';
 import { Link, useNavigate } from 'react-router-dom';
+import Button from '@/component/common/Button';
 
 const loginSchema = z.object({
   email: z
@@ -43,7 +44,7 @@ function LoginForm() {
       <form
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         onSubmit={handleSubmit(handleLogin)}
-        className="flex flex-col"
+        className="flex flex-col gap-2"
       >
         <h1 className="mb-4 text-center text-2xl font-bold">Login</h1>
         <div className="mb-4">
@@ -81,13 +82,17 @@ function LoginForm() {
         {loginError && (
           <p className="mb-4 text-xs italic text-red-500">{loginError}</p>
         )}
-        <button
-          type="submit"
-          className="rounded-md bg-blue-500 p-2 text-white hover:bg-blue-700"
-        >
-          Login
-        </button>
+        <Button type="submit">Login</Button>
       </form>
+      <hr />
+      <Button
+        type="button"
+        onClick={() => {
+          handleLogin({ email: 'tester@email.com', password: 'password123' });
+        }}
+      >
+        Login using dummy account
+      </Button>
       <hr />
       <Link
         to={'/account/register'}
