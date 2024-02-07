@@ -50,7 +50,7 @@ export function CommentForm({
 
     const newComment: Comment = {
       text: data.comment,
-      author: user.uid,
+      author: user.username,
       postDate: Timestamp.now(),
     };
     addDoc(collection(db, basePath), newComment)

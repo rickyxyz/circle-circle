@@ -20,9 +20,11 @@ import { LuDot } from 'react-icons/lu';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
 import { CommentEditForm } from '@/component/form/CommentEditForm';
-import { useAppSelector } from '@/hook/reduxHooks';
+import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
 import parse from 'html-react-parser';
 import Button from '@/component/common/Button';
+import { getData } from '@/lib/firebase/firestore';
+import { addUsers } from '@/redux/cacheReducer';
 
 function CommentCardFallback({ onRetry }: { onRetry: () => void }) {
   return (
@@ -57,6 +59,7 @@ export default function CommentCard({
   const [comments, setComments] = useState<Record<string, Comment>>({});
   const [likeCount, setLikeCount] = useState(0);
   const userCache = useAppSelector((state) => state.cache.users);
+  const dispatch = useAppDispatch();
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -65,6 +68,14 @@ export default function CommentCard({
       collection(db, `${basepath}/${commentId}/comment`)
     );
 
+    getData('user', commentData.author)
+      .then((data) => {
+        if (data) dispatch(addUsers([data]));
+      })
+      .catch(() => {
+        return;
+      });
+
     const dataObject: Record<string, Comment> = {};
 
     querySnapshot.forEach((doc) => {
@@ -72,7 +83,7 @@ export default function CommentCard({
     });
 
     return dataObject;
-  }, [basepath, commentId]);
+  }, [basepath, commentData.author, commentId, dispatch]);
 
   useEffect(() => {
     fetchData()
@@ -180,7 +191,7 @@ export default function CommentCard({
                   '/profile_placeholder.svg'
             }
             alt="avatar"
-            className="h-4"
+            className="size-4 overflow-hidden rounded-full object-cover"
           />
           <div className="mx-auto w-px flex-1 bg-gray-300"></div>
         </div>
