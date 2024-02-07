@@ -67,6 +67,7 @@ export default function PageHome() {
             circleId={post.circleId}
             post={post}
             postId={post.postId}
+            className="rounded-none"
           />
         ))}
       </div>

@@ -199,7 +199,11 @@ export default function PostCard({
             to={`/c/${circleId}`}
             className="flex flex-row items-center gap-1 hover:underline"
           >
-            <img src={circleImageUrl} alt="img" className="h-4" />
+            <img
+              src={circleImageUrl}
+              alt="img"
+              className="h-4 w-4 rounded-full object-cover"
+            />
             <p className="font-bold text-slate-600">c/{circleId}</p>
           </Link>
           <LuDot className="text-slate-400" />
