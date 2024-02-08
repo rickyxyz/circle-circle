@@ -6,12 +6,12 @@ const config: Config = {
     extend: {
       keyframes: {
         expand: {
-          '0%': { width: '0%' },
-          '100%': { witdh: '100%' },
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0%)' },
         },
         slideup: {
-          '0%': { transform: 'scale(1,0)' },
-          '100%': { transform: 'scale(1,1)' },
+          '0%': { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0%)' },
         },
         popup: {
           '0%': { transform: 'scale(0)' },
