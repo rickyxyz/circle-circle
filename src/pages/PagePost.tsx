@@ -12,8 +12,8 @@ import {
   query,
   startAfter,
 } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
-import { useLoaderData, useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useLoaderData, useParams, useSearchParams } from 'react-router-dom';
 import { Comment, Post } from '@/types/db';
 import PostCard from '@/component/card/PostCard';
 import { CommentForm } from '@/component/form/CommentForm';
@@ -39,6 +39,14 @@ function PagePost() {
   const [lastVisibleDoc, setLastVisibleDoc] = useState<DocumentData | null>(
     null
   );
+  const [queryParam] = useSearchParams();
+  const commentFormRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (queryParam.get('f') === 'comment' && commentFormRef.current) {
+      commentFormRef.current.scrollIntoView();
+    }
+  }, [queryParam]);
 
   useEffect(() => {
     async function getCommentCount() {
@@ -157,12 +165,14 @@ function PagePost() {
         postId={postId ?? ''}
         className="rounded-none"
         commentCountInput={commentCount}
+        blur={false}
       />
       <PromptLogin>
         <CommentForm
           onSuccessCallback={onPostComment}
           basePath={`circle/${circleId}/post/${postId}/comment`}
           className="px-3"
+          ref={commentFormRef}
         />
       </PromptLogin>
       {getError}

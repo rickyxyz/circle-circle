@@ -1,6 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
-import { VariantProps, cva } from 'class-variance-authority';
-import { HTMLAttributes, useEffect, useMemo, useState } from 'react';
+import { HTMLAttributes, useEffect, useRef, useState } from 'react';
 import { cn, timeAgo } from '@/lib/utils';
 import { Post } from '@/types/db';
 import {
@@ -33,22 +31,7 @@ import ImageCarousel from '@/component/common/ImageCarousel';
 import { getDownloadUrl } from '@/lib/firebase/storage';
 import PromptLogin from '@/component/common/PromptLogin';
 
-const postCardVariant = cva('', {
-  variants: {
-    variant: {
-      default: '',
-      compact: '',
-      text: '',
-    },
-    size: { default: '', sm: '' },
-  },
-  defaultVariants: {
-    variant: 'default',
-    size: 'default',
-  },
-});
-
-interface PostCardProps extends VariantProps<typeof postCardVariant> {
+interface PostCardProps {
   post: Post;
   postId: string;
   circleId: string;
@@ -61,13 +44,18 @@ export default function PostCard({
   post,
   postId,
   circleId,
-  variant,
   className,
   commentCountInput,
-  blur = false,
+  blur = true,
   ...props
 }: PostCardProps) {
-  const isTextLong = useMemo(() => post.description.length > 1000, [post]);
+  const [textIsLong, setTextIsLong] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (contentRef.current)
+      setTextIsLong(contentRef.current.clientHeight >= 200);
+  }, []);
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [isEditMode, setIsEditMode] = useState(
@@ -190,7 +178,7 @@ export default function PostCard({
     <article
       className={cn(
         'flex w-full flex-col items-start gap-y-2 rounded-2xl bg-white px-4 py-3 text-slate-900',
-        postCardVariant({ variant, className })
+        className
       )}
       {...props}
     >
@@ -261,7 +249,13 @@ export default function PostCard({
           onCancel={() => setIsEditMode(false)}
         />
       ) : !errors ? (
-        <main className="relative flex w-full flex-col gap-y-1">
+        <main
+          className={cn(
+            'relative flex w-full flex-col gap-y-1',
+            blur && 'max-h-[200px] overflow-hidden'
+          )}
+          ref={contentRef}
+        >
           <Link to={`/c/${circleId}/p/${postId}`} className="hover:underline">
             <h1 className="text-lg font-bold">{postData.title}</h1>
           </Link>
@@ -270,7 +264,7 @@ export default function PostCard({
           ) : (
             <div className="post-content">{parse(postData.description)}</div>
           )}
-          {!blur && isTextLong && (
+          {blur && textIsLong && (
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-white/50 to-white"></div>
           )}
         </main>
@@ -290,7 +284,7 @@ export default function PostCard({
         <PromptLogin>
           <ButtonWithIcon
             icon={<FaRegCommentAlt size={14} />}
-            to={`/c/${circleId}/p/${postId}`}
+            to={`/c/${circleId}/p/${postId}?f=comment`}
           >
             {commentCountInput ?? commentCount}
           </ButtonWithIcon>
@@ -300,4 +294,4 @@ export default function PostCard({
   );
 }
 
-export { PostCard, postCardVariant };
+export { PostCard };
