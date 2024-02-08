@@ -57,7 +57,7 @@ export default function OverlayProvider({ children }: OverlayContextProps) {
     >
       {isModalOpen && (
         <div
-          className="absolute z-50 flex h-full w-full items-center justify-center bg-black/25"
+          className="fixed z-50 flex h-full w-full items-center justify-center bg-black/25"
           onClick={() => {
             setIsModalOpen(false);
           }}
