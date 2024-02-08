@@ -31,6 +31,7 @@ import parse from 'html-react-parser';
 import { ref, listAll, getDownloadURL, StorageError } from 'firebase/storage';
 import ImageCarousel from '@/component/common/ImageCarousel';
 import { getDownloadUrl } from '@/lib/firebase/storage';
+import PromptLogin from '@/component/common/PromptLogin';
 
 const postCardVariant = cva('', {
   variants: {
@@ -277,16 +278,23 @@ export default function PostCard({
         <p>{errors}</p>
       )}
       <div className="mt-3 flex flex-row gap-2">
-        <ButtonWithIcon
-          icon={<FaRegHeart size={14} />}
-          className="items-center"
-          onClick={likePost}
-        >
-          {likeCount}
-        </ButtonWithIcon>
-        <ButtonWithIcon icon={<FaRegCommentAlt size={14} />}>
-          {commentCountInput ?? commentCount}
-        </ButtonWithIcon>
+        <PromptLogin>
+          <ButtonWithIcon
+            icon={<FaRegHeart size={14} />}
+            className="items-center"
+            onClick={likePost}
+          >
+            {likeCount}
+          </ButtonWithIcon>
+        </PromptLogin>
+        <PromptLogin>
+          <ButtonWithIcon
+            icon={<FaRegCommentAlt size={14} />}
+            to={`/c/${circleId}/p/${postId}`}
+          >
+            {commentCountInput ?? commentCount}
+          </ButtonWithIcon>
+        </PromptLogin>
       </div>
     </article>
   );
