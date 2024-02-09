@@ -150,7 +150,11 @@ export default function Header({ user, className, ...props }: HeaderProps) {
           >
             <GiHamburgerMenu />
           </button>
-          <Link to={'/'} className="flex items-center">
+          <Link
+            to={'/'}
+            className="flex items-center"
+            aria-label="circle-circle"
+          >
             <svg
               width="283"
               height="204"

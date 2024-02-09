@@ -44,6 +44,7 @@ export default function ImageCarousel({
         <img
           src={imageUrls[activeImage]}
           className="aspect-square w-full object-contain"
+          alt={`img-${imageUrls[activeImage]}`}
         />
       </div>
       {activeImage !== imageUrls.length - 1 && (
