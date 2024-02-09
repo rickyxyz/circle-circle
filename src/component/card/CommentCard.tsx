@@ -249,6 +249,7 @@ export default function CommentCard({
               size={'xs'}
               variant={'clear'}
               onClick={likeComment}
+              className="px-2 py-1"
             >
               {likeCount}
             </ButtonWithIcon>
@@ -257,6 +258,7 @@ export default function CommentCard({
               size={'xs'}
               variant={'clear'}
               onClick={() => setIsReplyMode(!isReplyMode)}
+              className="px-2 py-1"
             >
               Reply
             </ButtonWithIcon>

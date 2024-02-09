@@ -40,7 +40,7 @@ export default function LayoutRoot() {
         <div className="col-span-1">
           <Navbar user={user} />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-2 max-w-screen-md">
           <Suspense fallback={<div>Loading...</div>}>
             <Outlet />
           </Suspense>
