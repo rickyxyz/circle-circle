@@ -275,7 +275,7 @@ export default function PostCard({
         <main
           className={cn(
             'relative flex w-full flex-col gap-y-1',
-            blur && 'max-h-[200px] overflow-hidden'
+            !post.hasImage && blur && 'max-h-[200px] overflow-hidden'
           )}
           ref={contentRef}
         >
@@ -287,7 +287,7 @@ export default function PostCard({
           ) : (
             <div className="post-content">{parse(postData.description)}</div>
           )}
-          {blur && textIsLong && (
+          {!post.hasImage && blur && textIsLong && (
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-white/50 to-white"></div>
           )}
         </main>
