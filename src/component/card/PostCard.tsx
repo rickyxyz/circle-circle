@@ -1,6 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
-import { VariantProps, cva } from 'class-variance-authority';
-import { HTMLAttributes, useEffect, useMemo, useState } from 'react';
+import { HTMLAttributes, useEffect, useRef, useState } from 'react';
 import { cn, timeAgo } from '@/lib/utils';
 import { Post } from '@/types/db';
 import {
@@ -10,44 +8,26 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { LuDot } from 'react-icons/lu';
-import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
+import { FaRegCommentAlt, FaRegHeart, FaHeart } from 'react-icons/fa';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { GoKebabHorizontal } from 'react-icons/go';
 import DropdownList from '@/component/common/DropdownList';
 import PostEditForm from '@/component/form/PostEditForm';
-import { db, storage } from '@/lib/firebase/config';
 import { FirebaseError } from 'firebase/app';
-import {
-  FirestoreError,
-  collection,
-  deleteDoc,
-  doc,
-  getCountFromServer,
-  getDoc,
-  setDoc,
-} from 'firebase/firestore';
 import useAuth from '@/hook/useAuth';
 import parse from 'html-react-parser';
-import { ref, listAll, getDownloadURL, StorageError } from 'firebase/storage';
+import { StorageError } from 'firebase/storage';
 import ImageCarousel from '@/component/common/ImageCarousel';
 import { getDownloadUrl } from '@/lib/firebase/storage';
+import PromptLogin from '@/component/common/PromptLogin';
+import {
+  getCommentCount,
+  getImageUrls,
+  getLikeCount,
+  getLikeStatus,
+} from '@/lib/post';
 
-const postCardVariant = cva('', {
-  variants: {
-    variant: {
-      default: '',
-      compact: '',
-      text: '',
-    },
-    size: { default: '', sm: '' },
-  },
-  defaultVariants: {
-    variant: 'default',
-    size: 'default',
-  },
-});
-
-interface PostCardProps extends VariantProps<typeof postCardVariant> {
+interface PostCardProps {
   post: Post;
   postId: string;
   circleId: string;
@@ -60,13 +40,18 @@ export default function PostCard({
   post,
   postId,
   circleId,
-  variant,
   className,
   commentCountInput,
-  blur = false,
+  blur = true,
   ...props
 }: PostCardProps) {
-  const isTextLong = useMemo(() => post.description.length > 1000, [post]);
+  const [textIsLong, setTextIsLong] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (contentRef.current)
+      setTextIsLong(contentRef.current.clientHeight >= 200);
+  }, []);
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [isEditMode, setIsEditMode] = useState(
@@ -81,15 +66,7 @@ export default function PostCard({
   const [circleImageUrl, setCircleImageUrl] = useState<string>(
     '/profile_placeholder.svg'
   );
-
-  function onDelete() {
-    deleteDoc(doc(db, `/circle/${circleId}/post/${postId}`))
-      .then(() => {
-        navigate('/circle/${circleId}', { replace: true });
-      })
-      .catch((e: FirebaseError) => setDeleteError(e.code));
-  }
-
+  const [isLiked, setIsLiked] = useState(false);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   useEffect(() => {
@@ -104,92 +81,50 @@ export default function PostCard({
 
   useEffect(() => {
     if (!post.hasImage) return;
-    async function getImageUrls() {
-      const imagesRef = ref(storage, `c/${circleId}/p/${postId}`);
-
-      const imageList = await listAll(imagesRef);
-
-      const downloadPromises = imageList.items.map(async (item) => {
-        const url = await getDownloadURL(item);
-        return url;
+    getImageUrls(circleId, postId)
+      .then((imageUrls) => {
+        setImageUrls(imageUrls);
+      })
+      .catch((e: StorageError) => {
+        setErrors(e.code);
       });
-
-      const fetchedImageUrls = await Promise.all(downloadPromises);
-
-      setImageUrls(fetchedImageUrls);
-    }
-
-    getImageUrls().catch((e: StorageError) => setErrors(e.code));
   }, [circleId, post.hasImage, postId]);
 
   useEffect(() => {
-    async function getCommentCount() {
-      const colRef = collection(
-        db,
-        `circle/${circleId}/post/${postId}/comment`
-      );
-      const snapshot = await getCountFromServer(colRef);
-      return snapshot.data().count;
-    }
-
     !commentCountInput &&
-      getCommentCount()
+      getCommentCount(circleId, postId)
         .then((count) => setCommentCount(count))
-        .catch(() => setCommentCount(-1));
-  }, [circleId, commentCountInput, postId]);
-
-  function likePost() {
-    if (user) {
-      const docRef = doc(
-        db,
-        `circle/${circleId}/post/${postId}/like/${user.uid}`
-      );
-      getDoc(docRef)
-        .then((doc) => {
-          if (doc.exists()) {
-            deleteDoc(docRef)
-              .then(() => {
-                setLikeCount((p) => p - 1);
-              })
-              .catch((e) => {
-                throw e;
-              });
-          } else {
-            setDoc(docRef, {
-              uid: user.uid,
-            })
-              .then(() => {
-                setLikeCount((p) => p + 1);
-              })
-              .catch((e) => {
-                throw e;
-              });
-          }
-        })
-        .catch((e: FirestoreError) => {
-          // eslint-disable-next-line no-console
-          console.error(e.code);
+        .catch(() => {
+          setCommentCount(-1);
         });
-    }
-  }
+  }, [circleId, commentCountInput, postId]);
 
   useEffect(() => {
-    async function getLikeCount() {
-      const colRef = collection(db, `circle/${circleId}/post/${postId}/like`);
-      const snapshot = await getCountFromServer(colRef);
-      return snapshot.data().count;
-    }
-
-    getLikeCount()
-      .then((count) => setLikeCount(count))
-      .catch(() => setLikeCount(-1));
+    !commentCountInput &&
+      getLikeCount(circleId, postId)
+        .then((count) => setLikeCount(count))
+        .catch(() => {
+          setCommentCount(-1);
+        });
   }, [circleId, commentCountInput, postId]);
+
+  useEffect(() => {
+    if (user) {
+      getLikeStatus(user.uid, circleId, postId)
+        .then((isLiked) => {
+          setIsLiked(isLiked);
+        })
+        .catch(() => {
+          return;
+        });
+    }
+  }, [circleId, postId, user]);
 
   return (
     <article
       className={cn(
         'flex w-full flex-col items-start gap-y-2 rounded-2xl bg-white px-4 py-3 text-slate-900',
-        postCardVariant({ variant, className })
+        className
       )}
       {...props}
     >
@@ -238,7 +173,20 @@ export default function PostCard({
               {
                 text: 'delete',
                 onClick: () => {
-                  onDelete();
+                  import('@/lib/post')
+                    .then((module) => {
+                      module.deletePost({
+                        circleId,
+                        postId,
+                        onSuccess: () => {
+                          navigate('/circle/${circleId}', { replace: true });
+                        },
+                        onFail: (e: FirebaseError) => setDeleteError(e.code),
+                      });
+                    })
+                    .catch(() => {
+                      setDeleteError('Something went wrong');
+                    });
                 },
                 className: 'text-red-500',
               },
@@ -260,7 +208,13 @@ export default function PostCard({
           onCancel={() => setIsEditMode(false)}
         />
       ) : !errors ? (
-        <main className="relative flex w-full flex-col gap-y-1">
+        <main
+          className={cn(
+            'relative flex w-full flex-col gap-y-1',
+            !post.hasImage && blur && 'max-h-[200px] overflow-hidden'
+          )}
+          ref={contentRef}
+        >
           <Link to={`/c/${circleId}/p/${postId}`} className="hover:underline">
             <h1 className="text-lg font-bold">{postData.title}</h1>
           </Link>
@@ -269,7 +223,7 @@ export default function PostCard({
           ) : (
             <div className="post-content">{parse(postData.description)}</div>
           )}
-          {!blur && isTextLong && (
+          {!post.hasImage && blur && textIsLong && (
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-b from-white/50 to-white"></div>
           )}
         </main>
@@ -277,19 +231,54 @@ export default function PostCard({
         <p>{errors}</p>
       )}
       <div className="mt-3 flex flex-row gap-2">
-        <ButtonWithIcon
-          icon={<FaRegHeart size={14} />}
-          className="items-center"
-          onClick={likePost}
-        >
-          {likeCount}
-        </ButtonWithIcon>
-        <ButtonWithIcon icon={<FaRegCommentAlt size={14} />}>
-          {commentCountInput ?? commentCount}
-        </ButtonWithIcon>
+        <PromptLogin>
+          <ButtonWithIcon
+            icon={
+              isLiked ? (
+                <FaHeart size={14} className={'text-red-500'} />
+              ) : (
+                <FaRegHeart size={14} />
+              )
+            }
+            className="items-center"
+            onClick={() => {
+              if (user) {
+                import('@/lib/post')
+                  .then((module) => {
+                    module.likePost({
+                      userId: user.uid,
+                      circleId,
+                      postId,
+                      onLikeSuccess: () => {
+                        setLikeCount((p) => p + 1);
+                        setIsLiked(true);
+                      },
+                      onDislikeSuccess: () => {
+                        setLikeCount((p) => p - 1);
+                        setIsLiked(false);
+                      },
+                    });
+                  })
+                  .catch((e) => {
+                    throw e;
+                  });
+              }
+            }}
+          >
+            {likeCount}
+          </ButtonWithIcon>
+        </PromptLogin>
+        <PromptLogin>
+          <ButtonWithIcon
+            icon={<FaRegCommentAlt size={14} />}
+            to={`/c/${circleId}/p/${postId}?f=comment`}
+          >
+            {commentCountInput ?? commentCount}
+          </ButtonWithIcon>
+        </PromptLogin>
       </div>
     </article>
   );
 }
 
-export { PostCard, postCardVariant };
+export { PostCard };

@@ -18,7 +18,7 @@ import { timeAgo } from '@/lib/utils';
 import { GoKebabHorizontal } from 'react-icons/go';
 import { LuDot } from 'react-icons/lu';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
-import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
+import { FaHeart, FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
 import { CommentEditForm } from '@/component/form/CommentEditForm';
 import { useAppDispatch, useAppSelector } from '@/hook/reduxHooks';
 import parse from 'html-react-parser';
@@ -62,6 +62,7 @@ export default function CommentCard({
   const dispatch = useAppDispatch();
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
 
   const fetchData = useCallback(async () => {
     const querySnapshot = await getDocs(
@@ -84,6 +85,23 @@ export default function CommentCard({
 
     return dataObject;
   }, [basepath, commentData.author, commentId, dispatch]);
+
+  useEffect(() => {
+    async function fetchLikeStatus() {
+      const docRef = doc(db, `${basepath}/${commentId}/like/${user?.uid}`);
+      return getDoc(docRef);
+    }
+
+    fetchLikeStatus()
+      .then((docSnap) => {
+        if (docSnap.exists()) {
+          setIsLiked(true);
+        }
+      })
+      .catch(() => {
+        return;
+      });
+  }, [basepath, commentId, user?.uid]);
 
   useEffect(() => {
     fetchData()
@@ -113,6 +131,7 @@ export default function CommentCard({
             deleteDoc(docRef)
               .then(() => {
                 setLikeCount((p) => p - 1);
+                setIsLiked(false);
               })
               .catch((e) => {
                 throw e;
@@ -123,6 +142,7 @@ export default function CommentCard({
             })
               .then(() => {
                 setLikeCount((p) => p + 1);
+                setIsLiked(true);
               })
               .catch((e) => {
                 throw e;
@@ -245,10 +265,17 @@ export default function CommentCard({
           </main>
           <div className="mt-1 flex flex-row gap-3">
             <ButtonWithIcon
-              icon={<FaRegHeart />}
+              icon={
+                isLiked ? (
+                  <FaHeart size={14} className={'text-red-500'} />
+                ) : (
+                  <FaRegHeart size={14} />
+                )
+              }
               size={'xs'}
               variant={'clear'}
               onClick={likeComment}
+              className="px-2 py-1"
             >
               {likeCount}
             </ButtonWithIcon>
@@ -257,6 +284,7 @@ export default function CommentCard({
               size={'xs'}
               variant={'clear'}
               onClick={() => setIsReplyMode(!isReplyMode)}
+              className="px-2 py-1"
             >
               Reply
             </ButtonWithIcon>
