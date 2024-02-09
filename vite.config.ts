@@ -42,6 +42,9 @@ export default defineConfig({
           if (id.includes('firebase')) {
             return '@firebase';
           }
+          if (id.includes('quill')) {
+            return '@quill';
+          }
         },
       },
     },

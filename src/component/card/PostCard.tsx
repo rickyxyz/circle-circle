@@ -13,23 +13,19 @@ import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { GoKebabHorizontal } from 'react-icons/go';
 import DropdownList from '@/component/common/DropdownList';
 import PostEditForm from '@/component/form/PostEditForm';
-import { db, storage } from '@/lib/firebase/config';
 import { FirebaseError } from 'firebase/app';
-import {
-  FirestoreError,
-  collection,
-  deleteDoc,
-  doc,
-  getCountFromServer,
-  getDoc,
-  setDoc,
-} from 'firebase/firestore';
 import useAuth from '@/hook/useAuth';
 import parse from 'html-react-parser';
-import { ref, listAll, getDownloadURL, StorageError } from 'firebase/storage';
+import { StorageError } from 'firebase/storage';
 import ImageCarousel from '@/component/common/ImageCarousel';
 import { getDownloadUrl } from '@/lib/firebase/storage';
 import PromptLogin from '@/component/common/PromptLogin';
+import {
+  getCommentCount,
+  getImageUrls,
+  getLikeCount,
+  getLikeStatus,
+} from '@/lib/post';
 
 interface PostCardProps {
   post: Post;
@@ -71,15 +67,6 @@ export default function PostCard({
     '/profile_placeholder.svg'
   );
   const [isLiked, setIsLiked] = useState(false);
-
-  function onDelete() {
-    deleteDoc(doc(db, `/circle/${circleId}/post/${postId}`))
-      .then(() => {
-        navigate('/circle/${circleId}', { replace: true });
-      })
-      .catch((e: FirebaseError) => setDeleteError(e.code));
-  }
-
   const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   useEffect(() => {
@@ -94,108 +81,44 @@ export default function PostCard({
 
   useEffect(() => {
     if (!post.hasImage) return;
-    async function getImageUrls() {
-      const imagesRef = ref(storage, `c/${circleId}/p/${postId}`);
-
-      const imageList = await listAll(imagesRef);
-
-      const downloadPromises = imageList.items.map(async (item) => {
-        const url = await getDownloadURL(item);
-        return url;
+    getImageUrls(circleId, postId)
+      .then((imageUrls) => {
+        setImageUrls(imageUrls);
+      })
+      .catch((e: StorageError) => {
+        setErrors(e.code);
       });
-
-      const fetchedImageUrls = await Promise.all(downloadPromises);
-
-      setImageUrls(fetchedImageUrls);
-    }
-
-    getImageUrls().catch((e: StorageError) => setErrors(e.code));
   }, [circleId, post.hasImage, postId]);
 
   useEffect(() => {
-    async function getCommentCount() {
-      const colRef = collection(
-        db,
-        `circle/${circleId}/post/${postId}/comment`
-      );
-      const snapshot = await getCountFromServer(colRef);
-      return snapshot.data().count;
-    }
-
     !commentCountInput &&
-      getCommentCount()
+      getCommentCount(circleId, postId)
         .then((count) => setCommentCount(count))
-        .catch(() => setCommentCount(-1));
+        .catch(() => {
+          setCommentCount(-1);
+        });
   }, [circleId, commentCountInput, postId]);
 
-  function likePost() {
+  useEffect(() => {
+    !commentCountInput &&
+      getLikeCount(circleId, postId)
+        .then((count) => setLikeCount(count))
+        .catch(() => {
+          setCommentCount(-1);
+        });
+  }, [circleId, commentCountInput, postId]);
+
+  useEffect(() => {
     if (user) {
-      const docRef = doc(
-        db,
-        `circle/${circleId}/post/${postId}/like/${user.uid}`
-      );
-      getDoc(docRef)
-        .then((doc) => {
-          if (doc.exists()) {
-            deleteDoc(docRef)
-              .then(() => {
-                setLikeCount((p) => p - 1);
-                setIsLiked(false);
-              })
-              .catch((e) => {
-                throw e;
-              });
-          } else {
-            setDoc(docRef, {
-              uid: user.uid,
-            })
-              .then(() => {
-                setLikeCount((p) => p + 1);
-                setIsLiked(true);
-              })
-              .catch((e) => {
-                throw e;
-              });
-          }
+      getLikeStatus(user.uid, circleId, postId)
+        .then((isLiked) => {
+          setIsLiked(isLiked);
         })
-        .catch((e: FirestoreError) => {
-          // eslint-disable-next-line no-console
-          console.error(e.code);
+        .catch(() => {
+          return;
         });
     }
-  }
-
-  useEffect(() => {
-    async function getLikeCount() {
-      const colRef = collection(db, `circle/${circleId}/post/${postId}/like`);
-      const snapshot = await getCountFromServer(colRef);
-      return snapshot.data().count;
-    }
-
-    getLikeCount()
-      .then((count) => setLikeCount(count))
-      .catch(() => setLikeCount(-1));
-  }, [circleId, commentCountInput, postId]);
-
-  useEffect(() => {
-    async function fetchLikeStatus() {
-      const docRef = doc(
-        db,
-        `circle/${circleId}/post/${postId}/like/${user?.uid}`
-      );
-      return getDoc(docRef);
-    }
-
-    fetchLikeStatus()
-      .then((docSnap) => {
-        if (docSnap.exists()) {
-          setIsLiked(true);
-        }
-      })
-      .catch(() => {
-        return;
-      });
-  }, [circleId, postId, user?.uid]);
+  }, [circleId, postId, user]);
 
   return (
     <article
@@ -250,7 +173,20 @@ export default function PostCard({
               {
                 text: 'delete',
                 onClick: () => {
-                  onDelete();
+                  import('@/lib/post')
+                    .then((module) => {
+                      module.deletePost({
+                        circleId,
+                        postId,
+                        onSuccess: () => {
+                          navigate('/circle/${circleId}', { replace: true });
+                        },
+                        onFail: (e: FirebaseError) => setDeleteError(e.code),
+                      });
+                    })
+                    .catch(() => {
+                      setDeleteError('Something went wrong');
+                    });
                 },
                 className: 'text-red-500',
               },
@@ -305,7 +241,29 @@ export default function PostCard({
               )
             }
             className="items-center"
-            onClick={likePost}
+            onClick={() => {
+              if (user) {
+                import('@/lib/post')
+                  .then((module) => {
+                    module.likePost({
+                      userId: user.uid,
+                      circleId,
+                      postId,
+                      onLikeSuccess: () => {
+                        setLikeCount((p) => p + 1);
+                        setIsLiked(true);
+                      },
+                      onDislikeSuccess: () => {
+                        setLikeCount((p) => p - 1);
+                        setIsLiked(false);
+                      },
+                    });
+                  })
+                  .catch((e) => {
+                    throw e;
+                  });
+              }
+            }}
           >
             {likeCount}
           </ButtonWithIcon>
