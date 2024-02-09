@@ -8,7 +8,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { LuDot } from 'react-icons/lu';
-import { FaRegCommentAlt, FaRegHeart } from 'react-icons/fa';
+import { FaRegCommentAlt, FaRegHeart, FaHeart } from 'react-icons/fa';
 import ButtonWithIcon from '@/component/common/ButtonWithIcon';
 import { GoKebabHorizontal } from 'react-icons/go';
 import DropdownList from '@/component/common/DropdownList';
@@ -70,6 +70,7 @@ export default function PostCard({
   const [circleImageUrl, setCircleImageUrl] = useState<string>(
     '/profile_placeholder.svg'
   );
+  const [isLiked, setIsLiked] = useState(false);
 
   function onDelete() {
     deleteDoc(doc(db, `/circle/${circleId}/post/${postId}`))
@@ -139,6 +140,7 @@ export default function PostCard({
             deleteDoc(docRef)
               .then(() => {
                 setLikeCount((p) => p - 1);
+                setIsLiked(false);
               })
               .catch((e) => {
                 throw e;
@@ -149,6 +151,7 @@ export default function PostCard({
             })
               .then(() => {
                 setLikeCount((p) => p + 1);
+                setIsLiked(true);
               })
               .catch((e) => {
                 throw e;
@@ -173,6 +176,26 @@ export default function PostCard({
       .then((count) => setLikeCount(count))
       .catch(() => setLikeCount(-1));
   }, [circleId, commentCountInput, postId]);
+
+  useEffect(() => {
+    async function fetchLikeStatus() {
+      const docRef = doc(
+        db,
+        `circle/${circleId}/post/${postId}/like/${user?.uid}`
+      );
+      return getDoc(docRef);
+    }
+
+    fetchLikeStatus()
+      .then((docSnap) => {
+        if (docSnap.exists()) {
+          setIsLiked(true);
+        }
+      })
+      .catch(() => {
+        return;
+      });
+  }, [circleId, postId, user?.uid]);
 
   return (
     <article
@@ -274,7 +297,13 @@ export default function PostCard({
       <div className="mt-3 flex flex-row gap-2">
         <PromptLogin>
           <ButtonWithIcon
-            icon={<FaRegHeart size={14} />}
+            icon={
+              isLiked ? (
+                <FaHeart size={14} className={'text-red-500'} />
+              ) : (
+                <FaRegHeart size={14} />
+              )
+            }
             className="items-center"
             onClick={likePost}
           >
