@@ -80,7 +80,12 @@ function LoginForm() {
           </p>
         </div>
         {loginError && (
-          <p className="mb-4 text-xs italic text-red-500">{loginError}</p>
+          <p
+            className="mb-4 text-xs italic text-red-500"
+            data-testid={'login-error'}
+          >
+            {loginError}
+          </p>
         )}
         <Button type="submit">Login</Button>
       </form>

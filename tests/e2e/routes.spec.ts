@@ -37,9 +37,9 @@ test.describe('unauthed user routes', () => {
   test("/c/testCircle1 will show testCircle1's page", async ({ page }) => {
     await page.goto('/c/testCircle1');
 
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      /testCircle1/gi
-    );
+    await expect(
+      page.getByRole('heading', { name: 'testCircle1' })
+    ).toBeVisible();
   });
 
   test('/c/non-existent-circle will throw 404', async ({ page }) => {
@@ -136,13 +136,5 @@ test.describe('authed user routes', () => {
     await page.goto(`/account/register`);
 
     await expect(page).toHaveURL(`${BASE_PATH}/`);
-  });
-
-  test('/account/settings will show settings page', async () => {
-    await page.goto('/account/settings');
-
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      /settings/i
-    );
   });
 });

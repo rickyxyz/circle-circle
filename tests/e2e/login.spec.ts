@@ -12,7 +12,7 @@ test.describe('Login Form and Logout Button', () => {
   });
 
   test('login form displays error on invalid input', async () => {
-    await page.getByRole('button', { name: 'login' }).click();
+    await page.getByRole('button', { name: 'Login', exact: true }).click();
 
     await expect(page.getByText('Email is required')).toBeVisible();
   });
@@ -21,10 +21,11 @@ test.describe('Login Form and Logout Button', () => {
     await page.getByLabel(/^email$/i).fill(tester.email);
     await page.getByLabel(/^password$/i).fill('wrong password');
 
-    await page.getByRole('button', { name: 'login' }).click();
+    await page.getByRole('button', { name: 'Login', exact: true }).click();
 
-    await expect(
-      page.getByText('User not found or invalid credentials')
-    ).toBeVisible();
+    await expect(page.getByTestId('login-error')).toHaveText([
+      'User not found or invalid credentials',
+      'auth/wrong-password',
+    ]);
   });
 });
